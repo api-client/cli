@@ -35,7 +35,7 @@ export default class ProjectRequestAdd extends ProjectCommandBase {
         const instance = new ProjectRequestAdd();
         await instance.run(url, options);
       });
-    ProjectCommandBase.appendProjectOptions(createProject);
+    ProjectCommandBase.defaultOptions(createProject);
     return createProject;
   }
 

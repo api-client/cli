@@ -26,7 +26,7 @@ export default class ProjectPatch extends ProjectCommandBase {
         const instance = new ProjectPatch();
         await instance.run(operation, path, options);
       });
-    ProjectCommandBase.appendProjectOptions(cmd);
+    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 

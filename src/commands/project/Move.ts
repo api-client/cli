@@ -17,12 +17,12 @@ export default class ProjectMove extends ProjectCommandBase {
       .argument('<key>', 'The key of the object to move. Names are not accepted here.')
       .description('Moves an object within a project.')
       .option('-p, --parent <value>', 'The name or the key of the parent folder to move the item into. When not set it assumes the project\'s root.')
-      .option('-i, --index <position>', 'The position at which to insert the object in the destination. BY default it adds the object at the end.')
+      .option('-n, --index <position>', 'The position at which to insert the object in the destination. BY default it adds the object at the end.')
       .action(async (key, options) => {
         const instance = new ProjectMove();
         await instance.run(key, options);
       });
-    ProjectCommandBase.appendProjectOptions(cmd);
+    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 

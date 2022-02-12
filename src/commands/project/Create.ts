@@ -24,7 +24,7 @@ export default class ProjectCreate extends ProjectCommandBase {
         const instance = new ProjectCreate();
         await instance.run(projectName, options);
       });
-    ProjectCommandBase.appendProjectOptions(cmd);
+    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 

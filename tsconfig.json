@@ -6,7 +6,7 @@
     "module": "esnext",
     "moduleResolution": "node",
     "noEmitOnError": true,
-    "lib": ["ES2021", "DOM"],
+    "lib": ["ES2021"],
     "strict": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
@@ -18,7 +18,9 @@
     "baseUrl": ".",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "importHelpers": false
+    "importHelpers": false,
+    "allowJs": true,
+    "checkJs": true
   },
   "include": [
     "src/**/*",

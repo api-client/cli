@@ -3,6 +3,7 @@ import { Table } from 'console-table-printer';
 import { HttpProject, ProjectFolderKind, ProjectFolder, ProjectRequestKind, ProjectRequest } from '@advanced-rest-client/core';
 import { printFolderKeys, printFolderTable } from './folder/Utils.js';
 import { printRequestTable, printRequestKeys } from './request/Utils.js';
+import { printEnvironmentTable, printEnvironmentKeys } from './environment/Utils.js';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
@@ -39,7 +40,7 @@ export default class ProjectList extends ProjectCommandBase {
         const instance = new ProjectList();
         await instance.run(type, options);
       });
-    ProjectCommandBase.appendProjectOptions(cmd);
+    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 
@@ -61,7 +62,8 @@ export default class ProjectList extends ProjectCommandBase {
       return;
     }
     if (options.reporter === 'json') {
-      this.println(JSON.stringify(items, null, 2));
+      const contents = JSON.stringify(items, null, options.prettyPrint ? 2 : 0);
+      this.println(contents);
       return;
     }
     if (options.reporter === 'table') {
@@ -78,7 +80,8 @@ export default class ProjectList extends ProjectCommandBase {
       return;
     }
     if (options.reporter === 'json') {
-      this.println(JSON.stringify(items, null, 2));
+      const contents = JSON.stringify(items, null, options.prettyPrint ? 2 : 0);
+      this.println(contents);
       return;
     }
     if (options.reporter === 'table') {
@@ -88,8 +91,26 @@ export default class ProjectList extends ProjectCommandBase {
     throw new Error(`Unknown reporter ${options.reporter}`);
   }
 
-  listEnvironments(project: HttpProject, options: ICommandOptions): void {
-    throw new Error('Not implemented');
+  async listEnvironments(project: HttpProject, options: ICommandOptions): Promise<void> {
+    const root = options.parent ? project.findFolder(options.parent, { keyOnly: true }) : project;
+    if (!root) {
+      throw new Error(`Unable to locate the folder: ${options.parent}`);
+    }
+    const envs = root.environments || [];
+    if (options.keyOnly) {
+      printEnvironmentKeys(envs);
+      return;
+    }
+    if (options.reporter === 'json') {
+      const contents = JSON.stringify(envs, null, options.prettyPrint ? 2 : 0);
+      this.println(contents);
+      return;
+    }
+    if (options.reporter === 'table') {
+      printEnvironmentTable(envs);
+      return;
+    }
+    throw new Error(`Unknown reporter ${options.reporter}`);
   }
 
   listChildren(project: HttpProject, options: ICommandOptions): void {

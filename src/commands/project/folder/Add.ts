@@ -19,12 +19,12 @@ export default class ProjectFolderAdd extends ProjectCommandBase {
       .description('Creates a new folder in a project')
       .option('-S, --skip-existing', 'Ignores the operation when the folder with the same name exists. This command can be used used to ensure that the folder exists.')
       .option('-p, --parent [key]', 'The id of the parent folder. When not set it adds the folder to the project root.')
-      .option('-i, --index [position]', 'The position at which to add the folder into the list of items.')
+      .option('-n, --index [position]', 'The position at which to add the folder into the list of items.')
       .action(async (name, options) => {
         const instance = new ProjectFolderAdd();
         await instance.run(name, options);
       });
-    ProjectCommandBase.appendProjectOptions(createProject);
+    ProjectCommandBase.defaultOptions(createProject);
     return createProject;
   }
 

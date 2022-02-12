@@ -26,7 +26,7 @@ export default class ProjectDescribe extends ProjectCommandBase {
         const instance = new ProjectDescribe();
         await instance.run(key, options);
       });
-    ProjectCommandBase.appendProjectOptions(cmd);
+    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 

@@ -24,6 +24,14 @@ function prepareRequestTable(request: ProjectRequest): Record<string, unknown> {
 export function printRequestTable(folders: ProjectRequest[]): void {
   const table = new Table({
     title: 'Project requests',
+    columns: [
+      { name: 'key', title: 'Key', alignment: 'left',  },
+      { name: 'name', title: 'Name', alignment: 'left', },
+      { name: 'method', title: 'Method', alignment: 'left', },
+      { name: 'url', title: 'URL', alignment: 'left', },
+      { name: 'created', title: 'Created', alignment: 'right', },
+      { name: 'updated', title: 'Updated', alignment: 'right', },
+    ],
   });
   folders.forEach((item) => {
     const row = prepareRequestTable(item);
@@ -37,7 +45,7 @@ export function printRequestTable(folders: ProjectRequest[]): void {
  */
 export function printRequestKeys(requests: ProjectRequest[]): void {
   if (!requests.length) {
-    printTable([{ key: '' }]);  
+    printTable([{ key: '' }]);
   } else {
     const items = requests.map((item) => ({ key: item.key }));
     printTable(items);

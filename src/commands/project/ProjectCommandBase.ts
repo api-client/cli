@@ -22,13 +22,14 @@ export abstract class ProjectCommandBase extends ProjectCommand {
    * @param command The input command
    * @returns The same command for chaining.
    */
-  static appendProjectOptions(command: Command): Command {
-    const inOption = new Option('--in [project location]', 'the location of the HTTP project file').env('HTTP_PROJECT');
+  static defaultOptions(command: Command): Command {
+    const inOption = new Option('-i, --in [project location]', 'the location of the HTTP project file').env('HTTP_PROJECT');
     command.addOption(inOption);
     return command
       .option('-o, --out [path]', 'The output location of the project file. When not specified, it outputs the project to the std output')
       .option('--pretty-print', 'When preparing the output it formats the JSON for readability.')
-      .option('--overwrite', 'Overrides the input project when --out is not set. When --out is set it overrides the existing file if exists.');
+      .option('--overwrite', 'Overrides the input project when --out is not set. When --out is set it overrides the existing file if exists.')
+      .option('--debug', 'Prints more detailed errors.');
   }
 
   /**

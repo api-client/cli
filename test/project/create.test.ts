@@ -2,11 +2,10 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { IHttpProject } from '@advanced-rest-client/core';
 import fs from 'fs/promises';
-import { runCommand } from '../helpers/exec.js';
-// import * as efs from '../../src/lib/Fs.js';
+import { runCommand } from '../helpers/CliHelper.js';
 
-const projectPath = join('test', 'playground', 'project', 'http-project');
-const defaultTestFile = join(projectPath, 'http-project.json');
+const projectPath = join('test', 'playground', 'project-create');
+const defaultTestFile = join(projectPath, 'project.json');
 
 describe('Project', () => {
   describe('create', () => {

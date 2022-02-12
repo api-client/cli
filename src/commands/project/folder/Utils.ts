@@ -24,14 +24,22 @@ function prepareFolderTable(folder: ProjectFolder): Record<string, unknown> {
 export function printFolderTable(folders: ProjectFolder[]): void {
   const table = new Table({
     title: 'Project folders',
+    columns: [
+      { name: 'key', title: 'Key', alignment: 'left',  },
+      { name: 'name', title: 'Name', alignment: 'left', },
+      { name: 'created', title: 'Created', alignment: 'right', },
+      { name: 'updated', title: 'Updated', alignment: 'right', },
+      { name: 'folders', title: 'Folders', alignment: 'right', },
+      { name: 'requests', title: 'Requests', alignment: 'right', },
+    ],
   });
-  folders.forEach((item) => {
-    const row = prepareFolderTable(item);
-    table.addRow(row);
-  });
+  if (Array.isArray(folders)) {
+    folders.forEach((item) => {
+      const row = prepareFolderTable(item);
+      table.addRow(row);
+    });
+  }
   table.printTable();
-  // const items = folders.map(prepareFolderTable);
-  // printTable(items);
 }
 
 /**

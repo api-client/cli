@@ -17,9 +17,14 @@ program.exitOverride();
   } catch (err) {
     const cause = err as Error;
     const message = cause.message || 'Unknown error';
-    process.stderr.write(Buffer.from(chalk`\n{red ${message.trim()}}\n\n`));
-    if (cause.stack) {
-      process.stdout.write(Buffer.from(chalk`\n{blackBright ${cause.stack}}\n`));
+    const mainMessage = chalk.red(`\n${message.trim()}\n`);
+    process.stderr.write(Buffer.from(mainMessage));
+    const hasDebug = process.argv.includes('--debug');
+    const { stack } = cause;
+    if (hasDebug && stack) {
+      const stackMessage = chalk.blackBright(`\n${stack.trim()}\n`);
+      process.stderr.write(Buffer.from(stackMessage));
     }
+    process.stderr.write(Buffer.from('\n'));
   }
 })();

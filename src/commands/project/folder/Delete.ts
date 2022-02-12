@@ -22,7 +22,7 @@ export default class ProjectFolderDelete extends ProjectCommandBase {
         const instance = new ProjectFolderDelete();
         await instance.run(key, options);
       });
-    ProjectCommandBase.appendProjectOptions(createProject);
+    ProjectCommandBase.defaultOptions(createProject);
     return createProject;
   }
 

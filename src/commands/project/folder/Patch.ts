@@ -27,7 +27,7 @@ export default class ProjectFolderPatch extends ProjectCommandBase {
         const instance = new ProjectFolderPatch();
         await instance.run(key, operation, path, options);
       });
-    ProjectCommandBase.appendProjectOptions(cmd);
+    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 

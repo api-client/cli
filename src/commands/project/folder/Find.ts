@@ -25,7 +25,7 @@ export default class ProjectFolderFind extends ProjectCommandBase {
         const instance = new ProjectFolderFind();
         await instance.run(key, options);
       });
-    ProjectCommandBase.appendProjectOptions(cmd);
+    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 

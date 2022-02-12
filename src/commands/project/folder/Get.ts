@@ -24,7 +24,7 @@ export default class ProjectFolderGet extends ProjectCommandBase {
         const instance = new ProjectFolderGet();
         await instance.run(key, options);
       });
-    ProjectCommandBase.appendProjectOptions(cmd);
+    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 
