@@ -1,0 +1,80 @@
+{
+  "name": "@advanced-rest-client/cli",
+  "description": "The ARC's HTTP project CLI.",
+  "version": "0.1.0",
+  "license": "Apache-2.0",
+  "main": "build/main.js",
+  "types": "build/index.d.ts",
+  "type": "module",
+  "bin": {
+    "api-client": "./build/src/cli.js"
+  },
+  "author": {
+    "name": "Pawel Uchida-Psztyc",
+    "email": "pawel.psztyc@gmail.com"
+  },
+  "contributors": [
+    "Your name can be here!"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/advanced-rest-client/cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/advanced-rest-client/cli/issues",
+    "email": "arc@mulesoft.com"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^14.1.0",
+    "@commitlint/config-conventional": "^14.1.0",
+    "@types/chai": "^4.2.22",
+    "@types/chai-as-promised": "^7.1.4",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.11.7",
+    "@types/sinon": "^10.0.6",
+    "@typescript-eslint/eslint-plugin": "^5.3.1",
+    "@typescript-eslint/parser": "^5.6.0",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^8.2.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint-plugin-import": "^2.25.3",
+    "husky": "^7.0.4",
+    "lint-staged": "^11.2.6",
+    "mocha": "^9.1.3",
+    "sinon": "^12.0.1",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.4.4"
+  },
+  "scripts": {
+    "build-ts": "tsc",
+    "build": "npm run build-ts && npm run lint",
+    "lint": "tsc --noEmit && eslint \"**/*.{js,ts}\" --quiet --fix",
+    "prepare": "husky install && npm run build-ts",
+    "tsc:watch": "tsc --watch",
+    "test:mocha": "npm run build-ts && mocha --require test/http-server-fixture.js",
+    "test:mocha:watch": "mocha --watch --require test/http-server-fixture.js",
+    "test:mocha:watch2": "mocha --watch --recursive --parallel --require test/http-server-fixture.js",
+    "test": "npm run test:mocha"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.js": [
+      "eslint --fix"
+    ]
+  },
+  "dependencies": {
+    "@advanced-rest-client/core": "^0.1.0",
+    "chalk": "^5.0.0",
+    "commander": "^9.0.0",
+    "console-table-printer": "^2.10.0"
+  },
+  "engines": {
+    "node": ">=15"
+  }
+}
