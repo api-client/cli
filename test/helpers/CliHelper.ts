@@ -4,6 +4,12 @@ import { IHttpProject, HttpProject } from '@advanced-rest-client/core';
 import { writeFile } from 'fs/promises';
 import { ensureDir } from '../../src/lib/Fs.js';
 
+function cleanTerminalOutput(s: string): string {
+  let result = s.trim();
+  result = result.replace(/[^\x20-\x7E]/g, '');
+  return result;
+}
+
 export async function runCommand(command: string, includeError = false): Promise<string> {
   return new Promise((resolve, reject) => {
     const finalCommand = `node build/src/cli.js ${command}`;
@@ -23,7 +29,7 @@ export async function runCommand(command: string, includeError = false): Promise
         if (!returnValue) {
           returnValue = '';
         }
-        resolve(returnValue.trim());
+        resolve(cleanTerminalOutput(returnValue));
       }
     });
   });
