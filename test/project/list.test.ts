@@ -78,12 +78,12 @@ describe('Project', () => {
         });
 
         it('prints a message when unable to find the folder', async () => {
-          const result = await runCommand(`${folderCmd} -i ${projectFile} -r json -p test`);
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -r json -p test`, true);
           assert.equal(result, 'Unable to find the folder test.');
         });
 
         it('prints a message when no input project', async () => {
-          const result = await runCommand(`${folderCmd} -r json -p test`);
+          const result = await runCommand(`${folderCmd} -r json -p test`, true);
           assert.equal(result, 'Project location not specified. Use the --in option to locate the project file or the HTTP_PROJECT variable.');
         });
 
@@ -173,7 +173,7 @@ describe('Project', () => {
         });
 
         it('prints a message when unable to find the folder', async () => {
-          const result = await runCommand(`${folderCmd} -i ${projectFile} -r table -p test`);
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -r table -p test`, true);
           assert.include(result, 'Unable to find the folder test.');
         });
 
@@ -261,12 +261,12 @@ describe('Project', () => {
         });
 
         it('prints a message when unable to find the folder', async () => {
-          const result = await runCommand(`${requestCmd} -i ${projectFile} -r json -p test`);
+          const result = await runCommand(`${requestCmd} -i ${projectFile} -r json -p test`, true);
           assert.equal(result, 'Unable to find the folder test.');
         });
 
         it('prints a message when no input project', async () => {
-          const result = await runCommand(`${requestCmd} -r json -p test`);
+          const result = await runCommand(`${requestCmd} -r json -p test`, true);
           assert.equal(result, 'Project location not specified. Use the --in option to locate the project file or the HTTP_PROJECT variable.');
         });
 

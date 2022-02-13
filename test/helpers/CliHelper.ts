@@ -4,7 +4,7 @@ import { IHttpProject, HttpProject } from '@advanced-rest-client/core';
 import { writeFile } from 'fs/promises';
 import { ensureDir } from '../../src/lib/Fs.js';
 
-export async function runCommand(command: string): Promise<string> {
+export async function runCommand(command: string, includeError = false): Promise<string> {
   return new Promise((resolve, reject) => {
     const finalCommand = `node build/src/cli.js ${command}`;
 
@@ -16,7 +16,13 @@ export async function runCommand(command: string): Promise<string> {
           reject(error);
         }
       } else {
-        const returnValue = stdout || stderr || '';
+        let returnValue = stdout;
+        if (includeError && !returnValue) {
+          returnValue = stderr;
+        }
+        if (!returnValue) {
+          returnValue = '';
+        }
         resolve(returnValue.trim());
       }
     });
