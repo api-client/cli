@@ -50,6 +50,7 @@ describe('Project', () => {
             data = JSON.parse(result.trim());
           } catch (e) {
             console.log('Process result', result);
+            console.log([...Buffer.from(result)]);
             throw e;
           }
           assert.typeOf(data, 'array', 'outputs an array');
