@@ -49,7 +49,7 @@ describe('Project', () => {
           try {
             data = JSON.parse(result);
           } catch (e) {
-            console.error(e);
+            console.log('Process result', result);
             throw e;
           }
           assert.typeOf(data, 'array', 'outputs an array');
@@ -67,7 +67,7 @@ describe('Project', () => {
           try {
             data = JSON.parse(result);
           } catch (e) {
-            console.error(e);
+            console.log('Process result', result);
             throw e;
           }
           assert.typeOf(data, 'array', 'outputs an array');
@@ -103,7 +103,7 @@ describe('Project', () => {
           try {
             data = JSON.parse(result);
           } catch (e) {
-            console.error(e);
+            console.log('Process result', result);
             throw e;
           }
           assert.typeOf(data, 'array', 'outputs an array');
@@ -217,7 +217,7 @@ describe('Project', () => {
           try {
             data = JSON.parse(result);
           } catch (e) {
-            console.error(e);
+            console.log('Process result', result);
             throw e;
           }
           assert.typeOf(data, 'array', 'outputs an array');
@@ -234,7 +234,7 @@ describe('Project', () => {
           try {
             data = JSON.parse(result);
           } catch (e) {
-            console.error(e);
+            console.log('Process result', result);
             throw e;
           }
           assert.typeOf(data, 'array', 'outputs an array');
@@ -253,7 +253,7 @@ describe('Project', () => {
           try {
             data = JSON.parse(result);
           } catch (e) {
-            console.error(e);
+            console.log('Process result', result);
             throw e;
           }
           assert.typeOf(data, 'array', 'outputs an array');
@@ -398,7 +398,7 @@ describe('Project', () => {
           try {
             data = JSON.parse(result);
           } catch (e) {
-            console.error(e);
+            console.log('Process result', result);
             throw e;
           }
           assert.typeOf(data, 'array', 'outputs an array');
@@ -414,7 +414,7 @@ describe('Project', () => {
           try {
             data = JSON.parse(result);
           } catch (e) {
-            console.error(e);
+            console.log('Process result', result);
             throw e;
           }
           assert.typeOf(data, 'array', 'outputs an array');
@@ -431,7 +431,7 @@ describe('Project', () => {
           try {
             data = JSON.parse(result);
           } catch (e) {
-            console.error(e);
+            console.log('Process result', result);
             throw e;
           }
           assert.typeOf(data, 'array', 'outputs an array');
