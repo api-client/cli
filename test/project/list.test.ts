@@ -9,20 +9,6 @@ const projectFile = join(projectPath, 'project.json');
 
 const cmdRoot = 'project list';
 
-// function formatTableTest(table: string): string[] {
-//   const re = /\x1B(.*?)\[01m|\x1B\[0m|\x1B\[37m/g;
-//   const result: string[] = [];
-//   table.split('\n').forEach((line) => {
-//     if (line.startsWith('┌') || line.startsWith('└') || line.startsWith('├')) {
-//       return;
-//     }
-//     const cleaned = line.replace(re, '');
-//     result.push(cleaned.trim());
-//   });
-
-//   return result;
-// }
-
 describe('Project', () => {
   describe('list', () => {
     describe('folders', () => {
@@ -95,12 +81,11 @@ describe('Project', () => {
 
       describe('table', () => {
         let f2: ProjectFolder;
-        let f3: ProjectFolder;
         before(async () => {
           const project = HttpProject.fromName('test');
           project.addFolder('hook mistreat');
           f2 = project.addFolder('elephant');
-          f3 = f2.addFolder('treat breed');
+          f2.addFolder('treat breed');
           await writeProject(project, projectFile);
         });
 
@@ -168,6 +153,46 @@ describe('Project', () => {
           const lines = splitTable(result);
           const [title] = lines;
           assert.include(title, 'Project folders', 'table has the title');
+        });
+      });
+
+      describe('keys only', () => {
+        let f1: ProjectFolder;
+        let f2: ProjectFolder;
+        let f3: ProjectFolder;
+        before(async () => {
+          const project = HttpProject.fromName('test');
+          f1 = project.addFolder('hook mistreat');
+          f2 = project.addFolder('elephant');
+          f3 = f2.addFolder('treat breed');
+          await writeProject(project, projectFile);
+        });
+
+        after(async () => {
+          await fs.rm(projectPath, { recursive: true, force: true });
+        });
+
+        it('lists keys of folders of a project', async () => {
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -k`);
+          const lines = splitTable(result);
+          
+          const [title, d1, d2] = lines;
+          assert.include(title, 'key', 'table has the title');
+          assert.include(d1, f1.key, 'has the first folder');
+          assert.include(d2, f2.key, 'has the second folder');
+        });
+
+        it('lists keys of folders of a folder', async () => {
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -p ${f2.key} -k`);
+          const lines = splitTable(result);
+          const [, d3] = lines;
+          assert.include(d3, f3.key, 'has the first folder');
+        });
+
+        it('prints an empty table', async () => {
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -k -p ${f3.key}`);
+          const lines = splitTable(result);
+          assert.lengthOf(lines, 1, 'has the header only');
         });
       });
     });
@@ -334,6 +359,53 @@ describe('Project', () => {
           assert.lengthOf(lines, 2, 'has no rows');
         });
       });
+
+      describe('keys only', () => {
+        let f1: ProjectFolder;
+        let f2: ProjectFolder;
+        let r1: ProjectRequest;
+        let r2: ProjectRequest;
+        let r3: ProjectRequest;
+        let r4: ProjectRequest;
+        before(async () => {
+          const project = HttpProject.fromName('test');
+          f1 = project.addFolder('with requests');
+          f2 = project.addFolder('empty');
+          r1 = project.addRequest('https://r1.com');
+          r2 = f1.addRequest('https://r2.com');
+          r3 = f1.addRequest('https://r3.com');
+          r4 = f1.addRequest('https://r4.com');
+          await writeProject(project, projectFile);
+        });
+        
+        after(async () => {
+          await fs.rm(projectPath, { recursive: true, force: true });
+        });
+
+        it('lists keys of requests of a project', async () => {
+          const result = await runCommand(`${requestCmd} -i ${projectFile} -k`);
+          const lines = splitTable(result);
+          
+          const [title, d1] = lines;
+          assert.include(title, 'key', 'table has the title');
+          assert.include(d1, r1.key, 'has the first request');
+        });
+
+        it('lists keys of requests of a folder', async () => {
+          const result = await runCommand(`${requestCmd} -i ${projectFile} -p ${f1.key} -k`);
+          const lines = splitTable(result);
+          const [, d2, d3, d4] = lines;
+          assert.include(d2, r2.key, 'has the first request');
+          assert.include(d3, r3.key, 'has the second request');
+          assert.include(d4, r4.key, 'has the second request');
+        });
+
+        it('prints an empty table', async () => {
+          const result = await runCommand(`${requestCmd} -i ${projectFile} -k -p ${f2.key}`);
+          const lines = splitTable(result);
+          assert.lengthOf(lines, 1, 'has the header only');
+        });
+      });
     });
 
     describe('environments', () => {
@@ -467,9 +539,60 @@ describe('Project', () => {
           assert.include(d2, '        0', 'has the Variables column');
         });
       });
+
+      describe('keys only', () => {
+        let f1: ProjectFolder;
+        let f2: ProjectFolder;
+        let e1: Environment;
+        let e2: Environment;
+        let e3: Environment;
+        before(async () => {
+          const project = HttpProject.fromName('test');
+          f1 = project.addFolder('with environments');
+          f2 = project.addFolder('empty');
+          e1 = project.addEnvironment('My project environment');
+          e2 = f1.addEnvironment('My folder environment');
+          e3 = f1.addEnvironment('Env 2');
+          e3.addVariable('test', 'value');
+          e3.addServer('https://api.com');
+          await writeProject(project, projectFile);
+        });
+        
+        after(async () => {
+          await fs.rm(projectPath, { recursive: true, force: true });
+        });
+
+        it('lists environment keys of a project', async () => {
+          const result = await runCommand(`${envCmd} -i ${projectFile} -k`);
+          const lines = splitTable(result);
+          
+          const [title, d1] = lines;
+
+          assert.include(title, 'key', 'table has the title');
+          assert.include(d1, e1.key, 'has the environment');
+        });
+
+        it('lists environment keys of a folder', async () => {
+          const result = await runCommand(`${envCmd} -i ${projectFile} -k -p ${f1.key}`);
+          const lines = splitTable(result);
+
+          const [, d2, d3] = lines;
+
+          assert.include(d2, e2.key, 'has the first environment');
+          assert.include(d3, e3.key as string, 'has the second environment');
+        });
+
+        it('prints an empty table', async () => {
+          const result = await runCommand(`${envCmd} -i ${projectFile} -k -p ${f2.key}`);
+          const lines = splitTable(result);
+          assert.lengthOf(lines, 1, 'has the header only');
+        });
+      });
     });
 
     describe('children', () => {
+      const folderCmd = `${cmdRoot} children`;
+
       describe('json', () => {
         after(async () => {
           await fs.rm(projectPath, { recursive: true, force: true });
@@ -477,8 +600,58 @@ describe('Project', () => {
       });
 
       describe('table', () => {
+        let f1: ProjectFolder;
+        let f2: ProjectFolder;
+        let f3: ProjectFolder;
+        let r1: ProjectRequest;
+        let r2: ProjectRequest;
+        let r3: ProjectRequest;
+        let r4: ProjectRequest;
+        before(async () => {
+          const project = HttpProject.fromName('test');
+          f1 = project.addFolder('with children');
+          f2 = project.addFolder('empty');
+          r1 = project.addRequest('https://r1.com');
+          r2 = f1.addRequest('https://r2.com');
+          r3 = f1.addRequest('https://r3.com');
+          r4 = f1.addRequest('https://r4.com');
+          f3 = f1.addFolder('sub-folder');
+          await writeProject(project, projectFile);
+        });
+
         after(async () => {
           await fs.rm(projectPath, { recursive: true, force: true });
+        });
+
+        it('lists children of a project', async () => {
+          const result = await runCommand(`${folderCmd} -i ${projectFile}`);
+          const lines = splitTable(result);
+          
+          const [headers, d1, d2, d3] = lines;
+          assert.include(headers, 'Kind', 'table has the Kind column');
+          assert.include(headers, 'Key', 'table has the Key column');
+          assert.include(headers, 'Name', 'table has the Name column');
+          assert.include(d1, f1.key, 'has the first folder');
+          assert.include(d2, f2.key, 'has the second folder');
+          assert.include(d3, r1.key, 'has the request');
+        });
+
+        it('lists children of a folder', async () => {
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -p ${f1.key}`);
+          const lines = splitTable(result);
+          
+          const [, d1, d2, d3, d4] = lines;
+          assert.include(d1, r2.key, 'has the first request');
+          assert.include(d2, r3.key, 'has the second request');
+          assert.include(d3, r4.key, 'has the third request');
+          assert.include(d4, f3.key, 'has the third request');
+        });
+
+        it('lists children of an empty folder', async () => {
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -p ${f2.key}`);
+          const lines = splitTable(result);
+          
+          assert.lengthOf(lines, 1);
         });
       });
     });

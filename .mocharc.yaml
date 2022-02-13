@@ -4,6 +4,7 @@ spec:
   - test/**/*.test.ts
 require: 
   - ts-node/register
+  - source-map-support/register.js
   - test/tests-global-fixture.js
 loader: ts-node/esm
 watch-files:

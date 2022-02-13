@@ -5,6 +5,7 @@ import { printFolderKeys, printFolderTable } from './folder/Utils.js';
 import { printRequestTable, printRequestKeys } from './request/Utils.js';
 import { printEnvironmentTable, printEnvironmentKeys } from './environment/Utils.js';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
+import { ProjectCommand } from '../ProjectCommand.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
   keyOnly?: boolean;
@@ -28,19 +29,19 @@ export default class ProjectList extends ProjectCommandBase {
       'The type of the objects to list.'
     ).choices(['folders', 'requests', 'environments', 'children']);
     cmd.addArgument(typeArgument);
-    const reporterOption = new Option(
-      '-r, --reporter <value>', 
-      'The reporter to use to print the values. Ignored when --key-only is set. Default to "table".'
-    ).choices(['json', 'table']).default('table');
-    cmd.addOption(reporterOption)
+    
+    ProjectCommand.globalOptions(cmd);
+    ProjectCommand.reporterOptions(cmd);
+    ProjectCommand.parentSearchOptions(cmd);
+    ProjectCommand.keyListingOptions(cmd);
+
     cmd
       .description('Lists project items by type.')
-      .option('-p, --parent <value>', 'The name or the key of the folder to search for the items.')
       .action(async (type, options) => {
         const instance = new ProjectList();
         await instance.run(type, options);
       });
-    ProjectCommandBase.defaultOptions(cmd);
+    
     return cmd;
   }
 
@@ -116,9 +117,9 @@ export default class ProjectList extends ProjectCommandBase {
   listChildren(project: HttpProject, options: ICommandOptions): void {
     const table = new Table({
       columns: [
-        { name: 'kind', title: 'Kind' },
-        { name: 'key', title: 'Key' },
-        { name: 'name', title: 'Name' },
+        { name: 'kind', title: 'Kind', alignment: 'left' },
+        { name: 'key', title: 'Key', alignment: 'left' },
+        { name: 'name', title: 'Name', alignment: 'right' },
       ],
     });
     const definitions = project.listDefinitions(options.parent);

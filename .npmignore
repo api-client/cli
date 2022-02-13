@@ -6,9 +6,5 @@ src/
 test/
 cli.md
 commitlint.config.cjs
-browser.ts
-index.ts
 tsconfig.json
 tsconfig-tests.json
-web-test-runner.config.js
-amf-models/instances/

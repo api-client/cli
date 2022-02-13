@@ -19,7 +19,7 @@ export interface RunCommandOptions {
 
 export async function runCommand(command: string, opts: RunCommandOptions = {}): Promise<string> {
   return new Promise((resolve, reject) => {
-    const finalCommand = `node build/src/cli.js ${command}`;
+    const finalCommand = `node build/cli.js ${command}`;
 
     exec(finalCommand, (error, stdout, stderr) => {
       if (error) {

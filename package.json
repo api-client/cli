@@ -3,11 +3,9 @@
   "description": "The ARC's HTTP project CLI.",
   "version": "0.1.0",
   "license": "Apache-2.0",
-  "main": "build/main.js",
-  "types": "build/index.d.ts",
   "type": "module",
   "bin": {
-    "api-client": "./build/src/cli.js"
+    "api-client": "./build/cli.js"
   },
   "author": {
     "name": "Pawel Uchida-Psztyc",
@@ -27,6 +25,7 @@
   "devDependencies": {
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@types/chai": "^4.2.22",
     "@types/chai-as-promised": "^7.1.4",
     "@types/mocha": "^9.0.0",
@@ -43,7 +42,9 @@
     "husky": "^7.0.4",
     "lint-staged": "^12.3.3",
     "mocha": "^9.1.3",
+    "nyc": "^15.1.0",
     "sinon": "^13.0.1",
+    "source-map-support": "^0.5.21",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
   },
@@ -56,7 +57,8 @@
     "test:mocha": "npm run build-ts && mocha",
     "test:mocha:watch": "mocha --watch",
     "test:mocha:watch2": "mocha --watch --recursive --parallel",
-    "test": "npm run test:mocha"
+    "test": "tsc && mocha",
+    "test:coverage": "tsc && nyc mocha"
   },
   "husky": {
     "hooks": {
