@@ -47,7 +47,7 @@ describe('Project', () => {
           const result = await runCommand(`${folderCmd} -i ${projectFile} -r json`);
           let data: IProjectFolder[];
           try {
-            data = JSON.parse(result);
+            data = JSON.parse(result.trim());
           } catch (e) {
             console.log('Process result', result);
             throw e;
