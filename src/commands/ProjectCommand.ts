@@ -35,7 +35,7 @@ export abstract class ProjectCommand {
    * @param message The message to write to the stdout
    */
   println(message: string): void {
-    const data = chalk.red(`\n${message}\n`);
+    const data =`\n${message}\n`;
     process.stdout.write(Buffer.from(data));
   }
 }

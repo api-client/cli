@@ -6,12 +6,18 @@ import { ensureDir } from '../../src/lib/Fs.js';
 
 function cleanTerminalOutput(s: string): string {
   let result = s.trim();
-  result = result.replace(/[^\x20-\x7E]/gm, '');
+  result = result.replace(/[^\x20-\x7E\n]/gm, '');
   result = result.replace(/\[\d+m/gm, '');
+  result = result.split('\n').filter(i => !!i.trim()).join('\n');
   return result;
 }
 
-export async function runCommand(command: string, includeError = false): Promise<string> {
+export interface RunCommandOptions {
+  includeError?: boolean;
+  noCleaning?: boolean;
+}
+
+export async function runCommand(command: string, opts: RunCommandOptions = {}): Promise<string> {
   return new Promise((resolve, reject) => {
     const finalCommand = `node build/src/cli.js ${command}`;
 
@@ -24,13 +30,18 @@ export async function runCommand(command: string, includeError = false): Promise
         }
       } else {
         let returnValue = stdout;
-        if (includeError && !returnValue) {
+        if (opts.includeError && !returnValue) {
           returnValue = stderr;
         }
         if (!returnValue) {
           returnValue = '';
         }
-        resolve(cleanTerminalOutput(returnValue));
+        if (opts.noCleaning) {
+          returnValue = returnValue.trim();
+        } else {
+          returnValue = cleanTerminalOutput(returnValue);
+        }
+        resolve(returnValue);
       }
     });
   });
@@ -47,4 +58,16 @@ export async function writeProject(project: IHttpProject | HttpProject, filePath
     obj = project as IHttpProject;
   }
   await writeFile(filePath, JSON.stringify(obj), 'utf8');
+}
+
+export function splitTable(table: string): string[] {
+  const result: string[] = [];
+  table.split('\n').forEach((line) => {
+    const value = line.trim();
+    if (!value) {
+      return;
+    }
+    result.push(line.trim());
+  });
+  return result;
 }

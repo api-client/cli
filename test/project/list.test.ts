@@ -2,31 +2,32 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { HttpProject, IProjectFolder, ProjectFolder, ProjectRequest, IProjectRequest, Environment, IEnvironment } from '@advanced-rest-client/core';
 import fs from 'fs/promises';
-import { runCommand, writeProject } from '../helpers/CliHelper.js';
+import { runCommand, writeProject, RunCommandOptions, splitTable } from '../helpers/CliHelper.js';
 
 const projectPath = join('test', 'playground', 'project-list');
 const projectFile = join(projectPath, 'project.json');
 
 const cmdRoot = 'project list';
 
-function formatTableTest(table: string): string[] {
-  const re = /\x1B(.*?)\[01m|\x1B\[0m|\x1B\[37m/g;
-  const result: string[] = [];
-  table.split('\n').forEach((line) => {
-    if (line.startsWith('┌') || line.startsWith('└') || line.startsWith('├')) {
-      return;
-    }
-    const cleaned = line.replace(re, '');
-    result.push(cleaned.trim());
-  });
+// function formatTableTest(table: string): string[] {
+//   const re = /\x1B(.*?)\[01m|\x1B\[0m|\x1B\[37m/g;
+//   const result: string[] = [];
+//   table.split('\n').forEach((line) => {
+//     if (line.startsWith('┌') || line.startsWith('└') || line.startsWith('├')) {
+//       return;
+//     }
+//     const cleaned = line.replace(re, '');
+//     result.push(cleaned.trim());
+//   });
 
-  return result;
-}
+//   return result;
+// }
 
 describe('Project', () => {
   describe('list', () => {
     describe('folders', () => {
       const folderCmd = `${cmdRoot} folders`;
+      const readOpts: RunCommandOptions = { };
 
       describe('json', () => {
         let f2: ProjectFolder;
@@ -44,15 +45,8 @@ describe('Project', () => {
         });
 
         it('lists folders of a project', async () => {
-          const result = await runCommand(`${folderCmd} -i ${projectFile} -r json`);
-          let data: IProjectFolder[];
-          try {
-            data = JSON.parse(result);
-          } catch (e) {
-            console.log('Process result', result);
-            console.log([...Buffer.from(result)]);
-            throw e;
-          }
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -r json`, readOpts);
+          const data: IProjectFolder[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 2, 'has all folders on the root');
           
@@ -62,15 +56,9 @@ describe('Project', () => {
         });
 
         it('lists folders of a folder', async () => {
-          const result = await runCommand(`${folderCmd} -i ${projectFile} -r json -p ${f2.key}`);
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -r json -p ${f2.key}`, readOpts);
           
-          let data: IProjectFolder[];
-          try {
-            data = JSON.parse(result);
-          } catch (e) {
-            console.log('Process result', result);
-            throw e;
-          }
+          const data: IProjectFolder[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 1, 'has the folder');
           
@@ -79,12 +67,12 @@ describe('Project', () => {
         });
 
         it('prints a message when unable to find the folder', async () => {
-          const result = await runCommand(`${folderCmd} -i ${projectFile} -r json -p test`, true);
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -r json -p test`, { includeError: true });
           assert.equal(result, 'Unable to find the folder test.');
         });
 
         it('prints a message when no input project', async () => {
-          const result = await runCommand(`${folderCmd} -r json -p test`, true);
+          const result = await runCommand(`${folderCmd} -r json -p test`, { includeError: true });
           assert.equal(result, 'Project location not specified. Use the --in option to locate the project file or the HTTP_PROJECT variable.');
         });
 
@@ -99,14 +87,8 @@ describe('Project', () => {
         });
 
         it('recognizes the --reporter option', async () => {
-          const result = await runCommand(`${folderCmd} -i ${projectFile} --reporter json`);
-          let data: IProjectFolder[];
-          try {
-            data = JSON.parse(result);
-          } catch (e) {
-            console.log('Process result', result);
-            throw e;
-          }
+          const result = await runCommand(`${folderCmd} -i ${projectFile} --reporter json`, readOpts);
+          const data: IProjectFolder[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
         });
       });
@@ -128,7 +110,9 @@ describe('Project', () => {
 
         it('lists folders of a project', async () => {
           const result = await runCommand(`${folderCmd} -i ${projectFile} -r table`);
-          const lines = formatTableTest(result);
+          
+          const lines = splitTable(result);
+          
           const [title, headers, d1, d2] = lines;
 
           assert.include(title, 'Project folders', 'table has the title');
@@ -139,7 +123,7 @@ describe('Project', () => {
 
         it('lists folders of a folder', async () => {
           const result = await runCommand(`${folderCmd} -i ${projectFile} -r table -p ${f2.key}`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           const [title, headers, d1] = lines;
 
           assert.include(title, 'Project folders', 'table has the title');
@@ -149,7 +133,7 @@ describe('Project', () => {
 
         it('has all columns', async () => {
           const result = await runCommand(`${folderCmd} -i ${projectFile} -r table`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           const [, headers] = lines;
           
           assert.include(headers, 'Key', 'has the Key column');
@@ -162,25 +146,26 @@ describe('Project', () => {
 
         it('has all values', async () => {
           const result = await runCommand(`${folderCmd} -i ${projectFile} -r table`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           const [, , , d2] = lines;
           
           assert.include(d2, f2.key, 'has the Key value');
           assert.include(d2, f2.info.name as string, 'has the Name value');
           // assert.include(d2, 'Created', 'has the Created value');
           // assert.include(d2, 'Updated', 'has the Updated value');
-          assert.include(d2, '1 │', 'has the Folders value');
-          assert.include(d2, '0 │', 'has the Requests value');
+          // assert.include(d2, '1 │', 'has the Folders value');
+          // assert.include(d2, '0 │', 'has the Requests value');
+          assert.include(d2, '      1         0', 'has the Folders and Requests value');
         });
 
         it('prints a message when unable to find the folder', async () => {
-          const result = await runCommand(`${folderCmd} -i ${projectFile} -r table -p test`, true);
+          const result = await runCommand(`${folderCmd} -i ${projectFile} -r table -p test`, { includeError: true });
           assert.include(result, 'Unable to find the folder test.');
         });
 
         it('is the default formatter', async () => {
           const result = await runCommand(`${folderCmd} -i ${projectFile}`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           const [title] = lines;
           assert.include(title, 'Project folders', 'table has the title');
         });
@@ -191,6 +176,7 @@ describe('Project', () => {
       const requestCmd = `${cmdRoot} requests`;
 
       describe('json', () => {
+        const readOpts: RunCommandOptions = {};
         let f1: ProjectFolder;
         let f2: ProjectFolder;
         let r1: ProjectRequest;
@@ -213,14 +199,8 @@ describe('Project', () => {
         });
 
         it('lists requests of a project', async () => {
-          const result = await runCommand(`${requestCmd} -i ${projectFile} -r json`);
-          let data: IProjectRequest[];
-          try {
-            data = JSON.parse(result);
-          } catch (e) {
-            console.log('Process result', result);
-            throw e;
-          }
+          const result = await runCommand(`${requestCmd} -i ${projectFile} -r json`, readOpts);
+          const data: IProjectRequest[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 1, 'has all requests on the root');
           
@@ -229,15 +209,9 @@ describe('Project', () => {
         });
 
         it('lists requests of a folder', async () => {
-          const result = await runCommand(`${requestCmd} -i ${projectFile} -r json -p ${f1.key}`);
+          const result = await runCommand(`${requestCmd} -i ${projectFile} -r json -p ${f1.key}`, readOpts);
           
-          let data: IProjectRequest[];
-          try {
-            data = JSON.parse(result);
-          } catch (e) {
-            console.log('Process result', result);
-            throw e;
-          }
+          const data: IProjectRequest[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 3, 'has all requests');
           
@@ -248,26 +222,20 @@ describe('Project', () => {
         });
 
         it('returns an empty array when no requests', async () => {
-          const result = await runCommand(`${requestCmd} -i ${projectFile} -r json -p ${f2.key}`);
+          const result = await runCommand(`${requestCmd} -i ${projectFile} -r json -p ${f2.key}`, readOpts);
           
-          let data: IProjectRequest[];
-          try {
-            data = JSON.parse(result);
-          } catch (e) {
-            console.log('Process result', result);
-            throw e;
-          }
+          const data: IProjectRequest[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 0, 'has no requests');
         });
 
         it('prints a message when unable to find the folder', async () => {
-          const result = await runCommand(`${requestCmd} -i ${projectFile} -r json -p test`, true);
+          const result = await runCommand(`${requestCmd} -i ${projectFile} -r json -p test`, { includeError: true });
           assert.equal(result, 'Unable to find the folder test.');
         });
 
         it('prints a message when no input project', async () => {
-          const result = await runCommand(`${requestCmd} -r json -p test`, true);
+          const result = await runCommand(`${requestCmd} -r json -p test`, { includeError: true });
           assert.equal(result, 'Project location not specified. Use the --in option to locate the project file or the HTTP_PROJECT variable.');
         });
 
@@ -306,7 +274,7 @@ describe('Project', () => {
 
         it('lists requests of a project', async () => {
           const result = await runCommand(`${requestCmd} -i ${projectFile} -r table`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           
           const [title, headers, d1] = lines;
 
@@ -317,7 +285,7 @@ describe('Project', () => {
 
         it('lists requests of a folder', async () => {
           const result = await runCommand(`${requestCmd} -i ${projectFile} -r table -p ${f1.key}`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
 
           const [, , d2, d3, d4] = lines;
 
@@ -328,7 +296,7 @@ describe('Project', () => {
 
         it('has all columns', async () => {
           const result = await runCommand(`${requestCmd} -i ${projectFile} -r table`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           const [, headers] = lines;
           
           assert.include(headers, 'Key', 'has the Key column');
@@ -341,7 +309,7 @@ describe('Project', () => {
 
         it('has all values', async () => {
           const result = await runCommand(`${requestCmd} -i ${projectFile} -r table`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           const [, , d1] = lines;
           
           assert.include(d1, r1.key, 'has the Key value');
@@ -354,14 +322,14 @@ describe('Project', () => {
 
         it('is the default formatter', async () => {
           const result = await runCommand(`${requestCmd} -i ${projectFile}`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           const [title] = lines;
           assert.include(title, 'Project requests', 'table has the title');
         });
 
         it('returns empty table when no requests', async () => {
           const result = await runCommand(`${requestCmd} -i ${projectFile} -r table -p ${f2.key}`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
 
           assert.lengthOf(lines, 2, 'has no rows');
         });
@@ -372,6 +340,7 @@ describe('Project', () => {
       const envCmd = `${cmdRoot} environments`;
 
       describe('json', () => {
+        const readOpts: RunCommandOptions = {};
         let f1: ProjectFolder;
         let f2: ProjectFolder;
         let e1: Environment;
@@ -394,14 +363,8 @@ describe('Project', () => {
         });
 
         it('lists environments of a project', async () => {
-          const result = await runCommand(`${envCmd} -i ${projectFile} -r json`);
-          let data: IEnvironment[];
-          try {
-            data = JSON.parse(result);
-          } catch (e) {
-            console.log('Process result', result);
-            throw e;
-          }
+          const result = await runCommand(`${envCmd} -i ${projectFile} -r json`, readOpts);
+          const data: IEnvironment[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 1, 'has all environments on the root');
           
@@ -410,14 +373,8 @@ describe('Project', () => {
         });
 
         it('lists environments of a folder', async () => {
-          const result = await runCommand(`${envCmd} -i ${projectFile} -r json -p ${f1.key}`);
-          let data: IEnvironment[];
-          try {
-            data = JSON.parse(result);
-          } catch (e) {
-            console.log('Process result', result);
-            throw e;
-          }
+          const result = await runCommand(`${envCmd} -i ${projectFile} -r json -p ${f1.key}`, readOpts);
+          const data: IEnvironment[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 2, 'has all environments');
           
@@ -427,14 +384,8 @@ describe('Project', () => {
         });
 
         it('returns an empty array when no environments', async () => {
-          const result = await runCommand(`${envCmd} -i ${projectFile} -r json -p ${f2.key}`);
-          let data: IEnvironment[];
-          try {
-            data = JSON.parse(result);
-          } catch (e) {
-            console.log('Process result', result);
-            throw e;
-          }
+          const result = await runCommand(`${envCmd} -i ${projectFile} -r json -p ${f2.key}`, readOpts);
+          const data: IEnvironment[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 0, 'has no requests');
         });
@@ -464,7 +415,7 @@ describe('Project', () => {
 
         it('lists environments of a project', async () => {
           const result = await runCommand(`${envCmd} -i ${projectFile} -r table`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           
           const [title, headers, d1] = lines;
 
@@ -475,7 +426,7 @@ describe('Project', () => {
 
         it('lists environments of a folder', async () => {
           const result = await runCommand(`${envCmd} -i ${projectFile} -r table -p ${f1.key}`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
 
           const [, , d2, d3] = lines;
 
@@ -485,7 +436,7 @@ describe('Project', () => {
 
         it('has all columns', async () => {
           const result = await runCommand(`${envCmd} -i ${projectFile} -r table`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           const [, headers] = lines;
           
           assert.include(headers, 'Key', 'has the Key column');
@@ -496,24 +447,24 @@ describe('Project', () => {
 
         it('has all values', async () => {
           const result = await runCommand(`${envCmd} -i ${projectFile} -r table -p ${f1.key}`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           const [, , , d3] = lines;
           
           assert.include(d3, e3.key, 'has the Key value');
           assert.include(d3, e3.info.name as string, 'has the Name value');
           assert.include(d3, 'https://api.com', 'has the Server column');
-          assert.include(d3, '1 │', 'has the Variables column');
+          assert.include(d3, '        1', 'has the Variables column');
         });
 
         it('has default values', async () => {
           const result = await runCommand(`${envCmd} -i ${projectFile} -r table -p ${f1.key}`);
-          const lines = formatTableTest(result);
+          const lines = splitTable(result);
           const [, , d2] = lines;
           
           assert.include(d2, e2.key, 'has the Key value');
           assert.include(d2, e2.info.name as string, 'has the Name value');
           assert.include(d2, '(none)', 'has the Server column');
-          assert.include(d2, '0 │', 'has the Variables column');
+          assert.include(d2, '        0', 'has the Variables column');
         });
       });
     });
