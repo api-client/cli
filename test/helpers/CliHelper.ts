@@ -6,7 +6,8 @@ import { ensureDir } from '../../src/lib/Fs.js';
 
 function cleanTerminalOutput(s: string): string {
   let result = s.trim();
-  result = result.replace(/[^\x20-\x7E]/g, '');
+  result = result.replace(/[^\x20-\x7E]/gm, '');
+  result = result.replace(/\[\d+m/gm, '');
   return result;
 }
 
