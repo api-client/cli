@@ -45,8 +45,13 @@ describe('Project', () => {
 
         it('lists folders of a project', async () => {
           const result = await runCommand(`${folderCmd} -i ${projectFile} -r json`);
-          
-          const data: IProjectFolder[] = JSON.parse(result);
+          let data: IProjectFolder[];
+          try {
+            data = JSON.parse(result);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 2, 'has all folders on the root');
           
@@ -58,7 +63,13 @@ describe('Project', () => {
         it('lists folders of a folder', async () => {
           const result = await runCommand(`${folderCmd} -i ${projectFile} -r json -p ${f2.key}`);
           
-          const data: IProjectFolder[] = JSON.parse(result);
+          let data: IProjectFolder[];
+          try {
+            data = JSON.parse(result);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 1, 'has the folder');
           
@@ -88,8 +99,13 @@ describe('Project', () => {
 
         it('recognizes the --reporter option', async () => {
           const result = await runCommand(`${folderCmd} -i ${projectFile} --reporter json`);
-          
-          const data: IProjectFolder[] = JSON.parse(result);
+          let data: IProjectFolder[];
+          try {
+            data = JSON.parse(result);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
           assert.typeOf(data, 'array', 'outputs an array');
         });
       });
@@ -158,7 +174,7 @@ describe('Project', () => {
 
         it('prints a message when unable to find the folder', async () => {
           const result = await runCommand(`${folderCmd} -i ${projectFile} -r table -p test`);
-          assert.equal(result, 'Unable to find the folder test.');
+          assert.include(result, 'Unable to find the folder test.');
         });
 
         it('is the default formatter', async () => {
@@ -197,8 +213,13 @@ describe('Project', () => {
 
         it('lists requests of a project', async () => {
           const result = await runCommand(`${requestCmd} -i ${projectFile} -r json`);
-          
-          const data: IProjectRequest[] = JSON.parse(result);
+          let data: IProjectRequest[];
+          try {
+            data = JSON.parse(result);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 1, 'has all requests on the root');
           
@@ -209,7 +230,13 @@ describe('Project', () => {
         it('lists requests of a folder', async () => {
           const result = await runCommand(`${requestCmd} -i ${projectFile} -r json -p ${f1.key}`);
           
-          const data: IProjectRequest[] = JSON.parse(result);
+          let data: IProjectRequest[];
+          try {
+            data = JSON.parse(result);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 3, 'has all requests');
           
@@ -222,7 +249,13 @@ describe('Project', () => {
         it('returns an empty array when no requests', async () => {
           const result = await runCommand(`${requestCmd} -i ${projectFile} -r json -p ${f2.key}`);
           
-          const data: IProjectRequest[] = JSON.parse(result);
+          let data: IProjectRequest[];
+          try {
+            data = JSON.parse(result);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 0, 'has no requests');
         });
@@ -361,8 +394,13 @@ describe('Project', () => {
 
         it('lists environments of a project', async () => {
           const result = await runCommand(`${envCmd} -i ${projectFile} -r json`);
-          
-          const data: IEnvironment[] = JSON.parse(result);
+          let data: IEnvironment[];
+          try {
+            data = JSON.parse(result);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 1, 'has all environments on the root');
           
@@ -372,8 +410,13 @@ describe('Project', () => {
 
         it('lists environments of a folder', async () => {
           const result = await runCommand(`${envCmd} -i ${projectFile} -r json -p ${f1.key}`);
-          
-          const data: IEnvironment[] = JSON.parse(result);
+          let data: IEnvironment[];
+          try {
+            data = JSON.parse(result);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 2, 'has all environments');
           
@@ -384,8 +427,13 @@ describe('Project', () => {
 
         it('returns an empty array when no environments', async () => {
           const result = await runCommand(`${envCmd} -i ${projectFile} -r json -p ${f2.key}`);
-          
-          const data: IEnvironment[] = JSON.parse(result);
+          let data: IEnvironment[];
+          try {
+            data = JSON.parse(result);
+          } catch (e) {
+            console.error(e);
+            throw e;
+          }
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 0, 'has no requests');
         });

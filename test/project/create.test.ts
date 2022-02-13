@@ -48,7 +48,7 @@ describe('Project', () => {
     it('prints an error when file already exists', async () => {
       await runCommand(`project create "test api" --out ${defaultTestFile}`);
       const result = await runCommand(`project create "test api" --out ${defaultTestFile}`);
-      assert.equal(result, 'The project already exists. Use --overwrite to replace the contents.');
+      assert.include(result, 'The project already exists. Use --overwrite to replace the contents.');
     });
 
     it('overrides the file', async () => {
