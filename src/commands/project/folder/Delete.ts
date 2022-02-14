@@ -1,5 +1,6 @@
 import { Command } from 'commander';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
+import { ProjectCommand } from '../../ProjectCommand.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
   safe?: boolean;
@@ -13,8 +14,11 @@ export default class ProjectFolderDelete extends ProjectCommandBase {
    * The command, e.g. `project folder delete xxx`
    */
   static get command(): Command {
-    const createProject = new Command('delete');
-    createProject
+    const cmd = new Command('delete');
+    ProjectCommand.globalOptions(cmd);
+    ProjectCommand.outputOptions(cmd);
+
+    cmd
       .argument('<key>', 'The id of the folder. It ignores the name when searching to the folder to avoid ambiguity.')
       .description('Removes the folder from the project')
       .option('-S, --safe', 'Does not throw an error when the folder does not exist.')
@@ -22,8 +26,8 @@ export default class ProjectFolderDelete extends ProjectCommandBase {
         const instance = new ProjectFolderDelete();
         await instance.run(key, options);
       });
-    ProjectCommandBase.defaultOptions(createProject);
-    return createProject;
+    
+    return cmd;
   }
 
   async run(key: string, options: ICommandOptions): Promise<void> {

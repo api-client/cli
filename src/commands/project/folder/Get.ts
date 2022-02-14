@@ -1,6 +1,7 @@
-import { Command, Option } from 'commander';
+import { Command } from 'commander';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
-import { printFolderTable } from './Utils.js';
+import { printFolderInfo } from './Utils.js';
+import { ProjectCommand } from '../../ProjectCommand.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
   keyOnly?: boolean;
@@ -16,7 +17,10 @@ export default class ProjectFolderGet extends ProjectCommandBase {
    */
   static get command(): Command {
     const cmd = new Command('get');
-    cmd.addOption(new Option('-r, --reporter <value>', 'The reporter to use to print the values. Default to "table".').choices(['json', 'table']).default('table'))
+    ProjectCommand.globalOptions(cmd);
+    ProjectCommand.reporterOptions(cmd);
+    ProjectCommand.keyListingOptions(cmd);
+
     cmd
       .argument('<key>', 'The id of the folder.')
       .description('reads the folder from the project and prints it to the console.')
@@ -24,7 +28,6 @@ export default class ProjectFolderGet extends ProjectCommandBase {
         const instance = new ProjectFolderGet();
         await instance.run(key, options);
       });
-    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 
@@ -32,7 +35,7 @@ export default class ProjectFolderGet extends ProjectCommandBase {
     const project = await this.readProject(options.in);
     const folder = project.findFolder(key, { keyOnly: true });
     if (!folder) {
-      throw new Error(`The folder ${key} not found in the project.`);
+      throw new Error(`The folder "${key}" not found in the project.`);
     }
     const { keyOnly, reporter='table' } = options;
     if (keyOnly) {
@@ -44,7 +47,7 @@ export default class ProjectFolderGet extends ProjectCommandBase {
       return;
     }
     if (reporter === 'table') {
-      printFolderTable([folder]);
+      printFolderInfo(folder);
       return;
     }
     throw new Error(`Unknown reporter ${reporter}`);
