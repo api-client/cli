@@ -83,8 +83,7 @@ Then accessing project properties this tells the command to search in the folder
 ```sh
 - [x] api-client project environment add [name] --base-uri "api.com" --protocol "https:" --base-path "/v2/api" --parent="[folder key]" --description "My environment" --server-description "My API server"
 - [x] api-client project environment delete [environment id] --safe
-- [ ] api-client project environment list --parent="[folder key]"
-- [ ] api-client project environment find [query]
+- [x] api-client project environment find [query]
 - [ ] api-client project environment get [key]
 - [ ] api-client project environment patch [environment id] [set|append|delete] [path] --value="test"
 
