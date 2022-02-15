@@ -1,5 +1,6 @@
 import { printTable, Table } from 'console-table-printer';
 import { Environment } from '@advanced-rest-client/core';
+import { ObjectTable } from '../../../lib/ObjectTable.js';
 
 function prepareEnvironmentTable(environment: Environment): Record<string, unknown> {
   const { info, variables=[], server } = environment;
@@ -45,4 +46,49 @@ export function printEnvironmentKeys(requests: Environment[]): void {
     const items = requests.map((item) => ({ key: item.key }));
     printTable(items);
   }
+}
+
+
+interface EnvDescription {
+  key: string;
+  name: string;
+  description?: string;
+  variables?: string;
+  server?: string;
+}
+
+/**
+ * Prints a table with an environment information.
+ * Targetted for a single environment UI.
+ */
+export function printEnvironmentInfo(environment: Environment): void {
+  const { info, key, variables, server } = environment;
+  const data: EnvDescription = {
+    key,
+    name: info.name || '',
+  };
+  if (info.description) {
+    data.description = info.description;
+  }
+  
+  const maxWidth = process.stdout.columns || 80;
+  const maxValueWidth = maxWidth - 17;
+
+  if (Array.isArray(variables) && variables.length) {
+    data.variables = variables.map(e => e.name || '').join(', ');
+    if (data.variables.length > maxValueWidth) {
+      data.variables = `${data.variables.substring(0, maxValueWidth)}... (${variables.length})`;
+    }
+  } else {
+    data.variables = '(none)';
+  }
+
+  if (server) {
+    data.server = server.readUri();
+  } else {
+    data.server = '(none)';
+  }
+
+  const table = new ObjectTable(data);
+  table.print();
 }

@@ -13,6 +13,7 @@ describe('Project', () => {
   describe('Environment', () => {
     describe('Find', () => {
       const finalCmd = `${cmdRoot} find`;
+      
       after(async () => {
         await fs.rm(projectPath, { recursive: true, force: true });
       });
