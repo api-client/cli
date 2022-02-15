@@ -13,7 +13,7 @@ const cmdRoot = 'project folder';
 describe('Project', () => {
   describe('Folder', () => {
     describe('Delete', () => {
-      const addCmd = `${cmdRoot} delete`;
+      const finalCmd = `${cmdRoot} delete`;
       after(async () => {
         await fs.rm(projectPath, { recursive: true, force: true });
       });
@@ -35,7 +35,7 @@ describe('Project', () => {
       });
 
       it('removes a folder from the project and prints the project', async () => {
-        const result = await runCommand(`${addCmd} -i ${projectInFile} ${f1.key}`);
+        const result = await runCommand(`${finalCmd} -i ${projectInFile} ${f1.key}`);
         
         const project = new HttpProject(result);
         const folder = project.findFolder(f1.key, { keyOnly: true });
@@ -43,7 +43,7 @@ describe('Project', () => {
       });
 
       it('removes a folder from the project and saved to the output file', async () => {
-        await runCommand(`${addCmd} -i ${projectInFile} -o ${projectOutFile} ${f1.key}`);
+        await runCommand(`${finalCmd} -i ${projectInFile} -o ${projectOutFile} ${f1.key}`);
         const contents = await fs.readFile(projectOutFile, 'utf8');
         const project = new HttpProject(contents);
         const folder = project.findFolder(f1.key, { keyOnly: true });
@@ -51,7 +51,7 @@ describe('Project', () => {
       });
 
       it('removes a folder from a folder', async () => {
-        await runCommand(`${addCmd} -i ${projectInFile} -o ${projectOutFile} ${f2.key}`);
+        await runCommand(`${finalCmd} -i ${projectInFile} -o ${projectOutFile} ${f2.key}`);
         const contents = await fs.readFile(projectOutFile, 'utf8');
         const project = new HttpProject(contents);
         assert.ok(project.findFolder(f1.key, { keyOnly: true }));
@@ -60,12 +60,12 @@ describe('Project', () => {
       });
 
       it('prints a message when folder is not found', async () => {
-        const result = await runCommand(`${addCmd} -i ${projectInFile} "test"`, { includeError: true });
+        const result = await runCommand(`${finalCmd} -i ${projectInFile} "test"`, { includeError: true });
         assert.equal(result, 'Unable to find the folder test');
       });
 
       it('ignores errors when --safe', async () => {
-        const result = await runCommand(`${addCmd} -i ${projectInFile} --safe "test"`, { includeError: true });
+        const result = await runCommand(`${finalCmd} -i ${projectInFile} --safe "test"`, { includeError: true });
         const project = new HttpProject(result);
         assert.ok(project);
       });

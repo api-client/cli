@@ -2,7 +2,7 @@ extension:
   - ts
 spec: 
   - test/**/*.test.ts
-  # - test/folder/find.test.ts
+  # - test/environment/delete.test.ts
 require: 
   - ts-node/register
   - source-map-support/register.js

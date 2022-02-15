@@ -11,7 +11,7 @@ export default class RequestCommand extends ProjectCommand {
    */
   static get command(): Command {
     const project = new Command('request');
-    project.description('Commands related to an HTTP requests manipulation.');
+    project.description('Commands related to HTTP requests manipulation.');
     project.addCommand(RequestAdd.command);
     project.addCommand(Delete.command);
     project.addCommand(Find.command);

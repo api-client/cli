@@ -4,6 +4,7 @@ import Create from './project/Create.js';
 import List from './project/List.js';
 import Request from './project/Request.js';
 import Folder from './project/Folder.js';
+import Environment from './project/Environment.js';
 import Move from './project/Move.js';
 import Describe from './project/Describe.js';
 import Patch from './project/Patch.js';
@@ -29,6 +30,7 @@ export default class Project extends ProjectCommand {
     project.addCommand(Info.command);
     project.addCommand(Request.command);
     project.addCommand(Folder.command);
+    project.addCommand(Environment.command);
     return project;
   }
 

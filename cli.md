@@ -39,70 +39,76 @@ Then accessing project properties this tells the command to search in the folder
 
 ```sh
 # manipulating
-- [x] arc project create "name" --version "1.2.3"
-- [ ] arc project patch [set|append|delete] [path] --value="test"
-- [x] arc project move [key] --parent="[folder key]" --index 2 # moves an object between folders and indexes. When the parent is the same as the source parent this only moves the object in the position inside the parent. No parent means moving it into the project's root.
-- [x] arc project clone --revalidate # makes a copy of the project and revalidates (re-creates) keys for all object that have keys.
+- [x] api-client project create "name" --version "1.2.3"
+- [ ] api-client project patch [set|append|delete] [path] --value="test"
+- [x] api-client project move [key] --parent="[folder key]" --index 2 # moves an object between folders and indexes. When the parent is the same as the source parent this only moves the object in the position inside the parent. No parent means moving it into the project's root.
+- [x] api-client project clone --revalidate # makes a copy of the project and revalidates (re-creates) keys for all object that have keys.
 
 # reading
-- [x] arc project list folders --key-only --format="arc|table"
-- [x] arc project list requests --key-only --format="arc|table"
-- [x] arc project list environments --key-only --format="arc|table"
-- [x] arc project list children --format="arc|table" --parent [folder id]
-- [x] arc project info # prints information about the project
+- [x] api-client project list folders --key-only --format="arc|table"
+- [x] api-client project list requests --key-only --format="arc|table"
+- [x] api-client project list environments --key-only --format="arc|table"
+- [x] api-client project list children --format="arc|table" --parent [folder id]
+- [x] api-client project info # prints information about the project
 ```
 
 ### Project folder commands
 
 ```sh
-- [x] arc project folder add my-folder --skip-existing --parent="[folder key]"
-- [x] arc project folder get [folder id] --in="project.json"
-- [x] arc project folder find [query] --key-only --format="arc|table"
-- [x] arc project folder delete [folder id] --in="project.json"
-- [ ] arc project folder patch [folder id] [set|append|delete] [path] --value="test"
+- [x] api-client project folder add my-folder --skip-existing --parent="[folder key]"
+- [x] api-client project folder get [folder id] --in="project.json"
+- [x] api-client project folder find [query] --key-only --format="arc|table"
+- [x] api-client project folder delete [folder id] --in="project.json"
+- [ ] api-client project folder patch [folder id] [set|append|delete] [path] --value="test"
 ```
 
 ### Project request commands
 
 ```sh
-- [x] arc project request add https://httpbin.org/put \
+- [x] api-client project request add https://httpbin.org/put \
   --name="request name" \
   --method "PUT" \
   --parent="[folder key or name]" --add-missing-parent \
   --header "content-type: application/json" --header "x-custom: test" \
   --data="{\"test\":true}"
 
-- [x] arc project request get [REQUEST ID]
-- [x] arc project request delete [REQUEST ID]
-- [ ] arc project request patch [REQUEST ID] [set|append|delete] [path] --value="test"
-- [x] arc project request find [query]
+- [x] api-client project request get [REQUEST ID]
+- [x] api-client project request delete [REQUEST ID]
+- [ ] api-client project request patch [REQUEST ID] [set|append|delete] [path] --value="test"
+- [x] api-client project request find [query]
 ```
 
 ### Project environment commands
 
 ```sh
-- [ ] arc project environment add [name] --skip-existing --parent="[folder key]"
-- [ ] arc project environment delete [environment id] --safe
-- [ ] arc project environment list --parent="[folder key]"
-- [ ] arc project environment find [name or key] --in="project.json"
-- [ ] arc project environment patch [environment id] [set|append|delete] [path] --value="test"
+- [x] api-client project environment add [name] --base-uri "api.com" --protocol "https:" --base-path "/v2/api" --parent="[folder key]" --description "My environment" --server-description "My API server"
+- [x] api-client project environment delete [environment id] --safe
+- [ ] api-client project environment list --parent="[folder key]"
+- [ ] api-client project environment find [query]
+- [ ] api-client project environment get [key]
+- [ ] api-client project environment patch [environment id] [set|append|delete] [path] --value="test"
+
+- [ ] api-client project variables list [environment id] --show-values
+- [ ] api-client project variables add [environment id] --name VarName --value 1234 --disabled --type integer
+- [ ] api-client project variables delete [environment id] [variable id]
+- [ ] api-client project variables patch [environment id] [variable id]
 ```
 
 ### Project runner
 
 ```sh
-- [ ] arc project run # runs requests directly added to the project
-- [ ] arc project run --parent="[folder key]" --format="arc|table|har"
-- [ ] arc project run --environment "[env name or key]" # selected environment
-- [ ] arc project run --with-base-uri="https://custom.api.com" # sets the execution base URI for the requests.
-- [ ] arc project run --with-variable=name=value # sets/overrides a variable in the execution context.
-- [ ] arc project run --request="[key or name]" # runs only the specific request. Can be combined with `--parent`.
+- [ ] api-client project run # runs requests directly added to the project
+- [ ] api-client project run --parent="[folder key]" --format="arc|table|har"
+- [ ] api-client project run --environment "[env name or key]" # selected environment
+- [ ] api-client project run --with-base-uri="https://custom.api.com" # sets the execution base URI for the requests.
+- [ ] api-client project run --with-variable=name=value # sets/overrides a variable in the execution context.
+- [ ] api-client project run --request="[key or name]" # runs only the specific request. Can be combined with `--parent`.
 ```
 
 ## Project transformers
 
 ```sh
-- [ ] arc transform project --out="file.json" --format="arc|postman 2.1"
-- [ ] arc transform request --format="arc|har|curl|postman 2.1"
-- [ ] arc transform project --parent="[folder name or key]" --format="arc|har"
+- [ ] api-client transform project --out="file.json" --format="arc|postman 2.1"
+- [ ] api-client transform request --format="arc|har|curl|postman 2.1"
+- [ ] api-client transform project --parent="[folder name or key]" --format="arc|har"
 ```
