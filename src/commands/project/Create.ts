@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { HttpProject } from '@advanced-rest-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
-
+import { ProjectCommand } from '../ProjectCommand.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
   projectVersion?: string;
@@ -16,6 +16,8 @@ export default class ProjectCreate extends ProjectCommandBase {
    */
   static get command(): Command {
     const cmd = new Command('create');
+    ProjectCommand.globalOptions(cmd);
+    ProjectCommand.outputOptions(cmd);
     cmd
       .argument('<name>', 'The name of the project to create')
       .description('Creates a new HTTP project')
@@ -24,7 +26,6 @@ export default class ProjectCreate extends ProjectCommandBase {
         const instance = new ProjectCreate();
         await instance.run(projectName, options);
       });
-    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 

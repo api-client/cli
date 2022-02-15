@@ -1,4 +1,4 @@
-import { Command, Argument, Option } from 'commander';
+import { Command, Argument } from 'commander';
 import { Table } from 'console-table-printer';
 import { HttpProject, ProjectFolderKind, ProjectFolder, ProjectRequestKind, ProjectRequest } from '@advanced-rest-client/core';
 import { printFolderKeys, printFolderTable } from './folder/Utils.js';

@@ -41,15 +41,15 @@ Then accessing project properties this tells the command to search in the folder
 # manipulating
 - [x] arc project create "name" --version "1.2.3"
 - [ ] arc project patch [set|append|delete] [path] --value="test"
-- [ ] arc project move [key] --parent="[folder key]" --index 2 # moves an object between folders and indexes. When the parent is the same as the source parent this only moves the object in the position inside the parent. No parent means moving it into the project's root.
-- [ ] arc project clone --revalidate # makes a copy of the project and revalidates (re-creates) keys for all object that have keys.
+- [x] arc project move [key] --parent="[folder key]" --index 2 # moves an object between folders and indexes. When the parent is the same as the source parent this only moves the object in the position inside the parent. No parent means moving it into the project's root.
+- [x] arc project clone --revalidate # makes a copy of the project and revalidates (re-creates) keys for all object that have keys.
 
 # reading
 - [x] arc project list folders --key-only --format="arc|table"
 - [x] arc project list requests --key-only --format="arc|table"
 - [x] arc project list environments --key-only --format="arc|table"
 - [x] arc project list children --format="arc|table" --parent [folder id]
-- [ ] arc project describe [key] --format="arc|table"
+- [x] arc project info # prints information about the project
 ```
 
 ### Project folder commands
@@ -57,7 +57,7 @@ Then accessing project properties this tells the command to search in the folder
 ```sh
 - [x] arc project folder add my-folder --skip-existing --parent="[folder key]"
 - [x] arc project folder get [folder id] --in="project.json"
-- [x] arc project folder find [folder name] --key-only --format="arc|table"
+- [x] arc project folder find [query] --key-only --format="arc|table"
 - [x] arc project folder delete [folder id] --in="project.json"
 - [ ] arc project folder patch [folder id] [set|append|delete] [path] --value="test"
 ```
@@ -65,17 +65,17 @@ Then accessing project properties this tells the command to search in the folder
 ### Project request commands
 
 ```sh
-- [ ] arc project request add https://httpbin.org/put \
+- [x] arc project request add https://httpbin.org/put \
   --name="request name" \
   --method "PUT" \
   --parent="[folder key or name]" --add-missing-parent \
   --header "content-type: application/json" --header "x-custom: test" \
   --data="{\"test\":true}"
 
-- [ ] arc project request get [REQUEST ID]
-- [ ] arc project request delete [REQUEST ID]
+- [x] arc project request get [REQUEST ID]
+- [x] arc project request delete [REQUEST ID]
 - [ ] arc project request patch [REQUEST ID] [set|append|delete] [path] --value="test"
-- [ ] arc project request find https://httpbin.org/get
+- [x] arc project request find [query]
 ```
 
 ### Project environment commands

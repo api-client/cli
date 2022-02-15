@@ -1,8 +1,8 @@
 import { Command } from 'commander';
+import { ProjectRequestKind, ProjectRequest } from '@advanced-rest-client/core';
 import FlexSearch from 'flexsearch';
-import { ProjectFolderKind, ProjectFolder } from '@advanced-rest-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
-import { printFolderTable, printFolderKeys,  } from './Utils.js';
+import { printRequestTable, printRequestKeys } from './Utils.js';
 import { ProjectCommand } from '../../ProjectCommand.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
@@ -11,12 +11,10 @@ export interface ICommandOptions extends IProjectCommandOptions {
 }
 
 /**
- * A command that finds a folder in a project.
+ * A command that finds a request in a project.
  */
-export default class ProjectFolderFind extends ProjectCommandBase {
-  /**
-   * The command, e.g. `project folder find "my folder"`
-   */
+export default class ProjectRequestFind extends ProjectCommandBase {
+  
   static get command(): Command {
     const cmd = new Command('find');
     ProjectCommand.globalOptions(cmd);
@@ -24,18 +22,18 @@ export default class ProjectFolderFind extends ProjectCommandBase {
     ProjectCommand.keyListingOptions(cmd);
     
     cmd
-      .argument('<query>', 'The query to use to search for a folder.')
-      .description('Finds folders in the project and prints it to the console.')
-      .action(async (query, options) => {
-        const instance = new ProjectFolderFind();
-        await instance.run(query, options);
+      .argument('<query>', 'The query to use to search for a request.')
+      .description('Finds requests in the project and prints it to the console.')
+      .action(async (key, options) => {
+        const instance = new ProjectRequestFind();
+        await instance.run(key, options);
       });
     return cmd;
   }
 
   async run(query: string, options: ICommandOptions): Promise<void> {
     const project = await this.readProject(options.in);
-    const all = project.definitions.filter(i => i.kind === ProjectFolderKind);
+    const all = project.definitions.filter(i => i.kind === ProjectRequestKind);
     // eslint-disable-next-line import/no-named-as-default-member
     const index = new FlexSearch.Document({
       document: {
@@ -43,6 +41,10 @@ export default class ProjectFolderFind extends ProjectCommandBase {
         index: [
           'info:name',
           'info:description',
+          'expects:method',
+          'expects:url',
+          'expects:headers',
+          'log:response:headers',
         ],
       },
       charset: 'latin:extra',
@@ -50,11 +52,11 @@ export default class ProjectFolderFind extends ProjectCommandBase {
       resolution: 9,
     });
     all.forEach((request) => {
-      const typed = request as ProjectFolder;
+      const typed = request as ProjectRequest;
       index.add(typed.toJSON());
     });
     const result = index.search(query);
-    const folders: ProjectFolder[] = [];
+    const requests: ProjectRequest[] = [];
     const ids: string[] = [];
     
     result.forEach((result) => {
@@ -64,23 +66,23 @@ export default class ProjectFolderFind extends ProjectCommandBase {
           return;
         }
         ids.push(key);
-        const request = project.findFolder(key, { keyOnly: true }) as ProjectFolder;
-        folders.push(request);
+        const request = project.findRequest(key, { keyOnly: true }) as ProjectRequest;
+        requests.push(request);
       });
     });
 
     const { keyOnly, reporter='table' } = options;
     if (keyOnly) {
-      printFolderKeys(folders)
+      printRequestKeys(requests);
       return;
     }
     if (reporter === 'json') {
-      const content = options.prettyPrint ? JSON.stringify(folders, null, 2) : JSON.stringify(folders);
+      const content = options.prettyPrint ? JSON.stringify(requests, null, 2) : JSON.stringify(requests);
       this.println(content);
       return;
     }
     if (reporter === 'table') {
-      printFolderTable(folders);
+      printRequestTable(requests);
       return;
     }
   }

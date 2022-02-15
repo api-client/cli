@@ -55,7 +55,7 @@ export function printFolderKeys(folders: ProjectFolder[]): void {
   }
 }
 
-interface ProjectDescription {
+interface FolderDescription {
   name: string;
   created: string;
   updated: string;
@@ -76,7 +76,7 @@ export function printFolderInfo(folder: ProjectFolder): void {
   const requests = folder.listRequests();
   const { environments } = folder;
   const parent = folder.getParent();
-  const info: ProjectDescription = {
+  const info: FolderDescription = {
     name: folder.info.name || '',
     created: formatter.format(folder.created),
     updated: formatter.format(folder.updated),

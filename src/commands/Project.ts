@@ -7,6 +7,8 @@ import Folder from './project/Folder.js';
 import Move from './project/Move.js';
 import Describe from './project/Describe.js';
 import Patch from './project/Patch.js';
+import Clone from './project/Clone.js';
+import Info from './project/Info.js';
 
 /**
  * The top-level project command.
@@ -23,6 +25,8 @@ export default class Project extends ProjectCommand {
     project.addCommand(Describe.command);
     project.addCommand(Move.command);
     project.addCommand(Patch.command);
+    project.addCommand(Clone.command);
+    project.addCommand(Info.command);
     project.addCommand(Request.command);
     project.addCommand(Folder.command);
     return project;

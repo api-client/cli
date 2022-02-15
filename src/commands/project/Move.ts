@@ -1,6 +1,8 @@
-import { Command } from 'commander';
+import { Command, CommanderError } from 'commander';
 import { ProjectFolderKind, ProjectRequestKind } from '@advanced-rest-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
+import { ProjectCommand } from '../ProjectCommand.js';
+import { parseInteger } from '../ValueParsers.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
   index?: number;
@@ -13,16 +15,18 @@ export interface ICommandOptions extends IProjectCommandOptions {
 export default class ProjectMove extends ProjectCommandBase {
   static get command(): Command {
     const cmd = new Command('move');
+    ProjectCommand.globalOptions(cmd);
+    ProjectCommand.parentSearchOptions(cmd, true);
+    ProjectCommand.outputOptions(cmd);
+
     cmd
       .argument('<key>', 'The key of the object to move. Names are not accepted here.')
       .description('Moves an object within a project.')
-      .option('-p, --parent <value>', 'The name or the key of the parent folder to move the item into. When not set it assumes the project\'s root.')
-      .option('-n, --index <position>', 'The position at which to insert the object in the destination. BY default it adds the object at the end.')
+      .option('-n, --index <position>', 'The position at which to insert the object in the destination. By default it adds the object at the end.', parseInteger.bind(null, 'index'))
       .action(async (key, options) => {
         const instance = new ProjectMove();
         await instance.run(key, options);
       });
-    ProjectCommandBase.defaultOptions(cmd);
     return cmd;
   }
 
@@ -31,7 +35,7 @@ export default class ProjectMove extends ProjectCommandBase {
     const { definitions = [] } = project;
     const def = definitions.find(i => i.key === key);
     if (!def) {
-      throw new Error(`Unable to locate the object ${key}`);
+      throw new CommanderError(0, 'ENOTFOUND', `Unable to locate the object: ${key}.`);
     }
     const { index, parent } = options;
     if (def.kind === ProjectFolderKind) {
@@ -39,6 +43,6 @@ export default class ProjectMove extends ProjectCommandBase {
     } else if (def.kind === ProjectRequestKind) {
       project.moveRequest(key, { index, parent });
     }
-    this.finishProject(project, options);
+    await this.finishProject(project, options);
   }
 }

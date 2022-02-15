@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { join } from 'path';
-import { HttpProject, ProjectFolder, IProjectFolder } from '@advanced-rest-client/core';
+import { HttpProject, IProjectFolder } from '@advanced-rest-client/core';
 import fs from 'fs/promises';
 import { runCommand, writeProject, splitTable } from '../helpers/CliHelper.js';
 
@@ -12,56 +12,81 @@ const cmdRoot = 'project folder';
 describe('Project', () => {
   describe('Folder', () => {
     describe('Find', () => {
-      const addCmd = `${cmdRoot} find`;
+      const finalCmd = `${cmdRoot} find`;
       after(async () => {
         await fs.rm(projectPath, { recursive: true, force: true });
       });
 
-      let f1: ProjectFolder;
-      let f2: ProjectFolder;
-      let f3: ProjectFolder;
-
-      beforeEach(async () => {
+      it('searches for folders in the name filed', async () => {
         const project = new HttpProject();
-        f1 = project.addFolder('f1');
-        f2 = project.addFolder('f2');
-        f3 = f2.addFolder('f3');
+        const f1 = project.addFolder('a name 1');
+        const f2 = project.addFolder('a náme 2');
+        project.addFolder('another 3');
         await writeProject(project, projectInFile);
-      });
 
-      it('finds a folder by name and prints as a table', async () => {
-        const result = await runCommand(`${addCmd} -i ${projectInFile} ${f1.info.name}`);
+        const query = 'nam';
+
+        const result = await runCommand(`${finalCmd} -i ${projectInFile} ${query}`);
         const lines = splitTable(result);
-        const [title, headers, d1, d2] = lines;
+        
+        const [title, headers, d1, d2, d3] = lines;
         assert.include(title, 'Project folders', 'table has the title');
         assert.include(headers, 'Key', 'table has the column names');
-        assert.include(d1, f1.key, 'has the folder');
+        assert.include(d1, f1.key, 'has the first folder');
+        assert.include(d2, f2.key, 'has the second folder');
+        assert.isUndefined(d3, 'has no more results');
       });
 
-      it('finds a folder by name and prints as a json', async () => {
-        const result = await runCommand(`${addCmd} -i ${projectInFile} -r json ${f1.info.name}`);
-        const data: IProjectFolder = JSON.parse(result);
-        assert.deepEqual(data, f1.toJSON());
+      it('searches for folders in the description filed', async () => {
+        const project = new HttpProject();
+        const f1 = project.addFolder('a name 1');
+        f1.info.description = 'A folder number 1';
+        const f2 = project.addFolder('a náme 2');
+        f2.info.description = 'A folder with orders';
+        const f3 = project.addFolder('another 3');
+        f3.info.description = 'Store for pets';
+        await writeProject(project, projectInFile);
+
+        const query = 'order';
+
+        const result = await runCommand(`${finalCmd} -i ${projectInFile} ${query}`);
+        const lines = splitTable(result);
+        
+        const [, , d1, d2] = lines;
+        assert.include(d1, f2.key, 'has the first folder');
+        assert.isUndefined(d2, 'has no more results');
+      });
+      
+      it('prints a JSON output', async () => {
+        const project = new HttpProject();
+        project.addFolder('a name 1');
+        project.addFolder('a náme 2');
+        project.addFolder('another 3');
+        await writeProject(project, projectInFile);
+
+        const query = 'nam';
+
+        const result = await runCommand(`${finalCmd} -i ${projectInFile} -r json ${query}`);
+        const folders: IProjectFolder[] = JSON.parse(result);
+        assert.lengthOf(folders, 2);
       });
 
-      it('finds a folder by name and prints the key', async () => {
-        const result = await runCommand(`${addCmd} -i ${projectInFile} --key-only ${f1.info.name}`);
-        assert.equal(result, f1.key);
-      });
+      it('prints keys only', async () => {
+        const project = new HttpProject();
+        const f1 = project.addFolder('a name 1');
+        const f2 = project.addFolder('a náme 2');
+        project.addFolder('another 3');
+        await writeProject(project, projectInFile);
 
-      it('prints an error when folder not found', async () => {
-        const result = await runCommand(`${addCmd} -i ${projectInFile} something`, { includeError: true });
-        assert.equal(result, 'The folder "something" not found in the project.');
-      });
+        const query = 'nam';
 
-      it('prints an error when unsupported reporter', async () => {
-        let thrown = false;
-        try {
-          await runCommand(`${addCmd} -i ${projectInFile} -r postman ${f1.info.name}`, { includeError: true });
-        } catch (e) {
-          thrown = true;
-        }
-        assert.isTrue(thrown);
+        const result = await runCommand(`${finalCmd} -i ${projectInFile} -k ${query}`);
+        const lines = splitTable(result);
+        
+        const [title, d1, d2] = lines;
+        assert.include(title, 'key', 'has the title');
+        assert.include(d1, f1.key, 'has request 1');
+        assert.include(d2, f2.key, 'has request 2');
       });
     });  
   });

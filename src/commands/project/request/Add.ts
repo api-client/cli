@@ -3,14 +3,17 @@ import fs from 'fs/promises';
 import { ProjectRequest, Thing, ISafePayload } from '@advanced-rest-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { pathExists } from '../../../lib/Fs.js';
+import { ProjectCommand } from '../../ProjectCommand.js';
+import { parseInteger } from '../../ValueParsers.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
   name?: string;
   method?: string;
-  folder?: string;
+  parent?: string;
   header?: string[];
   data?: string[];
-  addFolder?: boolean;
+  addParent?: boolean;
+  index?: number;
 }
 
 /**
@@ -21,22 +24,25 @@ export default class ProjectRequestAdd extends ProjectCommandBase {
    * The command, e.g. `project request add`
    */
   static get command(): Command {
-    const createProject = new Command('add');
-    createProject
+    const cmd = new Command('add');
+    ProjectCommand.globalOptions(cmd);
+    ProjectCommand.parentSearchOptions(cmd);
+    ProjectCommand.outputOptions(cmd);
+    cmd
       .argument('<URL>', 'The URL of the request')
       .description('Creates a new HTTP request in a project')
       .option('-n, --name [value]', 'Sets the name of the request. Default to the URL.')
       .option('-m, --method [value]', 'The HTTP method of the request. Default to GET.', 'GET')
-      .option('-f, --folder [name or key]', 'The name or the key of the folder to put the request into. Default to put the request directly into the project.')
-      .option('--add-folder', 'When set it creates a folder with the name of "--folder", if one doesn\'t exist.')
       .option('-H, --header [header...]', 'The full value of a single header line to add.')
       .option('-d, --data [data...]', 'The payload to send with the request. If used more than once the data pieces will be concatenated with a separating &-symbol. When used with the @-symbol it reads the file from the filesystem. The data does not manipulate the content type header.')
+      .option('-n, --index [position]', 'The 0-based position at which to add the request into the list.', parseInteger.bind(null, 'index'))
+      .option('--add-parent', 'When set it creates a folder with the name of "--folder", if one doesn\'t exist.')
       .action(async (url, options) => {
         const instance = new ProjectRequestAdd();
         await instance.run(url, options);
       });
-    ProjectCommandBase.defaultOptions(createProject);
-    return createProject;
+    
+    return cmd;
   }
 
   async run(url: string, options: ICommandOptions): Promise<void> {
@@ -47,16 +53,19 @@ export default class ProjectRequestAdd extends ProjectCommandBase {
     this.appendHeaders(request, options);
     await this.appendData(request, options);
 
-    if (options.folder) {
-      const existingFolder = project.findFolder(options.folder);
-      if (!existingFolder && options.addFolder) {
-        project.addFolder(options.folder);
-      } else if (!existingFolder && !options.addFolder) {
-        throw new Error(`Unable to locate the "${options.folder}" folder in the project. Use the "--add-folder" option to create a new folder.`)
+    if (options.parent) {
+      const existingFolder = project.findFolder(options.parent);
+      if (!existingFolder && options.addParent) {
+        project.addFolder(options.parent);
+      } else if (!existingFolder && !options.addParent) {
+        throw new Error(`Unable to locate the "${options.parent}" folder in the project. Use the "--add-folder" option to create a new folder.`)
       }
     }
     
-    project.addRequest(request, { parent: options.folder });
+    project.addRequest(request, { 
+      parent: options.parent,
+      index: options.index,
+    });
     await this.finishProject(project, options);
   }
 
@@ -94,7 +103,7 @@ export default class ProjectRequestAdd extends ProjectCommandBase {
     }
     const [input] = data;
     if (input.startsWith('@')) {
-      const buffer = await this.readFileContents(input.substr(1));
+      const buffer = await this.readFileContents(input.substring(1));
       await expects.writePayload(buffer);
     } else {
       expects.payload = input;
