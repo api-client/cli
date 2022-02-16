@@ -11,8 +11,6 @@ export interface ICommandOptions extends IProjectCommandOptions {
   type?: string;
 }
 
-// api-client project variables add [environment id] --name VarName --value 1234 --disabled --type integer
-
 /**
  * A command that adds a variable to an environment.
  */

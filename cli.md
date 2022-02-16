@@ -89,8 +89,8 @@ Then accessing project properties this tells the command to search in the folder
 
 - [x] api-client project variables list [environment id] --show-values
 - [x] api-client project variables add [environment id] --name VarName --value 1234 --disabled --type integer
-- [ ] api-client project variables delete [environment id] [variable id]
-- [ ] api-client project variables patch [environment id] [variable id]
+- [x] api-client project variables delete [environment id] [variable name]
+- [ ] api-client project variables patch [environment id] [variable name]
 ```
 
 ### Project runner

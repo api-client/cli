@@ -11,7 +11,7 @@ export interface ICommandOptions extends IProjectCommandOptions {
 /**
  * A command that lists variables in an environment.
  */
-export default class ProjectVariableList extends ProjectCommandBase {
+export default class EnvironmentVariableList extends ProjectCommandBase {
   static get command(): Command {
     const cmd = new Command('list');
     ProjectCommand.globalOptions(cmd);
@@ -22,7 +22,7 @@ export default class ProjectVariableList extends ProjectCommandBase {
       .argument('<environment key>', 'The key of the parent environment')
       .description('Lists variables in an environment.\nVariable names are not visible by default. Use the --show-values to render the value.')
       .action(async (key, options) => {
-        const instance = new ProjectVariableList();
+        const instance = new EnvironmentVariableList();
         await instance.run(key, options);
       });
     return cmd;
