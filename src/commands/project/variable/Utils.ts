@@ -1,18 +1,18 @@
 import { Table } from 'console-table-printer';
 import { Property } from '@advanced-rest-client/core';
 
-function prepareVariableTable(property: Property): Record<string, unknown> {
+function prepareVariableTable(property: Property, showValues=false): Record<string, unknown> {
   const { name, value='', type='string', enabled=true, } = property;
   
   return {
     name,
-    value,
+    value: showValues ? value : '***',
     type,
     enabled,
   };
 }
 
-export function printVariablesTable(variables: Property[]): void {
+export function printVariablesTable(variables: Property[], showValues=false): void {
   const table = new Table({
     title: 'Environment variables',
     columns: [
@@ -23,7 +23,7 @@ export function printVariablesTable(variables: Property[]): void {
     ],
   });
   variables.forEach((item) => {
-    const row = prepareVariableTable(item);
+    const row = prepareVariableTable(item, showValues);
     table.addRow(row);
   });
   table.printTable();

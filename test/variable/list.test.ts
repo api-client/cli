@@ -34,8 +34,27 @@ describe('Project', () => {
         await fs.rm(projectPath, { recursive: true, force: true });
       });
 
-      it('lists variables in an environment', async () => {
+      it('lists variables in an environment without values', async () => {
         const result = await runCommand(`${cmd} -i ${projectFile} ${e1.key}`);
+        const lines = splitTable(result);
+        
+        const [title, headers, d1, d2, d3] = lines;
+        assert.include(title, 'Environment variables', 'has the title');
+        assert.include(headers, 'Value', 'has the headers #1');
+        assert.include(d1, 'v1', 'has the variable name #1');
+        assert.include(d1, '***', 'has the variable value #1');
+        assert.include(d1, 'string', 'has the variable type #1');
+        assert.include(d1, 'true', 'has the variable enabled #1');
+
+        assert.include(d2, 'v2', 'has the variable name #2');
+        assert.include(d2, '***', 'has the variable value #2');
+        assert.include(d2, 'integer', 'has the variable type #2');
+        assert.include(d2, 'false', 'has the variable enabled #2');
+        assert.isUndefined(d3, 'has no more values #2');
+      });
+
+      it('lists variables with values', async () => {
+        const result = await runCommand(`${cmd} -i ${projectFile} ${e1.key} --show-values`);
         const lines = splitTable(result);
         
         const [title, headers, d1, d2, d3] = lines;
@@ -69,8 +88,17 @@ describe('Project', () => {
         assert.include(result, 'The environment "some" not found in the project.');
       });
 
-      it('uses the JSON reporter', async () => {
+      it('uses the JSON reporter and masks values', async () => {
         const result = await runCommand(`${cmd} -i ${projectFile} ${e1.key} -r json`);
+        const data: IProperty[] = JSON.parse(result);
+        const prop = data[0];
+        const compare = e1.variables[0].toJSON();
+        assert.equal(prop.name, compare.name);
+        assert.equal(prop.value, '***');
+      });
+
+      it('uses the JSON reporter and renders values', async () => {
+        const result = await runCommand(`${cmd} -i ${projectFile} ${e1.key} -r json --show-values`);
         const data: IProperty[] = JSON.parse(result);
         assert.deepEqual(data[0], e1.variables[0].toJSON());
       });

@@ -1,4 +1,5 @@
 import { Command, CommanderError } from 'commander';
+import { IProperty } from '@advanced-rest-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { ProjectCommand } from '../../ProjectCommand.js';
 import { findEnvironment } from '../environment/Utils.js';
@@ -6,6 +7,7 @@ import { printVariablesTable } from './Utils.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
   reporter?: 'json' | 'table';
+  showValues?: boolean;
 }
 
 /**
@@ -21,6 +23,7 @@ export default class EnvironmentVariableList extends ProjectCommandBase {
     cmd
       .argument('<environment key>', 'The key of the parent environment')
       .description('Lists variables in an environment.\nVariable names are not visible by default. Use the --show-values to render the value.')
+      .option('--show-values', 'When set it renders the values of variables to the console output.')
       .action(async (key, options) => {
         const instance = new EnvironmentVariableList();
         await instance.run(key, options);
@@ -36,14 +39,22 @@ export default class EnvironmentVariableList extends ProjectCommandBase {
     }
 
     const { variables=[] } = environment;
-    const { reporter='table' } = options;
+    const { reporter='table', showValues } = options;
     if (reporter === 'json') {
-      const content = options.prettyPrint ? JSON.stringify(variables, null, 2) : JSON.stringify(variables);
+      const data: IProperty[] = [];
+      variables.forEach((item) => {
+        const value = item.toJSON();
+        if (!showValues) {
+          value.value  = '***';
+        }
+        data.push(value);
+      });
+      const content = JSON.stringify(data, null, options.prettyPrint ? 2 : 0);
       this.println(content);
       return;
     }
     if (reporter === 'table') {
-      printVariablesTable(variables);
+      printVariablesTable(variables, showValues);
       return;
     }
   }
