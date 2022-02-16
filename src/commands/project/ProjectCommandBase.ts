@@ -1,4 +1,4 @@
-import { Command, Option } from 'commander';
+import { Command } from 'commander';
 import { HttpProject } from '@advanced-rest-client/core';
 import fs from 'fs/promises';
 import path from 'path';

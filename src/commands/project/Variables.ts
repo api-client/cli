@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { ProjectCommand } from '../ProjectCommand.js';
 import List from './variable/List.js';
+import Add from './variable/Add.js';
 
 
 export default class VariablesCommand extends ProjectCommand {
@@ -11,6 +12,7 @@ export default class VariablesCommand extends ProjectCommand {
     const project = new Command('variables');
     project.description('Commands related to environment variables manipulation.');
     project.addCommand(List.command);
+    project.addCommand(Add.command);
     return project;
   }
 
