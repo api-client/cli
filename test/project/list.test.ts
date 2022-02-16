@@ -465,14 +465,13 @@ describe('Project', () => {
 
       describe('table', () => {
         let f1: ProjectFolder;
-        let f2: ProjectFolder;
         let e1: Environment;
         let e2: Environment;
         let e3: Environment;
         before(async () => {
           const project = HttpProject.fromName('test');
           f1 = project.addFolder('with environments');
-          f2 = project.addFolder('empty');
+          project.addFolder('empty');
           e1 = project.addEnvironment('My project environment');
           e2 = f1.addEnvironment('My folder environment');
           e3 = f1.addEnvironment('Env 2');

@@ -1,29 +1,28 @@
 import { Command, CommanderError } from 'commander';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
-import { printEnvironmentInfo, findEnvironment } from './Utils.js';
 import { ProjectCommand } from '../../ProjectCommand.js';
+import { findEnvironment } from '../environment/Utils.js';
+import { printVariablesTable } from './Utils.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
-  keyOnly?: boolean;
   reporter?: 'json' | 'table';
 }
 
 /**
- * A command that reads an environment from a project.
+ * A command that lists variables in an environment.
  */
-export default class ProjectEnvironmentGet extends ProjectCommandBase {
-  
+export default class ProjectVariableList extends ProjectCommandBase {
   static get command(): Command {
-    const cmd = new Command('get');
+    const cmd = new Command('list');
     ProjectCommand.globalOptions(cmd);
+    ProjectCommand.parentSearchOptions(cmd);
     ProjectCommand.reporterOptions(cmd);
-    ProjectCommand.keyListingOptions(cmd);
 
     cmd
-      .argument('<key>', 'The id of the environment.')
-      .description('Reads the environment from the project and prints it to the console.')
+      .argument('<environment key>', 'The key of the parent environment')
+      .description('Lists variables in an environment.\nVariable names are not visible by default. Use the --show-values to render the value.')
       .action(async (key, options) => {
-        const instance = new ProjectEnvironmentGet();
+        const instance = new ProjectVariableList();
         await instance.run(key, options);
       });
     return cmd;
@@ -35,20 +34,17 @@ export default class ProjectEnvironmentGet extends ProjectCommandBase {
     if (!environment) {
       throw new CommanderError(0, 'ENOENV', `The environment "${key}" not found in the project.`);
     }
-    const { keyOnly, reporter='table' } = options;
-    if (keyOnly) {
-      this.println(environment.key)
-      return;
-    }
+
+    const { variables=[] } = environment;
+    const { reporter='table' } = options;
     if (reporter === 'json') {
-      const content = options.prettyPrint ? JSON.stringify(environment, null, 2) : JSON.stringify(environment);
+      const content = options.prettyPrint ? JSON.stringify(variables, null, 2) : JSON.stringify(variables);
       this.println(content);
       return;
     }
     if (reporter === 'table') {
-      printEnvironmentInfo(environment);
+      printVariablesTable(variables);
       return;
     }
-    throw new Error(`Unknown reporter ${reporter}`);
   }
 }
