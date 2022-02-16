@@ -99,9 +99,6 @@ Then accessing project properties this tells the command to search in the folder
 - [ ] api-client project run # runs requests directly added to the project
 - [ ] api-client project run --parent="[folder key]" --format="arc|table|har"
 - [ ] api-client project run --environment "[env name or key]" # selected environment
-- [ ] api-client project run --with-base-uri="https://custom.api.com" # sets the execution base URI for the requests.
-- [ ] api-client project run --with-variable=name=value # sets/overrides a variable in the execution context.
-- [ ] api-client project run --request="[key or name]" # runs only the specific request. Can be combined with `--parent`.
 ```
 
 ## Project transformers
