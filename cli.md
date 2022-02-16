@@ -68,7 +68,7 @@ Then accessing project properties this tells the command to search in the folder
 - [x] api-client project request add https://httpbin.org/put \
   --name="request name" \
   --method "PUT" \
-  --parent="[folder key or name]" --add-missing-parent \
+  --parent="[folder key or name]" --add-parent \
   --header "content-type: application/json" --header "x-custom: test" \
   --data="{\"test\":true}"
 

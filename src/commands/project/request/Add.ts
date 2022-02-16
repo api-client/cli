@@ -36,7 +36,7 @@ export default class ProjectRequestAdd extends ProjectCommandBase {
       .option('-H, --header [header...]', 'The full value of a single header line to add.')
       .option('-d, --data [data...]', 'The payload to send with the request. If used more than once the data pieces will be concatenated with a separating &-symbol. When used with the @-symbol it reads the file from the filesystem. The data does not manipulate the content type header.')
       .option('-n, --index [position]', 'The 0-based position at which to add the request into the list.', parseInteger.bind(null, 'index'))
-      .option('--add-parent', 'When set it creates a folder with the name of "--folder", if one doesn\'t exist.')
+      .option('--add-parent', 'When set it creates a folder with the name of "--parent", if one doesn\'t exist.')
       .action(async (url, options) => {
         const instance = new ProjectRequestAdd();
         await instance.run(url, options);
