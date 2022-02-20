@@ -11,6 +11,7 @@ import Describe from './project/Describe.js';
 import Patch from './project/Patch.js';
 import Clone from './project/Clone.js';
 import Info from './project/Info.js';
+import Run from './project/Run.js';
 
 /**
  * The top-level project command.
@@ -33,6 +34,7 @@ export default class Project extends ProjectCommand {
     project.addCommand(Folder.command);
     project.addCommand(Environment.command);
     project.addCommand(Variables.command);
+    project.addCommand(Run.command);
     return project;
   }
 

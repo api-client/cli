@@ -1,8 +1,8 @@
 extension:
   - ts
 spec: 
-  - test/**/*.test.ts
-  # - test/variable/delete.test.ts
+  # - test/**/*.test.ts
+  - test/run/single-runner.test.ts
 require: 
   - ts-node/register
   - source-map-support/register.js
@@ -13,4 +13,5 @@ watch-files:
   - test
 watch-ignore:
   - test/playground
+  - test/express.lock
 timeout: 5000
