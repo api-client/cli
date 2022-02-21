@@ -3,6 +3,7 @@ import process from 'process';
 import cluster from 'cluster';
 import { IHttpRequest, IRequestLog, HttpProject } from '@advanced-rest-client/core';
 import { WorkerMessage, ProjectParallelWorkerOptions } from './ProjectParallelExeFactory.js';
+import { sleep } from '../lib/Timers.js';
 import { ProjectExe } from './ProjectExe.js';
 
 class ProjectExeWorker extends ProjectExe {
@@ -42,6 +43,9 @@ class ProjectExeWorker extends ProjectExe {
       this.remaining--;
       await this.executeIteration();
       this.index++;
+      if (this.remaining && this.options?.iterationDelay) {
+        await sleep(this.options.iterationDelay);
+      }
     }
     process.off('unhandledRejection', unhandledRejection);
     this.endTime = Date.now();

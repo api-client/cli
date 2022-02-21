@@ -7,8 +7,9 @@ import {
   IErrorResponse, 
   ErrorResponse,
 } from '@advanced-rest-client/core';
-import { bytesToSize } from '../lib/DataSize.js';
 import { CliReporter } from '../reporters/CliReporter.js';
+import { bytesToSize } from '../lib/DataSize.js';
+import { sleep } from '../lib/Timers.js';
 import { ProjectExe } from './ProjectExe.js';
 
 export class ProjectExeFactory extends ProjectExe {
@@ -25,19 +26,26 @@ export class ProjectExeFactory extends ProjectExe {
     if (!root) {
       throw new CommanderError(0, 'ECONFIGURE', `The project runner is not configured.`);
     }
-    this.printProjectInfo();    
-
-    function unhandledRejection(): void {}
-    process.on('unhandledRejection', unhandledRejection);
+    this.printProjectInfo();
     
     this.startTime = Date.now();
     while (this.remaining > 0) {
       this.remaining--;
       await this.executeIteration();
       this.index++;
+      if (this.remaining && this.options?.iterationDelay) {
+        const formatted = new Intl.NumberFormat(undefined, {
+          style: 'unit',
+          unit: 'millisecond',
+          unitDisplay: 'long',
+        }).format(this.options.iterationDelay);
+        process.stdout.write(` │ Waiting ${formatted}`);
+        await sleep(this.options.iterationDelay);
+        process.stdout.clearLine(-1);
+        process.stdout.write(`\r`);
+      }
     }
-    
-    process.off('unhandledRejection', unhandledRejection);
+
     this.endTime = Date.now();
 
     process.stdout.write(` └`);
