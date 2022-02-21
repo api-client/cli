@@ -39,7 +39,7 @@ Then accessing project properties this tells the command to search in the folder
 
 ```sh
 # manipulating
-- [x] api-client project create "name" --version "1.2.3"
+- [x] api-client project create "name" --project-version "1.2.3"
 - [ ] api-client project patch [set|append|delete] [path] --value="test"
 - [x] api-client project move [key] --parent="[folder key]" --index 2 # moves an object between folders and indexes. When the parent is the same as the source parent this only moves the object in the position inside the parent. No parent means moving it into the project's root.
 - [x] api-client project clone --revalidate # makes a copy of the project and revalidates (re-creates) keys for all object that have keys.
@@ -96,8 +96,8 @@ Then accessing project properties this tells the command to search in the folder
 ### Project runner
 
 ```sh
-- [ ] api-client project run # runs requests directly added to the project
-- [ ] api-client project run --parent="[folder key]" --format="arc|table|har"
+- [x] api-client project run # runs requests directly added to the project
+- [x] api-client project run --parent="[folder key]" --format="arc|table|har"
 - [ ] api-client project run --environment "[env name or key]" # selected environment
 ```
 

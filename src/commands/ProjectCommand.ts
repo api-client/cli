@@ -62,7 +62,7 @@ export abstract class ProjectCommand {
   static outputOptions(command: Command): Command {
     return command
       .option('-o, --out [path]', 'The output location of the project file. When not specified, it outputs the project to the std output')
-      .option('--overwrite', 'Overrides the input project when --out is not set. When --out is set it overrides the existing file if exists.');
+      .option('-s, --overwrite', 'Overrides the input project when --out is not set. When --out is set it overrides the existing file if exists.');
   }
 
   /**
