@@ -135,7 +135,8 @@ export abstract class ProjectExe {
       return new Environment(contents as IEnvironment);
     }
     const root = this.root as ProjectParent;
-    const env = root.environments.find(i => i.key === options.environment || i.info.name === options.environment);
+    const envs = root.getEnvironments();
+    const env = envs.find(i => i.key === options.environment || i.info.name === options.environment);
     if (!env) {
       throw new CommanderError(0, 'EENVNOTFOUND', `The environment cannot be found: ${options.environment}.`);
     }

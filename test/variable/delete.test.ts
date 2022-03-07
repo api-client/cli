@@ -33,7 +33,7 @@ describe('Project', () => {
       it('removes a variable from the environment', async () => {
         const result = await runCommand(`${cmd} -i ${projectFile} ${e1.key} ${v1.name}`);
         const project = new HttpProject(result);
-        const env = project.environments[0] as Environment;
+        const env = project.definitions.environments[0];
         assert.lengthOf(env.variables, 1, 'has one variable');
         const remaining = env.variables[0] as Property;
         assert.deepEqual(remaining.toJSON(), v2.toJSON())
@@ -54,7 +54,7 @@ describe('Project', () => {
         await runCommand(`${cmd} -i ${projectFile} -o ${out} ${e1.key} ${v1.name}`);
         const contents = await fs.readFile(out, 'utf8');
         const project = new HttpProject(contents);
-        const env = project.environments[0] as Environment;
+        const env = project.definitions.environments[0];
         assert.lengthOf(env.variables, 1, 'has one variable');
       });
     });

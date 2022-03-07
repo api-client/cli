@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import FlexSearch from 'flexsearch';
-import { ProjectFolderKind, ProjectFolder } from '@advanced-rest-client/core';
+import { ProjectFolder } from '@advanced-rest-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { printFolderTable, printFolderKeys,  } from './Utils.js';
 import { ProjectCommand } from '../../ProjectCommand.js';
@@ -35,7 +35,7 @@ export default class ProjectFolderFind extends ProjectCommandBase {
 
   async run(query: string, options: ICommandOptions): Promise<void> {
     const project = await this.readProject(options.in);
-    const all = project.definitions.filter(i => i.kind === ProjectFolderKind);
+    const all = project.definitions.folders;
     // eslint-disable-next-line import/no-named-as-default-member
     const index = new FlexSearch.Document({
       document: {

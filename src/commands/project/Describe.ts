@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { ProjectFolderKind, ProjectFolder, ProjectRequestKind, ProjectRequest } from '@advanced-rest-client/core';
+import { ProjectFolder, ProjectRequest } from '@advanced-rest-client/core';
 import { printFolderTable } from './folder/Utils.js';
 import { printRequestTable } from './request/Utils.js';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
@@ -30,18 +30,18 @@ export default class ProjectDescribe extends ProjectCommandBase {
 
   async run(key: string, options: ICommandOptions): Promise<void> {
     const project = await this.readProject(options.in);
-    const { definitions=[] } = project;
-    const object = definitions.find(i => i.key === key);
-    if (!object) {
-      throw new Error(`Object not found in the project.`);
+    const { definitions } = project;
+    const request = definitions.requests.find(i => i.key === key);
+    if (request) {
+      this.printRequest(request, options);
+      return;
     }
-    if (object.kind === ProjectRequestKind) {
-      this.printRequest(object as ProjectRequest, options);
-    } else if (object.kind === ProjectFolderKind) {
-      this.printFolder(object as ProjectFolder, options);
-    } else {
-      throw new Error(`Unsupported object type ${object.kind}`);
+    const folder = definitions.folders.find(i => i.key === key);
+    if (folder) {
+      this.printFolder(folder, options);
+      return;
     }
+    throw new Error(`Object not found in the project.`);
   }
 
   printFolder(object: ProjectFolder, options: ICommandOptions): void {

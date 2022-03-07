@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { ProjectRequestKind, ProjectRequest } from '@advanced-rest-client/core';
+import { ProjectRequest } from '@advanced-rest-client/core';
 import FlexSearch from 'flexsearch';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { printRequestTable, printRequestKeys } from './Utils.js';
@@ -33,7 +33,7 @@ export default class ProjectRequestFind extends ProjectCommandBase {
 
   async run(query: string, options: ICommandOptions): Promise<void> {
     const project = await this.readProject(options.in);
-    const all = project.definitions.filter(i => i.kind === ProjectRequestKind);
+    const all = project.definitions.requests;
     // eslint-disable-next-line import/no-named-as-default-member
     const index = new FlexSearch.Document({
       document: {

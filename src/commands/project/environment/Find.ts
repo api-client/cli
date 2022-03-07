@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import FlexSearch from 'flexsearch';
-import { ProjectFolderKind, ProjectFolder, Environment } from '@advanced-rest-client/core';
+import { Environment } from '@advanced-rest-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { printEnvironmentTable, printEnvironmentKeys,  } from './Utils.js';
 import { ProjectCommand } from '../../ProjectCommand.js';
@@ -37,20 +37,8 @@ export default class ProjectEnvironmentFind extends ProjectCommandBase {
 
   async run(query: string, options: ICommandOptions): Promise<void> {
     const project = await this.readProject(options.in);
-    const all: Environment[] = [];
+    const all = project.definitions.environments;
     
-    if (Array.isArray(project.environments)) {
-      project.environments.forEach((e) => all.push(e));
-    }
-    project.definitions.forEach((def) => {
-      if (def.kind !== ProjectFolderKind) {
-        return;
-      }
-      const folder = def as ProjectFolder;
-      if (Array.isArray(folder.environments)) {
-        folder.environments.forEach((e) => all.push(e));
-      }
-    });
     // eslint-disable-next-line import/no-named-as-default-member
     const index = new FlexSearch.Document({
       document: {

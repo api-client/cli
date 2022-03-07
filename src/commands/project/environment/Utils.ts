@@ -1,5 +1,5 @@
 import { printTable, Table } from 'console-table-printer';
-import { Environment, HttpProject, ProjectFolderKind, ProjectFolder } from '@advanced-rest-client/core';
+import { Environment, HttpProject } from '@advanced-rest-client/core';
 import { ObjectTable } from '../../../lib/ObjectTable.js';
 
 function prepareEnvironmentTable(environment: Environment): Record<string, unknown> {
@@ -97,21 +97,6 @@ export function printEnvironmentInfo(environment: Environment): void {
  * Finds an environment anywhere in the project
  */
 export function findEnvironment(key: string, project: HttpProject): Environment | undefined {
-  let environment: Environment | undefined;
-  if (Array.isArray(project.environments)) {
-    environment = project.environments.find(i => i.key === key);
-  }
-  if (!environment) {
-    for (const def of project.definitions) {
-      if (environment) {
-        break;
-      }
-      if (def.kind !== ProjectFolderKind) {
-        return;
-      }
-      const folder = def as ProjectFolder;
-      environment = folder.environments.find(i => i.key === key);
-    }
-  }
+  const environment = project.definitions.environments.find(i => i.key === key);
   return environment;
 }

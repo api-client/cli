@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+import { Environment } from '@advanced-rest-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
 import { ProjectCommand } from '../ProjectCommand.js';
 import { ObjectTable } from '../../lib/ObjectTable.js';
@@ -42,7 +43,7 @@ export default class ProjectInfo extends ProjectCommandBase {
     const project = await this.readProject(options.in);
     const folders = project.listFolders();
     const requests = project.listRequests();
-    const { environments, license, provider, schemas } = project;
+    const { environments, license, provider, definitions } = project;
     
     const info: ProjectDescription = {
       key: project.key,
@@ -53,9 +54,16 @@ export default class ProjectInfo extends ProjectCommandBase {
     const maxValueWidth = maxWidth - 17;
 
     if (Array.isArray(environments) && environments.length) {
-      info.environments = environments.map(e => e.info.name || '').join(', ');
+      const envs: Environment[] = [];
+      environments.forEach((key) => {
+        const env = definitions.environments.find(i => i.key === key);
+        if (env) {
+          envs.push(env);
+        }
+      });
+      info.environments = envs.map(e => e.info.name || '').join(', ');
       if (info.environments.length > maxValueWidth) {
-        info.environments = `${info.environments.substring(0, maxValueWidth)}... (${environments.length})`;
+        info.environments = `${info.environments.substring(0, maxValueWidth)}... (${envs.length})`;
       }
     } else {
       info.environments = '(none)';
@@ -79,10 +87,10 @@ export default class ProjectInfo extends ProjectCommandBase {
       info.requests = '(none)';
     }
 
-    if (Array.isArray(schemas) && schemas.length) {
-      info.schemas = schemas.map(e => e.name || '').join(', ');
+    if (Array.isArray(definitions.schemas) && definitions.schemas.length) {
+      info.schemas = definitions.schemas.map(e => e.name || '').join(', ');
       if (info.schemas.length > maxValueWidth) {
-        info.schemas = `${info.schemas.substring(0, maxValueWidth)}... (${schemas.length})`;
+        info.schemas = `${info.schemas.substring(0, maxValueWidth)}... (${definitions.schemas.length})`;
       }
     } else {
       info.schemas = '(none)';

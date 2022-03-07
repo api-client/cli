@@ -74,7 +74,7 @@ interface FolderDescription {
 export function printFolderInfo(folder: ProjectFolder): void {
   const folders = folder.listFolders();
   const requests = folder.listRequests();
-  const { environments } = folder;
+  const environments = folder.getEnvironments();
   const parent = folder.getParent();
   const info: FolderDescription = {
     name: folder.info.name || '',

@@ -1,5 +1,4 @@
 import { Command, CommanderError } from 'commander';
-import { ProjectFolder, ProjectFolderKind } from '@advanced-rest-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { ProjectCommand } from '../../ProjectCommand.js';
 
@@ -31,30 +30,32 @@ export default class ProjectEnvironmentDelete extends ProjectCommandBase {
   async run(key: string, options: ICommandOptions): Promise<void> {
     const project = await this.readProject(options.in);
     const { safe=false } = options;
-    let removed = false;
-    if (Array.isArray(project.environments)) {
-      const index = project.environments.findIndex(i => i.key === key);
-      if (index !== -1) {
-        project.environments.splice(index, 1);
-        removed = true;
+    // first find and remove the definition of the environment
+    const index = project.definitions.environments.findIndex(i => i.key === key);
+    if (index < 0) {
+      if (safe) {
+        await this.finishProject(project, options);
+        return;
       }
+      throw new CommanderError(0, 'EENVNOTFOUND', `The environment cannot be found: ${key}.`);
     }
-    if (!removed) {
-      for (const def of project.definitions) {
-        const folder = def as ProjectFolder;
-        if (folder.kind !== ProjectFolderKind || !Array.isArray(folder.environments)) {
+    project.definitions.environments.splice(index, 1);
+
+    // now find where the env is applied and remove it from there.
+    if (project.environments.includes(key)) {
+      const index = project.environments.indexOf(key);
+      project.environments.splice(index, 1);
+    } else {
+      for (const folder of project.definitions.folders) {
+        if (!Array.isArray(folder.environments)) {
           continue;
         }
-        const index = folder.environments.findIndex(i => i.key === key);
+        const index = folder.environments.indexOf(key);
         if (index !== -1) {
           folder.environments.splice(index, 1);
-          removed = true;
           break;
         }
       }
-    }
-    if (!removed && !safe) {
-      throw new CommanderError(0, 'EENVNOTFOUND', `The environment cannot be found: ${key}.`);
     }
     await this.finishProject(project, options);
   }

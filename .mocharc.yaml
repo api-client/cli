@@ -1,8 +1,8 @@
 extension:
   - ts
 spec: 
-  # - test/**/*.test.ts
-  - test/run/single-runner.test.ts
+  - test/**/*.test.ts
+  # - test/project/list.test.ts
 require: 
   - ts-node/register
   - source-map-support/register.js

@@ -28,7 +28,7 @@ describe('Project', () => {
       it('adds a variable', async () => {
         const result = await runCommand(`${cmd} -i ${projectFile} ${e1.key} --name "v1"`);
         const project = new HttpProject(result);
-        const env = project.environments[0] as Environment;
+        const env = project.definitions.environments[0];
         assert.lengthOf(env.variables, 1, 'has the variable');
         const v1 = env.variables[0] as Property;
         assert.equal(v1.name, 'v1', 'variable has the name');
@@ -37,7 +37,7 @@ describe('Project', () => {
       it('adds the value', async () => {
         const result = await runCommand(`${cmd} -i ${projectFile} ${e1.key} --name "v1" --value "test"`);
         const project = new HttpProject(result);
-        const env = project.environments[0] as Environment;
+        const env = project.definitions.environments[0];
         const v1 = env.variables[0] as Property;
         assert.equal(v1.value, 'test', 'variable has the test');
       });
@@ -45,7 +45,7 @@ describe('Project', () => {
       it('adds enabled', async () => {
         const result = await runCommand(`${cmd} -i ${projectFile} ${e1.key} --name "v1" --disabled`);
         const project = new HttpProject(result);
-        const env = project.environments[0] as Environment;
+        const env = project.definitions.environments[0];
         const v1 = env.variables[0] as Property;
         assert.isFalse(v1.enabled);
       });
@@ -53,7 +53,7 @@ describe('Project', () => {
       it('adds a numeric type', async () => {
         const result = await runCommand(`${cmd} -i ${projectFile} ${e1.key} --name "v1" --value 5210 --type integer`);
         const project = new HttpProject(result);
-        const env = project.environments[0] as Environment;
+        const env = project.definitions.environments[0];
         assert.lengthOf(env.variables, 1, 'has the variable');
         const v1 = env.variables[0] as Property;
         assert.strictEqual(v1.value, 5210);
@@ -62,7 +62,7 @@ describe('Project', () => {
       it('adds a boolean type', async () => {
         const result = await runCommand(`${cmd} -i ${projectFile} ${e1.key} --name "v1" --value true --type boolean`);
         const project = new HttpProject(result);
-        const env = project.environments[0] as Environment;
+        const env = project.definitions.environments[0];
         assert.lengthOf(env.variables, 1, 'has the variable');
         const v1 = env.variables[0] as Property;
         assert.strictEqual(v1.value, true);
@@ -73,7 +73,7 @@ describe('Project', () => {
         await runCommand(`${cmd} -i ${projectFile} -o ${out} ${e1.key} --name "v1"`);
         const contents = await fs.readFile(out, 'utf8');
         const project = new HttpProject(contents);
-        const env = project.environments[0] as Environment;
+        const env = project.definitions.environments[0];
         assert.lengthOf(env.variables, 1, 'has the variable');
         const v1 = env.variables[0] as Property;
         assert.strictEqual(v1.name, 'v1');

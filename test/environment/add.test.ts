@@ -30,7 +30,7 @@ describe('Project', () => {
         const result = await runCommand(`${finalCmd} -i ${projectInFile} "test env"`);
         
         const project = new HttpProject(result);
-        const { environments } = project;
+        const { environments } = project.definitions;
         assert.lengthOf(environments, 1, 'project has the environment');
         const [env] = environments;
         assert.equal(env.info.name as string, 'test env');
@@ -46,7 +46,7 @@ describe('Project', () => {
         assert.lengthOf(project.environments, 0, 'project has no environment');
 
         const folder = project.findFolder(f1.key) as ProjectFolder;
-        const { environments } = folder;
+        const environments = folder.getEnvironments();
         const [env] = environments;
         assert.equal(env.info.name as string, 'test env');
         assert.isUndefined(env.info.description);
@@ -57,7 +57,7 @@ describe('Project', () => {
       it('adds the description', async () => {
         const result = await runCommand(`${finalCmd} -i ${projectInFile} "test env" --description "My environment"`);
         const project = new HttpProject(result);
-        const { environments } = project;
+        const { environments } = project.definitions;
         const [env] = environments;
         assert.equal(env.info.description as string, 'My environment');
       });
@@ -65,7 +65,7 @@ describe('Project', () => {
       it('adds the base URI', async () => {
         const result = await runCommand(`${finalCmd} -i ${projectInFile} "test env" --base-uri "api.com"`);
         const project = new HttpProject(result);
-        const { environments } = project;
+        const { environments } = project.definitions;
         const [env] = environments;
         assert.ok(env.server, 'has the server');
         const srv = env.server as Server;
@@ -75,7 +75,7 @@ describe('Project', () => {
       it('adds the protocol', async () => {
         const result = await runCommand(`${finalCmd} -i ${projectInFile} "test env" --base-uri "api.com" --protocol "https:"`);
         const project = new HttpProject(result);
-        const { environments } = project;
+        const { environments } = project.definitions;
         const [env] = environments;
         assert.ok(env.server, 'has the server');
         const srv = env.server as Server;
@@ -85,7 +85,7 @@ describe('Project', () => {
       it('adds the base path', async () => {
         const result = await runCommand(`${finalCmd} -i ${projectInFile} "test env" --base-uri "api.com" --base-path "/v2/api"`);
         const project = new HttpProject(result);
-        const { environments } = project;
+        const { environments } = project.definitions;
         const [env] = environments;
         assert.ok(env.server, 'has the server');
         const srv = env.server as Server;
@@ -95,7 +95,7 @@ describe('Project', () => {
       it('adds server description', async () => {
         const result = await runCommand(`${finalCmd} -i ${projectInFile} "test env" --server-description "My API server"`);
         const project = new HttpProject(result);
-        const { environments } = project;
+        const { environments } = project.definitions;
         const [env] = environments;
         assert.ok(env.server, 'has the server');
         const srv = env.server as Server;
@@ -107,7 +107,7 @@ describe('Project', () => {
         
         const content = await fs.readFile(projectOutFile, 'utf8');
         const project = new HttpProject(content);
-        const { environments } = project;
+        const { environments } = project.definitions;
         assert.lengthOf(environments, 1, 'project has the environment');
       });
     });

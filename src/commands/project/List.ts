@@ -97,7 +97,7 @@ export default class ProjectList extends ProjectCommandBase {
     if (!root) {
       throw new Error(`Unable to locate the folder: ${options.parent}`);
     }
-    const envs = root.environments || [];
+    const envs = root.getEnvironments();
     if (options.keyOnly) {
       printEnvironmentKeys(envs);
       return;
