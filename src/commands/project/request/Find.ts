@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { ProjectRequest } from '@advanced-rest-client/core';
+import { ProjectRequest } from '@api-client/core';
 import FlexSearch from 'flexsearch';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { printRequestTable, printRequestKeys } from './Utils.js';

@@ -3,7 +3,7 @@ import { cpus } from 'os';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import chalk from 'chalk';
-import { HttpProject, IHttpProject } from '@advanced-rest-client/core';
+import { HttpProject, IHttpProject } from '@api-client/core';
 import { ProjectExeOptions } from './ProjectExe.js';
 import { ProjectExecutionIteration, ProjectExecutionLog } from '../reporters/Reporter.js';
 import { CliReporter } from '../reporters/CliReporter.js';

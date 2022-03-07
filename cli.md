@@ -2,7 +2,7 @@
 
 This document describes requirements for CLI commands. This is used to built-in a functionality that will make the CLI work.
 
-Most of the command requires an option pointing to ARC's HTTP project location.
+Most of the command requires an option pointing to API Client's HTTP project location.
 
 ## Global options
 

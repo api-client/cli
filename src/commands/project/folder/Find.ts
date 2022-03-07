@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import FlexSearch from 'flexsearch';
-import { ProjectFolder } from '@advanced-rest-client/core';
+import { ProjectFolder } from '@api-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { printFolderTable, printFolderKeys,  } from './Utils.js';
 import { ProjectCommand } from '../../ProjectCommand.js';

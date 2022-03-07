@@ -63,17 +63,17 @@ export class BaseApi {
    * Processes CORS request.
    */
   _processCors(req: Request, callback: (error: Error | null, opts: CorsOptions) => void): void {
-    const whitelist = ['https://ci.advancedrestclient.com'];
+    const whitelist = [''];
     const origin = req.header('Origin');
     let corsOptions: CorsOptions;
     if (!origin) {
       corsOptions = { origin: false };
     } else if (
-      origin.indexOf('http://localhost:') === 0 ||
-      origin.indexOf('http://127.0.0.1:') === 0
+      origin.startsWith('http://localhost:') ||
+      origin.startsWith('http://127.0.0.1:')
     ) {
       corsOptions = { origin: true };
-    } else if (whitelist.indexOf(origin) !== -1) {
+    } else if (whitelist.includes(origin)) {
       corsOptions = { origin: true };
     }
     // @ts-ignore

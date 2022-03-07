@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { HttpProject } from '@advanced-rest-client/core';
+import { HttpProject } from '@api-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
 import { ProjectCommand } from '../ProjectCommand.js';
 

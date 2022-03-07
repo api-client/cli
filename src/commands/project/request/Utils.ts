@@ -1,5 +1,5 @@
 import { printTable, Table } from 'console-table-printer';
-import { ProjectRequest, Headers, ISafePayload } from '@advanced-rest-client/core';
+import { ProjectRequest, Headers, ISafePayload } from '@api-client/core';
 import { ObjectTable } from '../../../lib/ObjectTable.js';
 
 const formatterOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', };

@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { IFolderCreateOptions } from '@advanced-rest-client/core';
+import { IFolderCreateOptions } from '@api-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { ProjectCommand } from '../../ProjectCommand.js';
 import { parseInteger } from '../../ValueParsers.js';

@@ -1,10 +1,10 @@
-# Advanced REST Client's HTTP Project CLI
+# API Client's HTTP Project CLI
 
 > Work in progress
 
-The CLI for ARC's HTTP projects. This is an alternative use of the data stored in the ARC's HTTP project. It provides a CLI built on top of ARC's core library (@advanced-rest-client/core).
+The CLI for API Client's HTTP projects. This is an alternative use of the data stored in the API Client's HTTP project. It provides a CLI built on top of ARC's core library (@api-client/core).
 
-This CLI allows developers to create, manipulate, and execute HTTP projects without ARC's UI.
+This CLI allows developers to create, manipulate, and execute HTTP projects without API Client's UI.
 
 ## CLI
 

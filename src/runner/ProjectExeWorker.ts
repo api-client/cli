@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import process from 'process';
 import cluster from 'cluster';
-import { IHttpRequest, IRequestLog, HttpProject } from '@advanced-rest-client/core';
+import { IHttpRequest, IRequestLog, HttpProject } from '@api-client/core';
 import { WorkerMessage, ProjectParallelWorkerOptions } from './ProjectParallelExeFactory.js';
 import { sleep } from '../lib/Timers.js';
 import { ProjectExe } from './ProjectExe.js';

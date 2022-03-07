@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { join } from 'path';
-import { HttpProject, IProjectFolder, ProjectFolder, ProjectRequest, IProjectRequest, Environment, IEnvironment } from '@advanced-rest-client/core';
+import { HttpProject, IProjectFolder, ProjectFolder, ProjectRequest, IProjectRequest, Environment, IEnvironment } from '@api-client/core';
 import fs from 'fs/promises';
 import { runCommand, writeProject, RunCommandOptions, splitTable } from '../helpers/CliHelper.js';
 

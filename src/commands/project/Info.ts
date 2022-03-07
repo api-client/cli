@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { Environment } from '@advanced-rest-client/core';
+import { Environment } from '@api-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
 import { ProjectCommand } from '../ProjectCommand.js';
 import { ObjectTable } from '../../lib/ObjectTable.js';

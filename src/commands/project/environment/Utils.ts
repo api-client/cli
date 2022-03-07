@@ -1,5 +1,5 @@
 import { printTable, Table } from 'console-table-printer';
-import { Environment, HttpProject } from '@advanced-rest-client/core';
+import { Environment, HttpProject } from '@api-client/core';
 import { ObjectTable } from '../../../lib/ObjectTable.js';
 
 function prepareEnvironmentTable(environment: Environment): Record<string, unknown> {

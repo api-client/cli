@@ -6,7 +6,7 @@ import {
   IArcResponse, 
   IErrorResponse, 
   ErrorResponse,
-} from '@advanced-rest-client/core';
+} from '@api-client/core';
 import { CliReporter } from '../reporters/CliReporter.js';
 import { bytesToSize } from '../lib/DataSize.js';
 import { sleep } from '../lib/Timers.js';

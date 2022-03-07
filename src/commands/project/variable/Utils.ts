@@ -1,5 +1,5 @@
 import { Table } from 'console-table-printer';
-import { Property } from '@advanced-rest-client/core';
+import { Property } from '@api-client/core';
 
 function prepareVariableTable(property: Property, showValues=false): Record<string, unknown> {
   const { name, value='', type='string', enabled=true, } = property;

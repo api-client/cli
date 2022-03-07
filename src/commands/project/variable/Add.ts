@@ -1,5 +1,5 @@
 import { Command, CommanderError, Option } from 'commander';
-import { Property } from '@advanced-rest-client/core'
+import { Property } from '@api-client/core'
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { ProjectCommand } from '../../ProjectCommand.js';
 import { findEnvironment } from '../environment/Utils.js';

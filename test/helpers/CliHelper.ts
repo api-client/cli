@@ -1,6 +1,6 @@
 import { exec } from 'child_process';
 import { dirname } from 'path';
-import { IHttpProject, HttpProject } from '@advanced-rest-client/core';
+import { IHttpProject, HttpProject } from '@api-client/core';
 import { writeFile } from 'fs/promises';
 import { ensureDir } from '../../src/lib/Fs.js';
 

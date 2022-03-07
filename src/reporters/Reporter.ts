@@ -2,7 +2,7 @@ import {
   IRequestLog, 
   ErrorResponse,
   IArcResponse,
-} from '@advanced-rest-client/core';
+} from '@api-client/core';
 
 export interface ProjectExecutionIteration {
   /**

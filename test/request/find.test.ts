@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { join } from 'path';
-import { HttpProject, ProjectRequest, IProjectRequest, RequestLog, SentRequest, ArcResponse } from '@advanced-rest-client/core';
+import { HttpProject, ProjectRequest, IProjectRequest, RequestLog, SentRequest, ArcResponse } from '@api-client/core';
 import fs from 'fs/promises';
 import { runCommand, writeProject, splitTable } from '../helpers/CliHelper.js';
 

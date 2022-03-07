@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { ProjectFolder, ProjectRequest } from '@advanced-rest-client/core';
+import { ProjectFolder, ProjectRequest } from '@api-client/core';
 import { printFolderTable } from './folder/Utils.js';
 import { printRequestTable } from './request/Utils.js';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';

@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import fs from 'fs/promises';
-import { ProjectRequest, Thing, ISafePayload } from '@advanced-rest-client/core';
+import { ProjectRequest, Thing, ISafePayload } from '@api-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { pathExists } from '../../../lib/Fs.js';
 import { ProjectCommand } from '../../ProjectCommand.js';

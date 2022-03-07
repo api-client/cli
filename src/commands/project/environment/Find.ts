@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import FlexSearch from 'flexsearch';
-import { Environment } from '@advanced-rest-client/core';
+import { Environment } from '@api-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
 import { printEnvironmentTable, printEnvironmentKeys,  } from './Utils.js';
 import { ProjectCommand } from '../../ProjectCommand.js';

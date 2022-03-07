@@ -9,7 +9,7 @@ import {
   IHttpRequest, 
   IRequestLog,
   IEnvironment,
-} from '@advanced-rest-client/core';
+} from '@api-client/core';
 import { ProjectExecutionIteration, ProjectExecutionLog } from '../reporters/Reporter.js';
 import { pathExists, readJson } from '../lib/Fs.js';
 

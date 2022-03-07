@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { HttpProject } from '@advanced-rest-client/core';
+import { HttpProject } from '@api-client/core';
 import fs from 'fs/promises';
 import path from 'path';
 import { ProjectCommand } from '../ProjectCommand.js';

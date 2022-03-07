@@ -1,6 +1,6 @@
-# Advanced REST Client license
+# API Client license
 
-The Advanced REST Client is an open source project and everyone can use it or part of it.
+The API Client is an open source project and everyone can use it or part of it.
 
 ## Apache License, Version 2.0
 
