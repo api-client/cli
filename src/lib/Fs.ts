@@ -150,6 +150,7 @@ export async function readJson(filePath: string, opts: JsonReadOptions={}): Prom
  */
 export async function writeJson(filePath: string, contents: string|any): Promise<void> {
   const destParent = dirname(filePath);
+  await ensureDir(destParent);
   const parentWritable = await canWrite(destParent);
   if (!parentWritable) {
     throw new Error(`Unable to write to location: ${parentWritable}. Access is denied.`);

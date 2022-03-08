@@ -3,11 +3,15 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import ProjectCommand from './commands/Project.js';
+import ConfigCommand from './commands/Config.js';
+import SpacesCommand from './commands/Spaces.js';
 
 const program = new Command();
 program.version('0.1.0');
 
 program.addCommand(ProjectCommand.command);
+program.addCommand(ConfigCommand.command);
+program.addCommand(SpacesCommand.command);
 program.exitOverride();
 // program.allowUnknownOption();
 
