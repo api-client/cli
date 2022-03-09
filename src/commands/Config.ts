@@ -25,10 +25,8 @@ export default class ConfigCommand extends BaseCommand {
    * The command definition.
    */
   static get command(): Command {
-    if (!process.stdout.isTTY) {
-      throw new Error(`This commands can only run in the interactive mode.`);
-    }
     const config = new Command('config');
+    config.description('The CLI configuration.');
     config.addCommand(ConfigInit.command);
     const env = new Command('environments');
     env.addCommand(ListEnvironments.command);

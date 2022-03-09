@@ -32,6 +32,7 @@
     "@types/express": "^4.17.13",
     "@types/flexsearch": "^0.7.2",
     "@types/inquirer": "^8.2.0",
+    "@types/json8-patch": "^1.0.0",
     "@types/mocha": "^9.0.0",
     "@types/node": "^17.0.18",
     "@types/sinon": "^10.0.6",
@@ -85,6 +86,7 @@
     "console-table-printer": "^2.10.0",
     "flexsearch": "^0.7.21",
     "inquirer": "^8.2.0",
+    "json8-patch": "^1.0.6",
     "open": "^8.4.0"
   },
   "engines": {

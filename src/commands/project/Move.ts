@@ -23,14 +23,14 @@ export default class ProjectMove extends ProjectCommandBase {
       .description('Moves an object within a project.')
       .option('-n, --index <position>', 'The position at which to insert the object in the destination. By default it adds the object at the end.', parseInteger.bind(null, 'index'))
       .action(async (key, options) => {
-        const instance = new ProjectMove();
+        const instance = new ProjectMove(cmd);
         await instance.run(key, options);
       });
     return cmd;
   }
 
   async run(key: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const { definitions } = project;
     const { index, parent } = options;
     const request = definitions.requests.find(i => i.key === key);

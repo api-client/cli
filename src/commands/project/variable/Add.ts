@@ -32,14 +32,14 @@ export default class EnvironmentVariableAdd extends ProjectCommandBase {
       .option('--value [value]', 'The value of the variable. Can be unset but by default a string is assumed.')
       .option('--disabled', 'Whether the variable is disabled.')
       .action(async (key, options) => {
-        const instance = new EnvironmentVariableAdd();
+        const instance = new EnvironmentVariableAdd(cmd);
         await instance.run(key, options);
       });
     return cmd;
   }
 
   async run(key: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const environment = findEnvironment(key, project);
     if (!environment) {
       throw new CommanderError(0, 'ENOENV', `The environment "${key}" not found in the project.`);

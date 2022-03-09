@@ -4,13 +4,13 @@ import { HttpProject } from '@api-client/core';
 import fs from 'fs/promises';
 import { runCommand, writeProject, splitTable } from '../helpers/CliHelper.js';
 
-const projectPath = join('test', 'playground', 'project-info');
+const projectPath = join('test', 'playground', 'project-read');
 const projectFile = join(projectPath, 'project.json');
 
-const cmdRoot = 'project info';
+const cmdRoot = 'project read';
 
 describe('Project', () => {
-  describe('info', () => {
+  describe('read', () => {
     after(async () => {
       await fs.rm(projectPath, { recursive: true, force: true });
     });

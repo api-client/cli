@@ -1,17 +1,29 @@
 #!/usr/bin/env node
 
-import { Command } from 'commander';
+import { Command, CommanderError } from 'commander';
 import chalk from 'chalk';
+import { dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+import { readFileSync } from 'fs';
 import ProjectCommand from './commands/Project.js';
 import ConfigCommand from './commands/Config.js';
-import SpacesCommand from './commands/Spaces.js';
+import SpacesCommand from './commands/Space.js';
+import AuthCommand from './commands/Auth.js';
+import UsersCommand from './commands/Users.js';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const pkgFile = join(__dirname, '..', 'package.json');
+const pkg = JSON.parse(readFileSync(pkgFile, 'utf8'));
 
 const program = new Command();
-program.version('0.1.0');
+program.version(pkg.version);
 
+program.addCommand(SpacesCommand.command);
 program.addCommand(ProjectCommand.command);
 program.addCommand(ConfigCommand.command);
-program.addCommand(SpacesCommand.command);
+program.addCommand(AuthCommand.command);
+program.addCommand(UsersCommand.command);
 program.exitOverride();
 // program.allowUnknownOption();
 
@@ -19,9 +31,16 @@ program.exitOverride();
   try {
     await program.parseAsync(process.argv);
   } catch (err) {
-    const cause = err as Error;
+    const cause = err as CommanderError;
+    if (['commander.version', 'commander.helpDisplayed'].includes(cause.code)) {
+      return;
+    }
     const message = cause.message || 'Unknown error';
-    const mainMessage = chalk.red(`\n${message.trim()}\n`);
+    let mainMessage = '';
+    if (cause.code) {
+      mainMessage += `\n[${cause.code}]: `;
+    }
+    mainMessage += chalk.red(`${message.trim()}\n`);
     process.stderr.write(Buffer.from(mainMessage));
     const hasDebug = process.argv.includes('--debug');
     const { stack } = cause;

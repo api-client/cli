@@ -38,7 +38,7 @@ export default class ProjectRequestAdd extends ProjectCommandBase {
       .option('-n, --index [position]', 'The 0-based position at which to add the request into the list.', parseInteger.bind(null, 'index'))
       .option('--add-parent', 'When set it creates a folder with the name of "--parent", if one doesn\'t exist.')
       .action(async (url, options) => {
-        const instance = new ProjectRequestAdd();
+        const instance = new ProjectRequestAdd(cmd);
         await instance.run(url, options);
       });
     
@@ -46,7 +46,7 @@ export default class ProjectRequestAdd extends ProjectCommandBase {
   }
 
   async run(url: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const request = ProjectRequest.fromUrl(url, project);
     this.appendName(request, options);
     this.appendMethod(request, options);

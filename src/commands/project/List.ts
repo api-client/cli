@@ -1,11 +1,11 @@
 import { Command, Argument } from 'commander';
-import { Table } from 'console-table-printer';
-import { HttpProject, ProjectFolderKind, ProjectFolder, ProjectRequestKind, ProjectRequest } from '@api-client/core';
+import { HttpProject } from '@api-client/core';
 import { printFolderKeys, printFolderTable } from './folder/Utils.js';
 import { printRequestTable, printRequestKeys } from './request/Utils.js';
 import { printEnvironmentTable, printEnvironmentKeys } from './environment/Utils.js';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
 import { ProjectCommand } from '../ProjectCommand.js';
+import { printProjectChildren } from './Utils.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
   keyOnly?: boolean;
@@ -38,7 +38,7 @@ export default class ProjectList extends ProjectCommandBase {
     cmd
       .description('Lists project items by type.')
       .action(async (type, options) => {
-        const instance = new ProjectList();
+        const instance = new ProjectList(cmd);
         await instance.run(type, options);
       });
     
@@ -46,7 +46,7 @@ export default class ProjectList extends ProjectCommandBase {
   }
 
   async run(type: ProjectTypes, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     switch (type) {
       case 'folders': return this.listFolders(project, options);
       case 'requests': return this.listRequests(project, options);
@@ -115,33 +115,7 @@ export default class ProjectList extends ProjectCommandBase {
   }
 
   listChildren(project: HttpProject, options: ICommandOptions): void {
-    const table = new Table({
-      columns: [
-        { name: 'kind', title: 'Kind', alignment: 'left' },
-        { name: 'key', title: 'Key', alignment: 'left' },
-        { name: 'name', title: 'Name', alignment: 'right' },
-      ],
-    });
     const definitions = project.listDefinitions(options.parent);
-    definitions.forEach((object) => {
-      if (object.kind === ProjectFolderKind) {
-        const item = object as ProjectFolder;
-        table.addRow({
-          kind: item.kind,
-          key: item.key,
-          name: item.info.name,
-        });
-      } else if (object.kind === ProjectRequestKind) {
-        const item = object as ProjectRequest;
-        const { info } = item;
-        const name = info ? info.name : '';
-        table.addRow({
-          kind: item.kind,
-          key: item.key,
-          name: name,
-        });
-      }
-    });
-    table.printTable();
+    printProjectChildren(definitions);
   }
 }

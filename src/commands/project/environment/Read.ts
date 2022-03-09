@@ -14,7 +14,7 @@ export interface ICommandOptions extends IProjectCommandOptions {
 export default class ProjectEnvironmentGet extends ProjectCommandBase {
   
   static get command(): Command {
-    const cmd = new Command('get');
+    const cmd = new Command('read');
     ProjectCommand.globalOptions(cmd);
     ProjectCommand.reporterOptions(cmd);
     ProjectCommand.keyListingOptions(cmd);
@@ -23,14 +23,14 @@ export default class ProjectEnvironmentGet extends ProjectCommandBase {
       .argument('<key>', 'The id of the environment.')
       .description('Reads the environment from the project and prints it to the console.')
       .action(async (key, options) => {
-        const instance = new ProjectEnvironmentGet();
+        const instance = new ProjectEnvironmentGet(cmd);
         await instance.run(key, options);
       });
     return cmd;
   }
 
   async run(key: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const environment = findEnvironment(key, project);
     if (!environment) {
       throw new CommanderError(0, 'ENOENV', `The environment "${key}" not found in the project.`);

@@ -9,9 +9,12 @@ export abstract class ProjectCommand extends BaseCommand {
    * @returns The same command for chaining.
    */
   static globalOptions(command: Command): Command {
-    const inOption = new Option('-i, --in [project location]', 'the location of the HTTP project file').env('HTTP_PROJECT');
+    BaseCommand.CliOptions(command);
+    const inOption = new Option('-i, --in [project location]', 'the location of the HTTP project file');
+    inOption.env('HTTP_PROJECT')
     command.addOption(inOption);
     return command
+      .option('-P, --project [project key]', 'The key of the project folder. Cannot be set together with "--in".')
       .option('--pretty-print', 'When preparing the output it formats the JSON for readability.')
       .option('--debug', 'Prints more detailed errors.');
   }
@@ -24,8 +27,8 @@ export abstract class ProjectCommand extends BaseCommand {
    */
   static outputOptions(command: Command): Command {
     return command
-      .option('-o, --out [path]', 'The output location of the project file. When not specified, it outputs the project to the std output')
-      .option('-s, --overwrite', 'Overrides the input project when --out is not set. When --out is set it overrides the existing file if exists.');
+      .option('-o, --out [path]', 'The output location of the project file. It is ignored when "--config-env" is used. When not set a default environment is used.')
+      .option('-s, --overwrite', 'Overrides the input project when --out is not set. When --out is set it overrides the existing file if exists. It is ignored when "--config-env" is used.');
   }
 
   /**

@@ -29,14 +29,14 @@ export default class ProjectEnvironmentFind extends ProjectCommandBase {
       .argument('<query>', 'The query to use to search for an environment.')
       .description(description.join('\n'))
       .action(async (query, options) => {
-        const instance = new ProjectEnvironmentFind();
+        const instance = new ProjectEnvironmentFind(cmd);
         await instance.run(query, options);
       });
     return cmd;
   }
 
   async run(query: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const all = project.definitions.environments;
     
     // eslint-disable-next-line import/no-named-as-default-member

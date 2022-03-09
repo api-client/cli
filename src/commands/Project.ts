@@ -1,6 +1,6 @@
 import { Command } from 'commander';
 import { ProjectCommand } from './ProjectCommand.js';
-import Create from './project/Create.js';
+import Add from './project/Add.js';
 import List from './project/List.js';
 import Request from './project/Request.js';
 import Folder from './project/Folder.js';
@@ -10,7 +10,7 @@ import Move from './project/Move.js';
 import Describe from './project/Describe.js';
 import Patch from './project/Patch.js';
 import Clone from './project/Clone.js';
-import Info from './project/Info.js';
+import Read from './project/Read.js';
 import Run from './project/Run.js';
 
 /**
@@ -23,13 +23,13 @@ export default class Project extends ProjectCommand {
   static get command(): Command {
     const project = new Command('project');
     project.description('Commands related to an HTTP project manipulation.');
-    project.addCommand(Create.command);
+    project.addCommand(Add.command);
     project.addCommand(List.command);
+    project.addCommand(Patch.command);
+    project.addCommand(Read.command);
     project.addCommand(Describe.command);
     project.addCommand(Move.command);
-    project.addCommand(Patch.command);
     project.addCommand(Clone.command);
-    project.addCommand(Info.command);
     project.addCommand(Request.command);
     project.addCommand(Folder.command);
     project.addCommand(Environment.command);

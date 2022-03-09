@@ -27,7 +27,7 @@ export default class ProjectRun extends ProjectCommandBase {
       .option('--parallel', 'Performs a parallel execution for each iteration.')
       .option('--recursive', 'Runs all requests in the selected folder or the project root and from all sub-folders in order.')
       .action(async (options) => {
-        const instance = new ProjectRun();
+        const instance = new ProjectRun(cmd);
         await instance.run(options);
       });
     ProjectCommand.parentSearchOptions(cmd);
@@ -40,7 +40,7 @@ export default class ProjectRun extends ProjectCommandBase {
    * @param options Command options.
    */
   async run(options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     if (options.parallel) {
       const factory = new ProjectParallelExeFactory(project, options);
       await factory.run();

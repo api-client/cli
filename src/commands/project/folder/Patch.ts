@@ -23,7 +23,7 @@ export default class ProjectFolderPatch extends ProjectCommandBase {
       .description('Updates a folder meta data')
       .option('-V, --value <value>', 'The value to set or append. Required for operation other than "delete".')
       .action(async (key, operation, path, options) => {
-        const instance = new ProjectFolderPatch();
+        const instance = new ProjectFolderPatch(cmd);
         await instance.run(key, operation, path, options);
       });
     ProjectCommandBase.defaultOptions(cmd);
@@ -31,7 +31,7 @@ export default class ProjectFolderPatch extends ProjectCommandBase {
   }
 
   async run(key: string, operation: string, path: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const folder = project.findFolder(key, { keyOnly: true });
     if (!folder) {
       throw new Error(`Folder not found in the project.`);

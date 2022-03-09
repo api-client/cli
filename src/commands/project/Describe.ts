@@ -22,14 +22,14 @@ export default class ProjectDescribe extends ProjectCommandBase {
       .argument('<key>', 'The key of the object to describe. Names are not accepted here.')
       .description('Describes an object from the project.')
       .action(async (key, options) => {
-        const instance = new ProjectDescribe();
+        const instance = new ProjectDescribe(cmd);
         await instance.run(key, options);
       });
     return cmd;
   }
 
   async run(key: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const { definitions } = project;
     const request = definitions.requests.find(i => i.key === key);
     if (request) {

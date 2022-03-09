@@ -59,7 +59,7 @@ describe('Project', () => {
 
         it('prints a message when no input project', async () => {
           const result = await runCommand(`${folderCmd} -r json -p test`, { includeError: true });
-          assert.equal(result, 'Project location not specified. Use the --in option to locate the project file or the HTTP_PROJECT variable.');
+          assert.equal(result, 'You must specify either "--in" or "--project" option.');
         });
 
         it('prints a message when invalid option', async () => {
@@ -261,7 +261,7 @@ describe('Project', () => {
 
         it('prints a message when no input project', async () => {
           const result = await runCommand(`${requestCmd} -r json -p test`, { includeError: true });
-          assert.equal(result, 'Project location not specified. Use the --in option to locate the project file or the HTTP_PROJECT variable.');
+          assert.equal(result, 'You must specify either "--in" or "--project" option.');
         });
 
         it('prints a message when invalid option', async () => {

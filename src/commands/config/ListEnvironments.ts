@@ -10,13 +10,16 @@ export default class ListEnvironments extends BaseCommand {
     cmd
       .description('Lists configuration environments.')
       .action(async () => {
-        const instance = new ListEnvironments();
+        const instance = new ListEnvironments(cmd);
         await instance.run();
       });
     return cmd;
   }
 
   async run(): Promise<void> {
+    if (!process.stdout.isTTY) {
+      throw new Error(`This commands can only run in the interactive mode.`);
+    }
     const interactive = new InteractiveConfig();
     const config = new Config();
     interactive.listEnvironments(config);

@@ -1,7 +1,8 @@
-import { Command } from 'commander';
+import { Command, CommanderError } from 'commander';
 import chalk from 'chalk';
 import { StoreSdk } from '@api-client/core';
-import { Config, IConfigEnvironment, IConfig } from '../lib/Config.js';
+import { Config, IConfigEnvironment } from '../lib/Config.js';
+import { parseInteger } from './ValueParsers.js';
 
 export interface IGlobalOptions {
   /**
@@ -14,6 +15,10 @@ export interface IGlobalOptions {
    * Note, setting this up will require authentication flow when running the command.
    */
   store?: string;
+  /**
+   * For commands that require a selection of the space. The key of the user space to use.
+   */
+  space?: string;
 }
 
 export abstract class BaseCommand {
@@ -25,7 +30,7 @@ export abstract class BaseCommand {
   }
 
   /**
-   * Appends the project common options to the command.
+   * Appends common for all commands options.
    * @param command The input command
    * @returns The same command for chaining.
    */
@@ -36,14 +41,26 @@ export abstract class BaseCommand {
         'The configuration environment to use. When not set it searches for other options (--in, --store) to read the data.'
       )
       .option(
-        '-S, --store [store URL]', 
-        'The URL to the data store to use. It is the base URI of the API Client\'s store.\n' +
-        'When using this option an authentication flow may start before running the command.'
+        '-S, --space [key]', 
+        'The key of the user space to use.'
       );
+  }
+
+  /**
+   * Adds options that are reserved for listing objects from the store.
+   */
+  static ListOptions(command: Command): Command {
+    return command
+    .option('-c, --cursor [value]', 'The cursor for pagination. It is returned with every list query.')
+    .option('-l, --limit [value]', 'The maximum number of results in the response.', parseInteger.bind(null, 'limit'))
+    .option('-q, --query [value]', 'If the API supports it, the query term to filter the results')
+    .option('-f, --query-field [value...]', 'The list of fields to apply the "--query" to.');
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   abstract run(...args: any[]): Promise<void>;
+
+  constructor(public command: Command) {}
 
   /**
    * Prints out a warning message.
@@ -91,29 +108,7 @@ export abstract class BaseCommand {
     }
     const config = new Config();
     const data = await config.read();
-    return this.getEnv(data, configEnv);
-  }
-
-  /**
-   * Finds an environment by the name or the key or returns the default environment.
-   * 
-   * @param data The list of environments configured in the application.
-   * @param key Optional key or the name of the environment. When not set it reads the default environment.
-   * @returns The environment configuration or throws when not found.
-   */
-  getEnv(data: IConfig, key?: string): IConfigEnvironment {
-    if (!Array.isArray(data.environments) || !data.environments.length) {
-      throw new Error('The configuration has no environments.');
-    }
-    const id = key || data.loaded;
-    if (!id) {
-      throw new Error('The configuration has no default environment.');
-    }
-    const result = data.environments.find(i => i.key === id || i.name === id);
-    if (!result) {
-      throw new Error('The configuration environment not found.');
-    }
-    return result;
+    return config.getEnv(data, configEnv);
   }
 
   getSdk(env: IConfigEnvironment): StoreSdk {
@@ -129,20 +124,25 @@ export abstract class BaseCommand {
 
   async getStoreSessionToken(sdk: StoreSdk, env: IConfigEnvironment): Promise<string> {
     let { token } = env;
-    const meUri = `${env.location}/users/me`;
+    const meUri = sdk.getUrl(`/users/me`).toString();
+    
     if (token) {
-      const user = await sdk.get(meUri, { token });
-      if (user.status !== 200) {
-        token = undefined;
+      const user = await sdk.http.get(meUri, { token });
+      if (user.status === 200) {
+        env.authenticated = true;
+        sdk.token = token;
+        return token;
       }
+      token = undefined;
     }
     if (!token) {
-      token = await sdk.createSession();
-      sdk.token = token;
-      env.token = token;
+      const ti = await sdk.auth.createSession();
+      token = ti.token;
+      sdk.token = ti.token;
+      env.token = ti.token;
       env.authenticated = false;
     }
-    const user = await sdk.get(meUri, { token });
+    const user = await sdk.http.get(meUri, { token });
     if (user.status === 200) {
       env.authenticated = true;
     } else {
@@ -152,8 +152,9 @@ export abstract class BaseCommand {
   }
 
   async authenticateStore(sdk: StoreSdk): Promise<void> {
-    const loginEndpoint = `${sdk.baseUri}/auth/login`;
-    const result = await sdk.post(loginEndpoint);
+    const loginEndpoint = sdk.getUrl('/auth/login').toString();
+    
+    const result = await sdk.http.post(loginEndpoint);
     if (result.status !== 204) {
       throw new Error(`Unable to create the authorization session on the store. Invalid status code: ${result.status}.`);
     }
@@ -167,7 +168,14 @@ export abstract class BaseCommand {
     console.log(`If nothing happened, open this URL: ${url}`);
 
     await open.default(url); // this has the state parameter.
-    await sdk.listenAuth(loginEndpoint);
+    await sdk.auth.listenAuth(loginEndpoint);
     // there, authenticated.
+  }
+
+  validateUserSpace(options: IGlobalOptions): void {
+    const { space } = options;
+    if (!space) {
+      throw new CommanderError(0, 'E_MISSING_OPTION', `The "space" option is required.`);
+    }
   }
 }

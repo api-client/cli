@@ -1,24 +1,20 @@
 import { Command } from 'commander';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
 import { ProjectCommand } from '../ProjectCommand.js';
+import { printProjectInfo } from './Utils.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
-  revalidate?: boolean;
 }
 
-/**
- * A command that clones an HTTP project.
- */
-export default class ProjectClone extends ProjectCommandBase {
+export default class ProjectRead extends ProjectCommandBase {
   static get command(): Command {
-    const cmd = new Command('clone');
+    const cmd = new Command('read');
     ProjectCommand.globalOptions(cmd);
-    ProjectCommand.outputOptions(cmd);
+    
     cmd
-      .description('Makes a copy of a project.')
-      .option('--no-revalidate', 'By default keys are re-generated in the project (requests, folders, etc). Use this option to make an exact copy.')
+      .description('Prints information about the project.')
       .action(async (options) => {
-        const instance = new ProjectClone(cmd);
+        const instance = new ProjectRead(cmd);
         await instance.run(options);
       });
     return cmd;
@@ -30,9 +26,6 @@ export default class ProjectClone extends ProjectCommandBase {
    */
   async run(options: ICommandOptions): Promise<void> {
     const project = await this.readProject(options);
-    const clone = project.clone({
-      withoutRevalidate: !options.revalidate,
-    });
-    await this.finishProject(clone, options);
+    printProjectInfo(project);
   }
 }

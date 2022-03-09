@@ -25,14 +25,14 @@ export default class EnvironmentVariableList extends ProjectCommandBase {
       .description('Lists variables in an environment.\nVariable names are not visible by default. Use the --show-values to render the value.')
       .option('--show-values', 'When set it renders the values of variables to the console output.')
       .action(async (key, options) => {
-        const instance = new EnvironmentVariableList();
+        const instance = new EnvironmentVariableList(cmd);
         await instance.run(key, options);
       });
     return cmd;
   }
 
   async run(key: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const environment = findEnvironment(key, project);
     if (!environment) {
       throw new CommanderError(0, 'ENOENV', `The environment "${key}" not found in the project.`);

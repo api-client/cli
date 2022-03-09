@@ -69,10 +69,10 @@ export class InteractiveConfig {
     const url = await this.getStoreUrl();
     result.location = url;
     const sdk = new StoreSdk(url);
-    const token = await sdk.createSession();
+    const { token } = await sdk.auth.createSession();
     result.token = token;
     sdk.token = token;
-    const info = await sdk.getInfo();
+    const info = await sdk.store.getInfo();
     if (info.mode === 'multi-user') {
       if (await this.shouldAuthenticateStore()) {
         try {
@@ -185,8 +185,8 @@ export class InteractiveConfig {
   }
 
   async authenticateStore(sdk: StoreSdk): Promise<void> {
-    const loginEndpoint = `${sdk.baseUri}/auth/login`;
-    const result = await sdk.post(loginEndpoint);
+    const loginEndpoint = sdk.getUrl('/auth/login').toString();
+    const result = await sdk.http.post(loginEndpoint);
     if (result.status !== 204) {
       throw new Error(`Unable to create the authorization session on the store. Invalid status code: ${result.status}.`);
     }
@@ -194,13 +194,13 @@ export class InteractiveConfig {
       throw new Error(`Unable to create the authorization session on the store. The location header is missing.`);
     }
     const open = await import('open');
-    const url = new URL(`/v1${result.headers.location}`, sdk.baseUri).toString();
+    const authEndpoint = sdk.getUrl(result.headers.location).toString();
 
     console.log(`Opening a web browser to log in to the store.`);
-    console.log(`If nothing happened, open this URL: ${url}`);
+    console.log(`If nothing happened, open this URL: ${authEndpoint}`);
 
-    await open.default(url); // this has the state parameter.
-    await sdk.listenAuth(loginEndpoint);
+    await open.default(authEndpoint); // this has the state parameter.
+    await sdk.auth.listenAuth(loginEndpoint);
     // there, authenticated.
   }
 

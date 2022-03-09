@@ -25,14 +25,14 @@ export default class ProjectRequestFind extends ProjectCommandBase {
       .argument('<query>', 'The query to use to search for a request.')
       .description('Finds requests in the project and prints it to the console.')
       .action(async (key, options) => {
-        const instance = new ProjectRequestFind();
+        const instance = new ProjectRequestFind(cmd);
         await instance.run(key, options);
       });
     return cmd;
   }
 
   async run(query: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const all = project.definitions.requests;
     // eslint-disable-next-line import/no-named-as-default-member
     const index = new FlexSearch.Document({

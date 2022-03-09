@@ -32,14 +32,14 @@ export default class ProjectEnvironmentAdd extends ProjectCommandBase {
       .option('--protocol [value]', 'Adds server definition to the environment. The protocol to use when missing in the base URI')
       .option('--server-description [value]', 'Adds server definition to the environment. The description of the server')
       .action(async (name, options) => {
-        const instance = new ProjectEnvironmentAdd();
+        const instance = new ProjectEnvironmentAdd(cmd);
         await instance.run(name, options);
       });
     return cmd;
   }
 
   async run(name: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const { parent, baseUri, basePath, protocol, description, serverDescription } = options;
     const root = parent ? project.findFolder(parent) : project;
     if (!root) {

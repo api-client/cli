@@ -23,7 +23,7 @@ export default class ProjectFolderDelete extends ProjectCommandBase {
       .description('Removes the folder from the project')
       .option('-S, --safe', 'Does not throw an error when the folder does not exist.')
       .action(async (key, options) => {
-        const instance = new ProjectFolderDelete();
+        const instance = new ProjectFolderDelete(cmd);
         await instance.run(key, options);
       });
     
@@ -31,7 +31,7 @@ export default class ProjectFolderDelete extends ProjectCommandBase {
   }
 
   async run(key: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const { safe=false } = options;
     project.removeFolder(key, { safe });
     await this.finishProject(project, options);

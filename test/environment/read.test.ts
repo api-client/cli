@@ -4,15 +4,15 @@ import { HttpProject, IEnvironment } from '@api-client/core';
 import fs from 'fs/promises';
 import { runCommand, writeProject, splitTable } from '../helpers/CliHelper.js';
 
-const projectPath = join('test', 'playground', 'project-environment-get');
+const projectPath = join('test', 'playground', 'project-environment-read');
 const projectInFile = join(projectPath, 'project.json');
 
 const cmdRoot = 'project environment';
 
 describe('Project', () => {
   describe('Environment', () => {
-    describe('Get', () => {
-      const addCmd = `${cmdRoot} get`;
+    describe('Read', () => {
+      const addCmd = `${cmdRoot} read`;
       after(async () => {
         await fs.rm(projectPath, { recursive: true, force: true });
       });
@@ -129,7 +129,7 @@ describe('Project', () => {
         const project = new HttpProject();
         await writeProject(project, projectInFile);
         const result = await runCommand(`${addCmd} -i ${projectInFile} "unknown"`, { includeError: true });
-        assert.equal(result, 'The environment "unknown" not found in the project.');
+        assert.equal(result, '[ENOENV]: The environment "unknown" not found in the project.');
       });
     });  
   });

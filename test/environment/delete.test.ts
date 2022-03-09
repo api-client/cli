@@ -46,7 +46,7 @@ describe('Project', () => {
 
       it('prints a message when the environment is not found', async () => {
         const result = await runCommand(`${finalCmd} -i ${projectInFile} "test"`, { includeError: true });
-        assert.equal(result, 'The environment cannot be found: test.');
+        assert.equal(result, '[EENVNOTFOUND]: The environment cannot be found: test.');
       });
 
       it('ignores errors when --safe', async () => {

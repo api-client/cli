@@ -21,7 +21,7 @@ export default class ProjectRequestDelete extends ProjectCommandBase {
       .description('Removes the request from the project')
       .option('-S, --safe', 'Does not throw an error when the request does not exist.')
       .action(async (key, options) => {
-        const instance = new ProjectRequestDelete();
+        const instance = new ProjectRequestDelete(cmd);
         await instance.run(key, options);
       });
     
@@ -29,7 +29,7 @@ export default class ProjectRequestDelete extends ProjectCommandBase {
   }
 
   async run(key: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const { safe=false } = options;
     project.removeRequest(key, { safe });
     await this.finishProject(project, options);

@@ -12,13 +12,16 @@ export default class SetDefault extends BaseCommand {
       .description('Sets the environment as default.')
       .option('--interactive', 'Interactively selects the environment using the CLI. Used instead of [name].')
       .action(async (name, opts) => {
-        const instance = new SetDefault();
+        const instance = new SetDefault(cmd);
         await instance.run(name, opts);
       });
     return cmd;
   }
 
   async run(nameOrKey?: string, opts: any = {}): Promise<void> {
+    if (!process.stdout.isTTY) {
+      throw new Error(`This commands can only run in the interactive mode.`);
+    }
     let key = nameOrKey;
     if (!key && !opts.interactive) {
       throw new Error(`Either [name] or "--interactive" must be set.`);
@@ -30,6 +33,6 @@ export default class SetDefault extends BaseCommand {
     const config = new Config();
     const data = await config.read();
     data.loaded = key;
-    await config.store(data);
+    await config.write(data);
   }
 }

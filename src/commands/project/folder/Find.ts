@@ -27,14 +27,14 @@ export default class ProjectFolderFind extends ProjectCommandBase {
       .argument('<query>', 'The query to use to search for a folder.')
       .description('Finds folders in the project and prints it to the console.')
       .action(async (query, options) => {
-        const instance = new ProjectFolderFind();
+        const instance = new ProjectFolderFind(cmd);
         await instance.run(query, options);
       });
     return cmd;
   }
 
   async run(query: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const all = project.definitions.folders;
     // eslint-disable-next-line import/no-named-as-default-member
     const index = new FlexSearch.Document({

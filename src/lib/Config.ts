@@ -80,13 +80,13 @@ export class Config {
   /**
    * @param contents The configuration object to write to the configuration main file.
    */
-  async store(contents: IConfig): Promise<void> {
+  async write(contents: IConfig): Promise<void> {
     const file = this.configFilePath();
     await writeJson(file, contents);
   }
 
   async reset(): Promise<void> {
-    await this.store(this.default())
+    await this.write(this.default())
   }
 
   /**
@@ -116,7 +116,7 @@ export class Config {
     if (options.makeDefault) {
       data.loaded = env.key;
     }
-    await this.store(data);
+    await this.write(data);
   }
 
   /**
@@ -129,7 +129,47 @@ export class Config {
       throw new Error(`Configuration environment ${key} does not exist.`);
     }
     data.loaded = key;
-    await this.store(data);
+    await this.write(data);
+  }
+
+  /**
+   * Finds an environment by the name or the key or returns the default environment.
+   * 
+   * @param data The list of environments configured in the application.
+   * @param key Optional key or the name of the environment. When not set it reads the default environment.
+   * @returns The environment configuration or throws when not found.
+   */
+  getEnv(data: IConfig, key?: string): IConfigEnvironment {
+    if (!Array.isArray(data.environments) || !data.environments.length) {
+      throw new Error('The configuration has no environments.');
+    }
+    const id = key || data.loaded;
+    if (!id) {
+      throw new Error('The configuration has no default environment.');
+    }
+    const result = data.environments.find(i => i.key === id || i.name === id);
+    if (!result) {
+      throw new Error('The configuration environment not found.');
+    }
+    return result;
+  }
+
+  /**
+   * Finds an environment by the name or the key or returns the default environment.
+   * 
+   * @param data The list of environments configured in the application.
+   * @param key Optional key or the name of the environment. When not set it reads the default environment.
+   * @returns The environment configuration or throws when not found.
+   */
+  getEnvIndex(data: IConfig, key?: string): number {
+    if (!Array.isArray(data.environments) || !data.environments.length) {
+      throw new Error('The configuration has no environments.');
+    }
+    const id = key || data.loaded;
+    if (!id) {
+      throw new Error('The configuration has no default environment.');
+    }
+    return data.environments.findIndex(i => i.key === id || i.name === id);
   }
 }
 

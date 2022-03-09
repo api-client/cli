@@ -7,23 +7,20 @@ export interface ICommandOptions extends IProjectCommandOptions {
   projectVersion?: string;
 }
 
-/**
- * A command that creates a new HTTP project.
- */
-export default class ProjectCreate extends ProjectCommandBase {
+export default class ProjectAdd extends ProjectCommandBase {
   /**
    * The command, e.g. `project request add`
    */
   static get command(): Command {
-    const cmd = new Command('create');
+    const cmd = new Command('add');
     ProjectCommand.globalOptions(cmd);
     ProjectCommand.outputOptions(cmd);
     cmd
       .argument('<name>', 'The name of the project to create')
-      .description('Creates a new HTTP project')
+      .description('Creates a new HTTP project. Depending on the configuration it creates the project in the data store, file, our prints the project to the terminal.')
       .option('-v, --project-version [value]', 'Sets the version of the project')
       .action(async (projectName, options) => {
-        const instance = new ProjectCreate();
+        const instance = new ProjectAdd(cmd);
         await instance.run(projectName, options);
       });
     return cmd;

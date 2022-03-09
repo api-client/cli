@@ -12,13 +12,16 @@ export default class ConfigInit extends BaseCommand {
     cmd
       .description('Initializes the CLI configuration.')
       .action(async () => {
-        const instance = new ConfigInit();
+        const instance = new ConfigInit(cmd);
         await instance.run();
       });
     return cmd;
   }
 
   async run(): Promise<void> {
+    if (!process.stdout.isTTY) {
+      throw new Error(`This commands can only run in the interactive mode.`);
+    }
     const interactive = new InteractiveConfig();
     const config = new Config();
     const hasConfig = await config.hasConfig();

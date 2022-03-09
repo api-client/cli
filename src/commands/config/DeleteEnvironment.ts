@@ -10,7 +10,7 @@ export default class DeleteEnvironment extends BaseCommand {
       .argument('<key>', 'The key of the configuration environment to delete')
       .description('Deletes an environment from the configuration.')
       .action(async (key) => {
-        const instance = new DeleteEnvironment();
+        const instance = new DeleteEnvironment(cmd);
         await instance.run(key);
       });
     return cmd;
@@ -29,6 +29,6 @@ export default class DeleteEnvironment extends BaseCommand {
       return;
     }
     data.environments.splice(index, 1);
-    await config.store(data);
+    await config.write(data);
   }
 }

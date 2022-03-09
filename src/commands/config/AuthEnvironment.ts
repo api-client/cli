@@ -11,7 +11,7 @@ export default class AuthEnvironment extends BaseCommand {
       .description('When using the net-store it authenticates the user in the system..')
       .argument('[key]', 'The environment key. When not set it uses the default environment.')
       .action(async (key) => {
-        const instance = new AuthEnvironment();
+        const instance = new AuthEnvironment(cmd);
         await instance.run(key);
       });
     return cmd;
@@ -20,7 +20,7 @@ export default class AuthEnvironment extends BaseCommand {
   async run(key?: string): Promise<void> {
     const config = new Config();
     const data = await config.read();
-    const env = this.getEnv(data, key);
+    const env = config.getEnv(data, key);
     if (env.source !== 'net-store') {
       this.warn(`This environment does not require user log in.`);
       return;
@@ -30,7 +30,7 @@ export default class AuthEnvironment extends BaseCommand {
       return;
     }
     const sdk = new StoreSdk(env.location as string);
-    const token = await sdk.createSession();
+    const { token } = await sdk.auth.createSession();
     sdk.token = token;
     try {
       await this.authenticateStore(sdk);
@@ -40,6 +40,6 @@ export default class AuthEnvironment extends BaseCommand {
     }
     env.token = sdk.token;
     env.authenticated = true;
-    await config.store(data);
+    await config.write(data);
   }
 }

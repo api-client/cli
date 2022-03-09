@@ -20,7 +20,7 @@ export default class ProjectEnvironmentDelete extends ProjectCommandBase {
       .description('Removes an environment from the project')
       .option('-S, --safe', 'Does not print an error when the environment does not exist.')
       .action(async (key, options) => {
-        const instance = new ProjectEnvironmentDelete();
+        const instance = new ProjectEnvironmentDelete(cmd);
         await instance.run(key, options);
       });
     
@@ -28,7 +28,7 @@ export default class ProjectEnvironmentDelete extends ProjectCommandBase {
   }
 
   async run(key: string, options: ICommandOptions): Promise<void> {
-    const project = await this.readProject(options.in);
+    const project = await this.readProject(options);
     const { safe=false } = options;
     // first find and remove the definition of the environment
     const index = project.definitions.environments.findIndex(i => i.key === key);
