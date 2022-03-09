@@ -13,6 +13,10 @@ export interface ProjectExecutionIteration {
    * The list of requests executed in the iteration.
    */
   executed: IRequestLog[];
+  /**
+   * Optional general error message.
+   */
+  error?: string;
 }
 
 export interface ProjectExecutionLog {
@@ -46,6 +50,22 @@ export abstract class Reporter {
   abstract generate(): Promise<void>;
 
   /**
+   * Checks whether the execution log should be considered a failure.
+   * @param log The execution log.
+   * @returns `true` when the request was a failure.
+   */
+  protected isFailedLog(log: IRequestLog): boolean {
+    if (!log.response || ErrorResponse.isErrorResponse(log.response)) {
+      return true;
+    }
+    const response = log.response as IArcResponse;
+    if (response.status >= 400) {
+      return true;
+    }
+    return false;
+  }
+
+  /**
    * Computes the number of requests that failed.
    */
   computeFailed(): number {
@@ -54,12 +74,7 @@ export abstract class Reporter {
     const { iterations } = info;
     iterations.forEach((iteration) => {
       iteration.executed.forEach((log) => {
-        if (!log.response || ErrorResponse.isErrorResponse(log.response)) {
-          result++;
-          return;
-        }
-        const response = log.response as IArcResponse;
-        if (response.status >= 400) {
+        if (this.isFailedLog(log)) {
           result++;
         }
       });

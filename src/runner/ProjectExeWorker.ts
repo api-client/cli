@@ -61,6 +61,10 @@ class ProjectExeWorker extends ProjectExe {
   protected responseHandler(key: string, log: IRequestLog): void {
     this.currentIteration?.executed.push(log);
   }
+
+  protected errorHandler(key: string, log: IRequestLog, message: string): void {
+    this.currentIteration?.executed.push(log);
+  }
 }
 
 const instance = new ProjectExeWorker();

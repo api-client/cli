@@ -85,6 +85,7 @@ export abstract class ProjectExe {
   constructor() {
     this.requestHandler = this.requestHandler.bind(this);
     this.responseHandler = this.responseHandler.bind(this);
+    this.errorHandler = this.errorHandler.bind(this);
   }
 
   /**
@@ -149,7 +150,6 @@ export abstract class ProjectExe {
       throw new Error(`Run configure() first.`);
     }
     await this.beforeIteration(index, hasIterations);
-
     const runner = new ProjectRunner(project, {
       environment,
       logger: new DummyLogger(),
@@ -159,7 +159,7 @@ export abstract class ProjectExe {
     
     runner.on('request', this.requestHandler);
     runner.on('response', this.responseHandler);
-
+    runner.on('error', this.errorHandler);
     this.currentIteration = {
       index: this.index,
       executed: [],
@@ -172,6 +172,9 @@ export abstract class ProjectExe {
         recursive: options.recursive 
       });
     } catch (e) {
+      const cause = e as Error;
+      console.error(e);
+      this.currentIteration.error = cause.message || 'Unknown error ocurred';
       // ...
     }
     this.executed.push(this.currentIteration);
@@ -200,6 +203,8 @@ export abstract class ProjectExe {
   protected abstract requestHandler(key: string, request: IHttpRequest): void;
 
   protected abstract responseHandler(key: string, log: IRequestLog): void;
+
+  protected abstract errorHandler(key: string, log: IRequestLog, message: string): void;
 
   protected getSystemVariables(): Record<string, string> {
     const result: Record<string, string> = {};

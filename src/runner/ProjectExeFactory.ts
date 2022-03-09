@@ -6,6 +6,7 @@ import {
   IArcResponse, 
   IErrorResponse, 
   ErrorResponse,
+  ISerializedError,
 } from '@api-client/core';
 import { CliReporter } from '../reporters/CliReporter.js';
 import { bytesToSize } from '../lib/DataSize.js';
@@ -101,6 +102,16 @@ export class ProjectExeFactory extends ProjectExe {
     }
   }
 
+  protected errorHandler(key: string, log: IRequestLog, message: string): void {
+    this.currentIteration?.executed.push(log);
+    const projectRequest = this.project!.findRequest(key);
+    if (!projectRequest) {
+      process.stdout.write(chalk.red(`Unable to find a request in the project.`));
+      return;
+    }
+    this.writeError(message);
+  }
+
   private statusPart(execLog: IRequestLog): string {
     const response = execLog.response as IArcResponse | IErrorResponse;
     if (!response) {
@@ -128,8 +139,12 @@ export class ProjectExeFactory extends ProjectExe {
 
   private writeErrorResponse(execLog: IRequestLog): void {
     const response = execLog.response as IErrorResponse;
+    this.writeError(response.error);
+  }
+
+  private writeError(message: string | Error | ISerializedError): void {
     const parts = [
-      ` [${chalk.redBright(response.error)}]\n`,
+      ` [${chalk.redBright(message)}]\n`,
     ];
     process.stdout.write(chalk.gray(parts.join(', ')));
   }
