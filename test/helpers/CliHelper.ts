@@ -1,3 +1,4 @@
+import { Command, Option } from 'commander';
 import { exec } from 'child_process';
 import { dirname } from 'path';
 import { IHttpProject, HttpProject } from '@api-client/core';
@@ -15,6 +16,40 @@ function cleanTerminalOutput(s: string): string {
 export interface RunCommandOptions {
   includeError?: boolean;
   noCleaning?: boolean;
+}
+
+class OutputCapture {
+  private messages: string[] = [];
+
+  constructor() {
+    this.messageHandler = this.messageHandler.bind(this);
+  }
+
+  start(): () => string {
+    const origOut = process.stdout.write;
+    const origErr = process.stderr.write;
+    process.stdout.write = this.messageHandler;
+    process.stderr.write = this.messageHandler;
+    return () => {
+      process.stdout.write = origOut;
+      process.stderr.write = origErr;
+      return this.messages.join('');
+    };
+  }
+
+  private messageHandler(buffer: string | Buffer): boolean {
+    if (typeof buffer === 'string') {
+      this.messages.push(buffer);
+    } else {
+      this.messages.push(buffer.toString('utf8'));
+    }
+    return true;
+  }
+}
+
+export function captureOutput(): () => string {
+  const instance = new OutputCapture();
+  return instance.start();
 }
 
 export async function runCommand(command: string, opts: RunCommandOptions = {}): Promise<string> {
@@ -70,4 +105,10 @@ export function splitTable(table: string): string[] {
     result.push(line.trim());
   });
   return result;
+}
+
+export function findCommandOption(command: Command, q: string): Option {
+  // @ts-ignore
+  const options = command.options as Option[];
+  return options.find(o => o.long === q || o.short === q) as Option;
 }

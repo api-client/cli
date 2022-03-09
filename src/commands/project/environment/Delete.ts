@@ -18,7 +18,7 @@ export default class ProjectEnvironmentDelete extends ProjectCommandBase {
     cmd
       .argument('<key>', 'The id of the environment. It ignores the name when searching to an environment to avoid ambiguity.')
       .description('Removes an environment from the project')
-      .option('-S, --safe', 'Does not print an error when the environment does not exist.')
+      .option('-s, --safe', 'Does not print an error when the environment does not exist.')
       .action(async (key, options) => {
         const instance = new ProjectEnvironmentDelete(cmd);
         await instance.run(key, options);

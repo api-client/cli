@@ -80,7 +80,7 @@
     ]
   },
   "dependencies": {
-    "@api-client/core": "^0.3.0",
+    "@api-client/core": "^0.3.5",
     "chalk": "^5.0.0",
     "commander": "^9.0.0",
     "console-table-printer": "^2.10.0",
