@@ -21,7 +21,7 @@ export default class ProjectFolderDelete extends ProjectCommandBase {
     cmd
       .argument('<key>', 'The id of the folder. It ignores the name when searching to the folder to avoid ambiguity.')
       .description('Removes the folder from the project')
-      .option('-S, --safe', 'Does not throw an error when the folder does not exist.')
+      .option('-s, --safe', 'Does not throw an error when the folder does not exist.')
       .action(async (key, options) => {
         const instance = new ProjectFolderDelete(cmd);
         await instance.run(key, options);

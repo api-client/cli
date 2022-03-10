@@ -115,10 +115,6 @@ describe('Project', () => {
         assert.ok(option);
         assert.equal(option.short, '-s', 'has the short option');
       });
-
-      it('adds the key argument', () => {
-        console.log(Delete.command.processedArgs);
-      });
     });
     
     // describe('Delete', () => {

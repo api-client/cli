@@ -31,7 +31,7 @@ export default class ProjectAdd extends ProjectCommandBase {
    * @param projectName The name of the project to set.
    * @param options Command options.
    */
-  async run(projectName: string, options: ICommandOptions): Promise<void> {
+  async run(projectName: string, options: ICommandOptions={}): Promise<void> {
     const project = this.createProject(projectName, options);
     await this.finishProject(project, options);
   }
@@ -41,7 +41,7 @@ export default class ProjectAdd extends ProjectCommandBase {
    * @param projectName The name of the project to set.
    * @param options Command options.
    */
-  createProject(projectName: string, options: ICommandOptions): HttpProject {
+  createProject(projectName: string, options: ICommandOptions={}): HttpProject {
     const project = HttpProject.fromName(projectName);
     if (options.projectVersion) {
       const { info } = project;

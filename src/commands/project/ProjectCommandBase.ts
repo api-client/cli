@@ -133,16 +133,14 @@ export abstract class ProjectCommandBase extends ProjectCommand {
       overwrite = true;
     }
     if (!out && !overwrite) {
-      this.err('Unknown output location.');
-      return;
+      throw new Error('Unknown output location.');
     }
     if (!out) {
       out = input as string;
     }
     const exists = await pathExists(out);
     if (exists && !overwrite) {
-      this.err('The project already exists. Use --overwrite to replace the contents.');
-      return;
+      throw new Error('The project already exists. Use --overwrite to replace the contents.');
     }
     
     const contents = JSON.stringify(result, null, options.prettyPrint ? 2 : 0);
