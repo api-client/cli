@@ -3,7 +3,7 @@ import { join } from 'path';
 import { HttpProject, IEnvironment } from '@api-client/core';
 import fs from 'fs/promises';
 import { CommanderError } from 'commander';
-import { writeProject, captureOutput, findCommandOption, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
+import { writeProject, exeCommand, findCommandOption, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
 import Read from '../../src/commands/project/environment/Read.js';
 
 const projectPath = join('test', 'playground', 'project-environment-read');
@@ -23,12 +23,12 @@ describe('Project', () => {
         const e1 = project.addEnvironment('e1');
         await writeProject(project, projectInFile);
 
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run(e1.key, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(e1.key, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
 
         const [key, name, variables, server] = lines;
@@ -52,12 +52,12 @@ describe('Project', () => {
         const e1 = f1.addEnvironment('e1');
         await writeProject(project, projectInFile);
 
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run(e1.key, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(e1.key, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         const [key, name, variables, server] = lines;
         
@@ -80,12 +80,12 @@ describe('Project', () => {
         e1.info.description = 'A test env';
         await writeProject(project, projectInFile);
 
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run(e1.key, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(e1.key, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         const [, , description] = lines;
         
@@ -101,12 +101,12 @@ describe('Project', () => {
         e1.addVariable('v3', '');
         await writeProject(project, projectInFile);
 
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run(e1.key, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(e1.key, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         const [, , variables] = lines;
         
@@ -119,12 +119,13 @@ describe('Project', () => {
         const e1 = project.addEnvironment('e1');
         e1.addServer('https://api.com');
         await writeProject(project, projectInFile);
-        const stop = captureOutput();
+        
         const cmd = new Read(Read.command);
-        await cmd.run(e1.key, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(e1.key, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         const [, , , server] = lines;
         
@@ -136,14 +137,14 @@ describe('Project', () => {
         const project = new HttpProject();
         const e1 = project.addEnvironment('e1');
         await writeProject(project, projectInFile);
-        
-        const stop = captureOutput();
+
         const cmd = new Read(Read.command);
-        await cmd.run(e1.key, {
-          in: projectInFile,
-          reporter: 'json',
+        const result = await exeCommand(async () => {
+          await cmd.run(e1.key, {
+            in: projectInFile,
+            reporter: 'json',
+          });
         });
-        const result = stop();
 
         const env:IEnvironment = JSON.parse(result);
         assert.deepEqual(env, e1.toJSON())
@@ -153,14 +154,13 @@ describe('Project', () => {
         const project = new HttpProject();
         const e1 = project.addEnvironment('e1');
         await writeProject(project, projectInFile);
-
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run(e1.key, {
-          in: projectInFile,
-          keyOnly: true,
+        const result = await exeCommand(async () => {
+          await cmd.run(e1.key, {
+            in: projectInFile,
+            keyOnly: true,
+          });
         });
-        const result = stop();
         assert.equal(result.trim(), e1.key);
       });
 

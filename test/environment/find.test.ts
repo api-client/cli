@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { HttpProject, IEnvironment } from '@api-client/core';
 import fs from 'fs/promises';
-import { writeProject, captureOutput, findCommandOption, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
+import { writeProject, exeCommand, findCommandOption, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
 import Find from '../../src/commands/project/environment/Find.js';
 
 const projectPath = join('test', 'playground', 'project-environment-find');
@@ -26,13 +26,12 @@ describe('Project', () => {
         await writeProject(project, projectInFile);
 
         const query = 'nam';
-
-        const stop = captureOutput();
         const cmd = new Find(Find.command);
-        await cmd.run(query, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(query, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [title, headers, d1, d2, d3] = lines;
@@ -55,13 +54,12 @@ describe('Project', () => {
         await writeProject(project, projectInFile);
 
         const query = 'order';
-
-        const stop = captureOutput();
         const cmd = new Find(Find.command);
-        await cmd.run(query, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(query, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [, , d1, d2] = lines;
@@ -80,13 +78,12 @@ describe('Project', () => {
         await writeProject(project, projectInFile);
 
         const query = 'api.com';
-
-        const stop = captureOutput();
         const cmd = new Find(Find.command);
-        await cmd.run(query, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(query, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [, , d1, d2, d3] = lines;
@@ -108,13 +105,12 @@ describe('Project', () => {
         await writeProject(project, projectInFile);
 
         const query = 'token';
-
-        const stop = captureOutput();
         const cmd = new Find(Find.command);
-        await cmd.run(query, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(query, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [, , d1, d2, d3] = lines;
@@ -134,13 +130,12 @@ describe('Project', () => {
         await writeProject(project, projectInFile);
 
         const query = '12345';
-
-        const stop = captureOutput();
         const cmd = new Find(Find.command);
-        await cmd.run(query, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(query, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [, , d1, d2, d3] = lines;
@@ -158,14 +153,13 @@ describe('Project', () => {
         await writeProject(project, projectInFile);
 
         const query = 'nam';
-
-        const stop = captureOutput();
         const cmd = new Find(Find.command);
-        await cmd.run(query, {
-          in: projectInFile,
-          reporter: 'json',
+        const result = await exeCommand(async () => {
+          await cmd.run(query, {
+            in: projectInFile,
+            reporter: 'json',
+          });
         });
-        const result = stop();
         const folders: IEnvironment[] = JSON.parse(result);
         assert.lengthOf(folders, 2);
       });
@@ -179,14 +173,13 @@ describe('Project', () => {
         await writeProject(project, projectInFile);
 
         const query = 'nam';
-
-        const stop = captureOutput();
         const cmd = new Find(Find.command);
-        await cmd.run(query, {
-          in: projectInFile,
-          keyOnly: true,
+        const result = await exeCommand(async () => {
+          await cmd.run(query, {
+            in: projectInFile,
+            keyOnly: true,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [title, d1, d2] = lines;

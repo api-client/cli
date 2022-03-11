@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { HttpProject, ProjectFolder, Server } from '@api-client/core';
 import fs from 'fs/promises';
-import { writeProject, captureOutput, findCommandOption } from '../helpers/CliHelper.js';
+import { writeProject, exeCommand, findCommandOption } from '../helpers/CliHelper.js';
 import Add from '../../src/commands/project/environment/Add.js';
 
 const projectPath = join('test', 'playground', 'project-environment-add');
@@ -30,13 +30,13 @@ describe('Project', () => {
         const envName = 'test-env';
 
         it('adds an environment to the project', async () => {
-          const stop = captureOutput();
           const name = envName;
           const cmd = new Add(Add.command);
-          await cmd.run(name, {
-            in: projectInFile,
+          const result = await exeCommand(async () => {
+            await cmd.run(name, {
+              in: projectInFile,
+            });
           });
-          const result = stop();
           const project = new HttpProject(result);
           const { environments } = project.definitions;
           assert.lengthOf(environments, 1, 'project has the environment');
@@ -48,14 +48,13 @@ describe('Project', () => {
         });
 
         it('adds an environment to a folder', async () => {
-          const stop = captureOutput();
           const cmd = new Add(Add.command);
-          await cmd.run(envName, {
-            in: projectInFile,
-            parent: f1.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(envName, {
+              in: projectInFile,
+              parent: f1.key,
+            });
           });
-          const result = stop();
-          
           const project = new HttpProject(result);
           assert.lengthOf(project.environments, 0, 'project has no environment');
   
@@ -69,13 +68,13 @@ describe('Project', () => {
         });
 
         it('adds the description', async () => {
-          const stop = captureOutput();
           const cmd = new Add(Add.command);
-          await cmd.run(envName, {
-            in: projectInFile,
-            description: 'My environment',
+          const result = await exeCommand(async () => {
+            await cmd.run(envName, {
+              in: projectInFile,
+              description: 'My environment',
+            });
           });
-          const result = stop();
           const project = new HttpProject(result);
           const { environments } = project.definitions;
           const [env] = environments;
@@ -83,13 +82,13 @@ describe('Project', () => {
         });
   
         it('adds the base URI', async () => {
-          const stop = captureOutput();
           const cmd = new Add(Add.command);
-          await cmd.run(envName, {
-            in: projectInFile,
-            baseUri: 'api.com',
+          const result = await exeCommand(async () => {
+            await cmd.run(envName, {
+              in: projectInFile,
+              baseUri: 'api.com',
+            });
           });
-          const result = stop();
           const project = new HttpProject(result);
           const { environments } = project.definitions;
           const [env] = environments;
@@ -99,14 +98,14 @@ describe('Project', () => {
         });
   
         it('adds the protocol', async () => {
-          const stop = captureOutput();
           const cmd = new Add(Add.command);
-          await cmd.run(envName, {
-            in: projectInFile,
-            baseUri: 'api.com',
-            protocol: 'https:',
+          const result = await exeCommand(async () => {
+            await cmd.run(envName, {
+              in: projectInFile,
+              baseUri: 'api.com',
+              protocol: 'https:',
+            });
           });
-          const result = stop();
           const project = new HttpProject(result);
           const { environments } = project.definitions;
           const [env] = environments;
@@ -116,14 +115,14 @@ describe('Project', () => {
         });
   
         it('adds the base path', async () => {
-          const stop = captureOutput();
           const cmd = new Add(Add.command);
-          await cmd.run(envName, {
-            in: projectInFile,
-            baseUri: 'api.com',
-            basePath: '/v2/api',
+          const result = await exeCommand(async () => {
+            await cmd.run(envName, {
+              in: projectInFile,
+              baseUri: 'api.com',
+              basePath: '/v2/api',
+            });
           });
-          const result = stop();
           const project = new HttpProject(result);
           const { environments } = project.definitions;
           const [env] = environments;
@@ -133,13 +132,13 @@ describe('Project', () => {
         });
   
         it('adds server description', async () => {
-          const stop = captureOutput();
           const cmd = new Add(Add.command);
-          await cmd.run(envName, {
-            in: projectInFile,
-            serverDescription: 'My API server',
+          const result = await exeCommand(async () => {
+            await cmd.run(envName, {
+              in: projectInFile,
+              serverDescription: 'My API server',
+            });
           });
-          const result = stop();
           const project = new HttpProject(result);
           const { environments } = project.definitions;
           const [env] = environments;
@@ -149,13 +148,13 @@ describe('Project', () => {
         });
   
         it('outputs to a file', async () => {
-          const stop = captureOutput();
           const cmd = new Add(Add.command);
-          await cmd.run(envName, {
-            in: projectInFile,
-            out: projectOutFile,
+          const result = await exeCommand(async () => {
+            await cmd.run(envName, {
+              in: projectInFile,
+              out: projectOutFile,
+            });
           });
-          const result = stop();
           assert.isEmpty(result);
           
           const content = await fs.readFile(projectOutFile, 'utf8');

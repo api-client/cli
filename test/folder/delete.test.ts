@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { HttpProject, ProjectFolder } from '@api-client/core';
 import fs from 'fs/promises';
-import { writeProject, captureOutput, findCommandOption } from '../helpers/CliHelper.js';
+import { writeProject, exeCommand, findCommandOption } from '../helpers/CliHelper.js';
 import Delete from '../../src/commands/project/folder/Delete.js';
 
 const projectPath = join('test', 'playground', 'project-folder-delete');
@@ -35,12 +35,12 @@ describe('Project', () => {
       });
 
       it('removes a folder from the project and prints the project', async () => {
-        const stop = captureOutput();
         const cmd = new Delete(Delete.command);
-        await cmd.run(f1.key, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(f1.key, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         
         const project = new HttpProject(result);
         const folder = project.findFolder(f1.key, { keyOnly: true });
@@ -91,13 +91,13 @@ describe('Project', () => {
       });
 
       it('ignores errors when --safe', async () => {
-        const stop = captureOutput();
         const cmd = new Delete(Delete.command);
-        await cmd.run('test', {
-          in: projectInFile,
-          safe: true,
+        const result = await exeCommand(async () => {
+          await cmd.run('test', {
+            in: projectInFile,
+            safe: true,
+          });
         });
-        const result = stop();
         const project = new HttpProject(result);
         assert.ok(project);
       });

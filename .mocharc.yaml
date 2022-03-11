@@ -5,6 +5,9 @@ spec:
   # - test/environment/*.test.ts
   # - test/folder/*.test.ts
   # - test/project/*.test.ts
+  # - test/request/*.test.ts
+  # - test/variable/*.test.ts
+  # - test/run/*.test.ts
 require: 
   - ts-node/register
   - source-map-support/register.js

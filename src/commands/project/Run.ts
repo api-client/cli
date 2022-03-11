@@ -21,7 +21,7 @@ export default class ProjectRun extends ProjectCommandBase {
       .description('Executes requests from the project.')
       .option('-e, --environment [key, name, or path]', 'The name or the key of the environment to use or a path to the environment definition (in JSON format).')
       .option('-r, --request [key or name...]', 'The name or the key of a request to execute from the parent folder or the project.')
-      .option('-r, --ignore [key or name...]', 'The name or the key of a request to ignore when collecting the requests information.')
+      .option('-i, --ignore [key or name...]', 'The name or the key of a request to ignore when collecting the requests information.')
       .option('-n, --iterations [number]', 'The number of times the execution should be repeated.', parseInteger.bind(null, 'iterations'))
       .option('-d, --iteration-delay [number]', 'The number of milliseconds to wait between each iteration. Default to the next frame (vary from 1 to tens of milliseconds).', parseInteger.bind(null, 'iteration-delay'))
       .option('--parallel', 'Performs a parallel execution for each iteration.')

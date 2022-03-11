@@ -19,7 +19,7 @@ export default class ProjectRequestDelete extends ProjectCommandBase {
     cmd
       .argument('<key>', 'The id of the request. It ignores the name when searching to the folder to avoid ambiguity.')
       .description('Removes the request from the project')
-      .option('-S, --safe', 'Does not throw an error when the request does not exist.')
+      .option('-s, --safe', 'Does not throw an error when the request does not exist.')
       .action(async (key, options) => {
         const instance = new ProjectRequestDelete(cmd);
         await instance.run(key, options);

@@ -31,7 +31,7 @@ export default class ProjectRequestAdd extends ProjectCommandBase {
     cmd
       .argument('<URL>', 'The URL of the request')
       .description('Creates a new HTTP request in a project')
-      .option('-n, --name [value]', 'Sets the name of the request. Default to the URL.')
+      .option('-N, --name [value]', 'Sets the name of the request. Default to the URL.')
       .option('-m, --method [value]', 'The HTTP method of the request. Default to GET.', 'GET')
       .option('-H, --header [header...]', 'The full value of a single header line to add.')
       .option('-d, --data [data...]', 'The payload to send with the request. If used more than once the data pieces will be concatenated with a separating &-symbol. When used with the @-symbol it reads the file from the filesystem. The data does not manipulate the content type header.')

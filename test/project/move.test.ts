@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { HttpProject, ProjectFolder, ProjectRequest } from '@api-client/core';
 import fs from 'fs/promises';
-import { captureOutput, findCommandOption, writeProject } from '../helpers/CliHelper.js';
+import { exeCommand, findCommandOption, writeProject } from '../helpers/CliHelper.js';
 import Move from '../../src/commands/project/Move.js';
 
 const projectPath = join('test', 'playground', 'project-move');
@@ -36,13 +36,13 @@ describe('Project', () => {
       });
   
       it('moves a folder from the project root to a folder', async () => {
-        const stop = captureOutput();
         const cmd = new Move(Move.command);
-        await cmd.run(f1.key, {
-          in: projectFile,
-          parent: f2.key,
+        const result = await exeCommand(async () => {
+          await cmd.run(f1.key, {
+            in: projectFile,
+            parent: f2.key,
+          });
         });
-        const result = stop();
         const project = new HttpProject(result);
         const folders = project.listFolders();
         assert.lengthOf(folders, 1, 'project has 1 folder');
@@ -53,13 +53,13 @@ describe('Project', () => {
       });
   
       it('moves a request from the project root to a folder', async () => {
-        const stop = captureOutput();
         const cmd = new Move(Move.command);
-        await cmd.run(r1.key, {
-          in: projectFile,
-          parent: f2.key,
+        const result = await exeCommand(async () => {
+          await cmd.run(r1.key, {
+            in: projectFile,
+            parent: f2.key,
+          });
         });
-        const result = stop();
         const project = new HttpProject(result);
   
         const requests = project.listRequests();
@@ -73,12 +73,12 @@ describe('Project', () => {
       });
   
       it('moves a folder from a folder to the project root', async () => {
-        const stop = captureOutput();
         const cmd = new Move(Move.command);
-        await cmd.run(f3.key, {
-          in: projectFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(f3.key, {
+            in: projectFile,
+          });
         });
-        const result = stop();
         const project = new HttpProject(result);
         const folders = project.listFolders();
         assert.lengthOf(folders, 3, 'project has 3 folders');
@@ -88,12 +88,12 @@ describe('Project', () => {
       });
   
       it('moves a request from a folder to the project root', async () => {
-        const stop = captureOutput();
         const cmd = new Move(Move.command);
-        await cmd.run(r3.key, {
-          in: projectFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(r3.key, {
+            in: projectFile,
+          });
         });
-        const result = stop();
         const project = new HttpProject(result);
   
         const requests = project.listRequests();
@@ -123,14 +123,14 @@ describe('Project', () => {
       });
   
       it('moves a folder into a position in a folder', async () => {
-        const stop = captureOutput();
         const cmd = new Move(Move.command);
-        await cmd.run(f1.key, {
-          in: projectFile,
-          parent: f2.key,
-          index: 0,
+        const result = await exeCommand(async () => {
+          await cmd.run(f1.key, {
+            in: projectFile,
+            parent: f2.key,
+            index: 0,
+          });
         });
-        const result = stop();
         
         const project = new HttpProject(result);
         const folder = project.findFolder(f2.key) as ProjectFolder;
@@ -141,14 +141,14 @@ describe('Project', () => {
       });
   
       it('moves a request into a position in a folder', async () => {
-        const stop = captureOutput();
         const cmd = new Move(Move.command);
-        await cmd.run(r1.key, {
-          in: projectFile,
-          parent: f1.key,
-          index: 1,
+        const result = await exeCommand(async () => {
+          await cmd.run(r1.key, {
+            in: projectFile,
+            parent: f1.key,
+            index: 1,
+          });
         });
-        const result = stop();
         
         const project = new HttpProject(result);
         const folder = project.findFolder(f1.key) as ProjectFolder;

@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { HttpProject, ProjectFolder, ProjectRequest } from '@api-client/core';
 import fs from 'fs/promises';
-import { captureOutput, findCommandOption, writeProject } from '../helpers/CliHelper.js';
+import { exeCommand, findCommandOption, writeProject } from '../helpers/CliHelper.js';
 import Clone from '../../src/commands/project/Clone.js';
 
 const projectPath = join('test', 'playground', 'project-clone');
@@ -33,13 +33,13 @@ describe('Project', () => {
       });
   
       it('outputs project with different keys', async () => {
-        const stop = captureOutput();
         const cmd = new Clone(Clone.command);
-        await cmd.run({
-          in: projectFile,
-          revalidate: true,
+        const result = await exeCommand(async () => {
+          await cmd.run({
+            in: projectFile,
+            revalidate: true,
+          });
         });
-        const result = stop();
         const project = new HttpProject(result);
         
         const df1 = project.findFolder(f1.info.name as string) as ProjectFolder;
@@ -60,13 +60,13 @@ describe('Project', () => {
       });
   
       it('outputs project with the same keys keys', async () => {
-        const stop = captureOutput();
         const cmd = new Clone(Clone.command);
-        await cmd.run({
-          in: projectFile,
-          revalidate: false,
+        const result = await exeCommand(async () => {
+          await cmd.run({
+            in: projectFile,
+            revalidate: false,
+          });
         });
-        const result = stop();
         const project = new HttpProject(result);
         
         assert.deepEqual(project.toJSON(), sourceProject.toJSON());

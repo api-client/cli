@@ -1,3 +1,4 @@
+/* eslint-disable import/no-named-as-default-member */
 import cluster, { Worker } from 'cluster';
 import { cpus } from 'os';
 import { dirname, join } from 'path';
@@ -41,6 +42,10 @@ export class ProjectParallelExeFactory {
   private mainRejecter?: (err: Error) => void;
   protected startTime?: number;
   protected endTime?: number;
+  /**
+   * The terminal row # relative to the start command
+   */
+  protected currentRow = 0;
 
   constructor(project: HttpProject, opts: ProjectParallelFactoryOptions = {}) {
     this.project = project;
@@ -52,6 +57,7 @@ export class ProjectParallelExeFactory {
   run(): Promise<void> {
     cluster.setupPrimary({
       exec: join(__dirname, 'ProjectExeWorker.js'),
+      silent: true,
     });
     const { iterations = 1 } = this.options;
     const poolSize = Math.min(iterations, numCPUs);
@@ -149,14 +155,17 @@ export class ProjectParallelExeFactory {
     });
   }
 
-  private finishWhenReady(): void {
+  private async finishWhenReady(): Promise<void> {
+    if (this.endTime) {
+      return;
+    }
     const working = this.workers.some(i => !['finished', 'error'].includes(i.status));
     if (working || !this.mainResolver) {
       return;
     }
     this.endTime = Date.now();
-    this.printStatus();
-    this.generateReport();
+    // this.printStatus();
+    await this.generateReport();
     this.mainResolver();
   }
 
@@ -178,10 +187,18 @@ export class ProjectParallelExeFactory {
 
   private printProjectInfo(): void {
     const { project } = this;
-    console.clear();
     const padding = ' ';
+    if (this.currentRow > 0) {
+      // the project info is already printed. Move to the 3rd line where the status start
+      const diff = this.currentRow - 2;
+      process.stdout.moveCursor(0, -diff);
+      this.currentRow = 2;
+      return;
+    }
     process.stdout.write(`${padding}Project: ${project.info.name || '(no name)'}\n`);
     process.stdout.write(' │\n');
+    this.currentRow += 2;
+    process.stdout.moveCursor(0, 2);
   }
 
   private printWorkersInfo(): void {
@@ -190,7 +207,11 @@ export class ProjectParallelExeFactory {
       const borderStyle = index === workers.length - 1 ? '└' : '├';
       const state = this.readWorkerState(info, index);
       const line = ` ${borderStyle} ${state}\n`;
+
+      process.stdout.cursorTo(0);
+      process.stdout.clearLine(1);
       process.stdout.write(line);
+      this.currentRow += 1;
     });
   }
 
@@ -216,7 +237,7 @@ export class ProjectParallelExeFactory {
   }
 
   private async generateReport(): Promise<void> {
-    console.log('');
+    process.stdout.write('\n');
     const log: ProjectExecutionLog = {
       started: this.startTime as number,
       ended: this.endTime as number,

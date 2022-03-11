@@ -19,7 +19,7 @@ export default class EnvironmentVariableDelete extends ProjectCommandBase {
       .argument('<environment key>', 'The key of the parent environment')
       .argument('<variable name>', 'The name of the variable')
       .description('Removes a variable from an environment')
-      .option('-S, --safe', 'Does not print an error when the variable or environment does not exist.')
+      .option('-s, --safe', 'Does not print an error when the variable or environment does not exist.')
       .action(async (key, name, options) => {
         const instance = new EnvironmentVariableDelete(cmd);
         await instance.run(key, name, options);

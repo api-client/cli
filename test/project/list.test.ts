@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { HttpProject, IProjectFolder, ProjectFolder, ProjectRequest, IProjectRequest, Environment, IEnvironment } from '@api-client/core';
 import fs from 'fs/promises';
-import { captureOutput, findCommandOption, writeProject, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
+import { exeCommand, findCommandOption, writeProject, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
 import List, { ProjectTypes } from '../../src/commands/project/List.js';
 
 const projectPath = join('test', 'playground', 'project-list');
@@ -31,13 +31,13 @@ describe('Project', () => {
         });
 
         it('lists folders of a project', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'json',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'json',
+            });
           });
-          const result = stop();
           const data: IProjectFolder[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 2, 'has all folders on the root');
@@ -48,15 +48,14 @@ describe('Project', () => {
         });
 
         it('lists folders of a folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'json',
-            parent: f2.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'json',
+              parent: f2.key,
+            });
           });
-          const result = stop();
-          
           const data: IProjectFolder[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 1, 'has the folder');
@@ -113,15 +112,14 @@ describe('Project', () => {
         });
 
         it('lists folders of a project', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
-          
           const [title, headers, d1, d2] = lines;
 
           assert.include(title, 'Project folders', 'table has the title');
@@ -131,14 +129,15 @@ describe('Project', () => {
         });
 
         it('lists folders of a folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
-            parent: f2.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+              parent: f2.key,
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
           const [title, headers, d1] = lines;
 
@@ -148,13 +147,13 @@ describe('Project', () => {
         });
 
         it('has all columns', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
           const [, headers] = lines;
           
@@ -167,13 +166,13 @@ describe('Project', () => {
         });
 
         it('has all values', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
           const [, , , d2] = lines;
           
@@ -221,13 +220,13 @@ describe('Project', () => {
         });
 
         it('lists keys of folders of a project', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            keyOnly: true,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              keyOnly: true,
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
           
           const [title, d1, d2] = lines;
@@ -237,28 +236,30 @@ describe('Project', () => {
         });
 
         it('lists keys of folders of a folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            keyOnly: true,
-            parent: f2.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              keyOnly: true,
+              parent: f2.key,
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
           const [, d3] = lines;
           assert.include(d3, f3.key, 'has the first folder');
         });
 
         it('prints an empty table', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            keyOnly: true,
-            parent: f3.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              keyOnly: true,
+              parent: f3.key,
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
           assert.lengthOf(lines, 1, 'has the header only');
         });
@@ -291,13 +292,14 @@ describe('Project', () => {
         });
 
         it('lists requests of a project', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'json',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'json',
+            });
           });
-          const result = stop();
+          
           const data: IProjectRequest[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 1, 'has all requests on the root');
@@ -307,14 +309,14 @@ describe('Project', () => {
         });
 
         it('lists requests of a folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'json',
-            parent: f1.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'json',
+              parent: f1.key,
+            });
           });
-          const result = stop();
           
           const data: IProjectRequest[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
@@ -327,14 +329,14 @@ describe('Project', () => {
         });
 
         it('returns an empty array when no requests', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'json',
-            parent: f2.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'json',
+              parent: f2.key,
+            });
           });
-          const result = stop();
           
           const data: IProjectRequest[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
@@ -397,15 +399,14 @@ describe('Project', () => {
         });
 
         it('lists requests of a project', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
-          
           const [title, headers, d1] = lines;
 
           assert.include(title, 'Project requests', 'table has the title');
@@ -414,14 +415,14 @@ describe('Project', () => {
         });
 
         it('lists requests of a folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
-            parent: f1.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+              parent: f1.key,
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
 
           const [, , d2, d3, d4] = lines;
@@ -432,13 +433,13 @@ describe('Project', () => {
         });
 
         it('has all columns', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
           
           const [, headers] = lines;
@@ -452,13 +453,14 @@ describe('Project', () => {
         });
 
         it('has all values', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
           const [, , d1] = lines;
           
@@ -471,14 +473,15 @@ describe('Project', () => {
         });
 
         it('returns empty table when no requests', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
-            parent: f2.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+              parent: f2.key,
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
 
           assert.lengthOf(lines, 2, 'has no rows');
@@ -508,13 +511,13 @@ describe('Project', () => {
         });
 
         it('lists keys of requests of a project', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            keyOnly: true,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              keyOnly: true,
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
           
           const [title, d1] = lines;
@@ -523,14 +526,14 @@ describe('Project', () => {
         });
 
         it('lists keys of requests of a folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            keyOnly: true,
-            parent: f1.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              keyOnly: true,
+              parent: f1.key,
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
           
           const [, d2, d3, d4] = lines;
@@ -540,14 +543,15 @@ describe('Project', () => {
         });
 
         it('prints an empty table', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            keyOnly: true,
-            parent: f2.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              keyOnly: true,
+              parent: f2.key,
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
           
           assert.lengthOf(lines, 1, 'has the header only');
@@ -581,13 +585,13 @@ describe('Project', () => {
         });
 
         it('lists environments of a project', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'json',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'json',
+            });
           });
-          const result = stop();
           const data: IEnvironment[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 1, 'has all environments on the root');
@@ -597,14 +601,14 @@ describe('Project', () => {
         });
 
         it('lists environments of a folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'json',
-            parent: f1.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'json',
+              parent: f1.key,
+            });
           });
-          const result = stop();
           
           const data: IEnvironment[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
@@ -616,14 +620,15 @@ describe('Project', () => {
         });
 
         it('returns an empty array when no environments', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'json',
-            parent: f2.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'json',
+              parent: f2.key,
+            });
           });
-          const result = stop();
+          
           const data: IEnvironment[] = JSON.parse(result);
           assert.typeOf(data, 'array', 'outputs an array');
           assert.lengthOf(data, 0, 'has no requests');
@@ -652,15 +657,14 @@ describe('Project', () => {
         });
 
         it('lists environments of a project', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
-          
           const [title, headers, d1] = lines;
 
           assert.include(title, 'Project environments', 'table has the title');
@@ -669,14 +673,14 @@ describe('Project', () => {
         });
 
         it('lists environments of a folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
-            parent: f1.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+              parent: f1.key,
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
 
           const [, , d2, d3] = lines;
@@ -686,13 +690,14 @@ describe('Project', () => {
         });
 
         it('has all columns', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
           const [, headers] = lines;
           
@@ -703,14 +708,15 @@ describe('Project', () => {
         });
 
         it('has all values', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
-            parent: f1.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+              parent: f1.key,
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
           const [, , , d3] = lines;
           
@@ -721,14 +727,15 @@ describe('Project', () => {
         });
 
         it('has default values', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
-            parent: f1.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+              parent: f1.key,
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
           const [, , d2] = lines;
           
@@ -762,15 +769,14 @@ describe('Project', () => {
         });
 
         it('lists environment keys of a project', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            keyOnly: true,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              keyOnly: true,
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
-          
           const [title, d1] = lines;
 
           assert.include(title, 'key', 'table has the title');
@@ -778,14 +784,15 @@ describe('Project', () => {
         });
 
         it('lists environment keys of a folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            keyOnly: true,
-            parent: f1.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              keyOnly: true,
+              parent: f1.key,
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
 
           const [, d2, d3] = lines;
@@ -795,14 +802,15 @@ describe('Project', () => {
         });
 
         it('prints an empty table', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            keyOnly: true,
-            parent: f2.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              keyOnly: true,
+              parent: f2.key,
+            });
           });
-          const result = stop();
+          
           const lines = splitTable(cleanTerminalOutput(result));
           assert.lengthOf(lines, 1, 'has the header only');
         });
@@ -843,13 +851,13 @@ describe('Project', () => {
         });
 
         it('lists children of a project', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
           
           const [headers, d1, d2, d3] = lines;
@@ -862,14 +870,14 @@ describe('Project', () => {
         });
 
         it('lists children of a folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
-            parent: f1.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+              parent: f1.key,
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
           
           const [, d1, d2, d3, d4] = lines;
@@ -880,14 +888,14 @@ describe('Project', () => {
         });
 
         it('lists children of an empty folder', async () => {
-          const stop = captureOutput();
           const cmd = new List(List.command);
-          await cmd.run(type, {
-            in: projectFile,
-            reporter: 'table',
-            parent: f2.key,
+          const result = await exeCommand(async () => {
+            await cmd.run(type, {
+              in: projectFile,
+              reporter: 'table',
+              parent: f2.key,
+            });
           });
-          const result = stop();
           const lines = splitTable(cleanTerminalOutput(result));
           
           assert.lengthOf(lines, 1);

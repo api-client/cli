@@ -3,7 +3,7 @@ import { join } from 'path';
 import { HttpProject, ProjectFolder, Environment } from '@api-client/core';
 import fs from 'fs/promises';
 import { CommanderError } from 'commander';
-import { writeProject, captureOutput, findCommandOption } from '../helpers/CliHelper.js';
+import { writeProject, exeCommand, findCommandOption } from '../helpers/CliHelper.js';
 import Delete from '../../src/commands/project/environment/Delete.js';
 
 const projectPath = join('test', 'playground', 'project-environment-delete');
@@ -32,24 +32,23 @@ describe('Project', () => {
       });
 
       it('removes an environment from the project', async () => {
-        const stop = captureOutput();
         const cmd = new Delete(Delete.command);
-        await cmd.run(e1.key, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(e1.key, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const project = new HttpProject(result);
         assert.deepEqual(project.environments, []);
       });
 
       it('removes an environment from a folder', async () => {
-        const stop = captureOutput();
         const cmd = new Delete(Delete.command);
-        await cmd.run(e2.key, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(e2.key, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
-        
         const project = new HttpProject(result);
         const folder = project.findFolder(f1.key) as ProjectFolder;
         assert.deepEqual(folder.environments, []);
@@ -73,25 +72,25 @@ describe('Project', () => {
       });
 
       it('ignores errors when --safe', async () => {
-        const stop = captureOutput();
         const cmd = new Delete(Delete.command);
-        await cmd.run('test', {
-          in: projectInFile,
-          safe: true,
+        const result = await exeCommand(async () => {
+          await cmd.run('test', {
+            in: projectInFile,
+            safe: true,
+          });
         });
-        const result = stop();
         const project = new HttpProject(result);
         assert.ok(project);
       });
 
       it('removes an environment from the project and saved to the output file', async () => {
-        const stop = captureOutput();
         const cmd = new Delete(Delete.command);
-        await cmd.run(e1.key, {
-          in: projectInFile,
-          out: projectOutFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(e1.key, {
+            in: projectInFile,
+            out: projectOutFile,
+          });
         });
-        const result = stop();
         assert.isEmpty(result);
         const contents = await fs.readFile(projectOutFile, 'utf8');
         const project = new HttpProject(contents);

@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { HttpProject, ProjectFolder, IProjectFolder } from '@api-client/core';
 import fs from 'fs/promises';
-import { writeProject, captureOutput, findCommandOption, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
+import { writeProject, exeCommand, findCommandOption, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
 import Read from '../../src/commands/project/folder/Read.js';
 
 const projectPath = join('test', 'playground', 'project-folder-read');
@@ -39,12 +39,12 @@ describe('Project', () => {
       });
 
       it('prints a table for an empty folder with root parent', async () => {
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run(f1.key, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(f1.key, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         const [name, created, updated, environments, folders, requests] = lines;
         
@@ -65,12 +65,12 @@ describe('Project', () => {
       });
 
       it('prints a table for a folder with values with a folder parent', async () => {
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run(f2.key, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(f2.key, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         const [name, created, updated, environments, folders, requests] = lines;
         
@@ -91,25 +91,25 @@ describe('Project', () => {
       });
 
       it('prints a JSON for the folder', async () => {
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run(f1.key, {
-          in: projectInFile,
-          reporter: 'json',
+        const result = await exeCommand(async () => {
+          await cmd.run(f1.key, {
+            in: projectInFile,
+            reporter: 'json',
+          });
         });
-        const result = stop();
         const folder:IProjectFolder = JSON.parse(result);
         assert.deepEqual(folder, f1.toJSON())
       });
 
       it('prints a key for the folder', async () => {
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run(f1.key, {
-          in: projectInFile,
-          keyOnly: true,
+        const result = await exeCommand(async () => {
+          await cmd.run(f1.key, {
+            in: projectInFile,
+            keyOnly: true,
+          });
         });
-        const result = stop();
         assert.equal(result.trim(), f1.key);
       });
 

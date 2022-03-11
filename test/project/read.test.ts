@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { HttpProject } from '@api-client/core';
 import fs from 'fs/promises';
-import { captureOutput, findCommandOption, writeProject, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
+import { exeCommand, findCommandOption, writeProject, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
 import Read from '../../src/commands/project/Read.js';
 
 const projectPath = join('test', 'playground', 'project-read');
@@ -18,13 +18,13 @@ describe('Project', () => {
       it('prints the basic info', async () => {
         const source = HttpProject.fromName('test');
         await writeProject(source, projectFile);
-  
-        const stop = captureOutput();
+        
         const cmd = new Read(Read.command);
-        await cmd.run({
-          in: projectFile,
+        const result = await exeCommand(async () => {
+          await cmd.run({
+            in: projectFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [key, name, envs, folders, requests, schemas] = lines;
@@ -49,12 +49,12 @@ describe('Project', () => {
         source.addEnvironment('env 3');
         await writeProject(source, projectFile);
   
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run({
-          in: projectFile,
+        const result = await exeCommand(async () => {
+          await cmd.run({
+            in: projectFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [, , envs] = lines;
@@ -69,12 +69,12 @@ describe('Project', () => {
         source.addFolder('f 3');
         await writeProject(source, projectFile);
   
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run({
-          in: projectFile,
+        const result = await exeCommand(async () => {
+          await cmd.run({
+            in: projectFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [, , , folders] = lines;
@@ -89,12 +89,12 @@ describe('Project', () => {
         source.addRequest('r 3');
         await writeProject(source, projectFile);
   
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run({
-          in: projectFile,
+        const result = await exeCommand(async () => {
+          await cmd.run({
+            in: projectFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [, , , , requests] = lines;
@@ -109,12 +109,12 @@ describe('Project', () => {
         source.addSchema('s 3');
         await writeProject(source, projectFile);
   
-        const stop = captureOutput();
         const cmd = new Read(Read.command);
-        await cmd.run({
-          in: projectFile,
+        const result = await exeCommand(async () => {
+          await cmd.run({
+            in: projectFile,
+          });
         });
-        const result = stop();
         const lines = splitTable(cleanTerminalOutput(result));
         
         const [, , , , , schemas] = lines;

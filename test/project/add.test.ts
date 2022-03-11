@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { IHttpProject } from '@api-client/core';
 import fs from 'fs/promises';
-import { captureOutput, findCommandOption } from '../helpers/CliHelper.js';
+import { exeCommand, findCommandOption } from '../helpers/CliHelper.js';
 import Add from '../../src/commands/project/Add.js';
 
 const projectPath = join('test', 'playground', 'project-add');
@@ -21,10 +21,10 @@ describe('Project', () => {
     const name = 'test api';
 
     it('creates a project in the terminal output', async () => {
-      const stop = captureOutput();
       const cmd = new Add(Add.command);
-      await cmd.run(name);
-      const result = stop();
+      const result = await exeCommand(async () => {
+        await cmd.run(name);
+      });
 
       assert.ok(result, 'has the output');
 
@@ -47,12 +47,12 @@ describe('Project', () => {
     });
 
     it('adds the version information', async () => {
-      const stop = captureOutput();
       const cmd = new Add(Add.command);
-      await cmd.run(name, {
-        projectVersion: '0.1.0'
+      const result = await exeCommand(async () => {
+        await cmd.run(name, {
+          projectVersion: '0.1.0'
+        });
       });
-      const result = stop();
       const data: IHttpProject = JSON.parse(result);
       assert.typeOf(data, 'object', 'has the project object');
       assert.equal(data.info.version, '0.1.0');
@@ -105,7 +105,7 @@ describe('Project', () => {
       assert.ok(option);
     });
 
-    it('adds the index option', () => {
+    it('adds the project-version option', () => {
       const option = findCommandOption(Add.command, '--project-version');
       assert.ok(option);
       assert.equal(option.short, '-v', 'has the shortcut');

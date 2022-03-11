@@ -44,6 +44,14 @@
       }
     },
     {
+      "files": [
+        "**/*.ts"
+      ],
+      "rules": {
+        "no-dupe-class-members": "off"
+      }
+    },
+    {
       // enable the rule specifically for TypeScript files
       "files": ["*.ts", "*.tsx"],
       "rules": {

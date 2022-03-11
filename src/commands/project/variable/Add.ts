@@ -28,9 +28,9 @@ export default class EnvironmentVariableAdd extends ProjectCommandBase {
     cmd
       .argument('<environment key>', 'The key of the parent environment')
       .description('Adds a variable to an environment.')
-      .option('--name <value>', 'The name of the variable')
-      .option('--value [value]', 'The value of the variable. Can be unset but by default a string is assumed.')
-      .option('--disabled', 'Whether the variable is disabled.')
+      .option('-N, --name <value>', 'The name of the variable')
+      .option('-V, --value [value]', 'The value of the variable. Can be unset but by default a string is assumed.')
+      .option('-d, --disabled', 'Whether the variable is disabled.')
       .action(async (key, options) => {
         const instance = new EnvironmentVariableAdd(cmd);
         await instance.run(key, options);
@@ -74,7 +74,7 @@ export default class EnvironmentVariableAdd extends ProjectCommandBase {
       case 'bytes':
         variable = environment.addVariable(name, value || ''); 
         break;
-      default: throw new CommanderError(0, 'EPROPERTYTYPE', `Unknown property type ${type}`);
+      default: throw new CommanderError(0, 'EPROPERTYTYPE', `Unknown property type: "${type}".`);
     }
     if (disabled) {
       variable.enabled = false;

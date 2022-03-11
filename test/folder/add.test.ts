@@ -2,7 +2,7 @@ import { assert } from 'chai';
 import { join } from 'path';
 import { HttpProject, ProjectFolder } from '@api-client/core';
 import fs from 'fs/promises';
-import { writeProject, captureOutput, findCommandOption } from '../helpers/CliHelper.js';
+import { writeProject, exeCommand, findCommandOption } from '../helpers/CliHelper.js';
 import Add from '../../src/commands/project/folder/Add.js';
 
 const projectPath = join('test', 'playground', 'project-folder-add');
@@ -31,12 +31,12 @@ describe('Project', () => {
       const name = 'test folder';
 
       it('adds a folder to the project and prints the project', async () => {
-        const stop = captureOutput();
         const cmd = new Add(Add.command);
-        await cmd.run(name, {
-          in: projectInFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(name, {
+            in: projectInFile,
+          });
         });
-        const result = stop();
         
         const project = new HttpProject(result);
         const folders = project.listFolders();
@@ -45,13 +45,13 @@ describe('Project', () => {
       });
 
       it('adds a folder to the project and saved the result in a file', async () => {
-        const stop = captureOutput();
         const cmd = new Add(Add.command);
-        await cmd.run(name, {
-          in: projectInFile,
-          out: projectOutFile,
+        const result = await exeCommand(async () => {
+          await cmd.run(name, {
+            in: projectInFile,
+            out: projectOutFile,
+          });
         });
-        const result = stop();
         assert.isEmpty(result);
 
         const contents = await fs.readFile(projectOutFile, 'utf8');
