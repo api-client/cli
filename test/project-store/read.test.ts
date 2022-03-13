@@ -1,29 +1,41 @@
 import { assert } from 'chai';
-import { join } from 'path';
 import { HttpProject } from '@api-client/core';
-import fs from 'fs/promises';
-import { exeCommand, findCommandOption, writeProject, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
+import { exeCommand, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
 import Read from '../../src/commands/project/Read.js';
-
-const projectPath = join('test', 'playground', 'project-read');
-const projectFile = join(projectPath, 'project.json');
+import getSetup from '../helpers/getSetup.js';
+import { SetupConfig } from '../helpers/interfaces.js';
+import { StoreHelper } from '../helpers/StoreHelper.js';
 
 describe('Project', () => {
-  describe('File', () => {
+  let env: SetupConfig;
+  let helper: StoreHelper;
+  let space: string;
+
+  before(async () => {
+    env = await getSetup();
+    helper = new StoreHelper(env.singleUserBaseUri);
+    await helper.initStoreSpace();
+    space = helper.space as string;
+  });
+
+  after(async () => {
+    await helper.testDelete(`/test/reset/spaces`);
+    await helper.testDelete(`/test/reset/projects`);
+    await helper.testDelete(`/test/reset/sessions`);
+  });
+
+  describe('Store', () => {
     describe('read', () => {
       describe('Units', () => {
-        after(async () => {
-          await fs.rm(projectPath, { recursive: true, force: true });
-        });
-    
         it('prints the basic info', async () => {
           const source = HttpProject.fromName('test');
-          await writeProject(source, projectFile);
-          
+          const project = await helper.sdk.project.create(space, source);
           const cmd = new Read(Read.command);
           const result = await exeCommand(async () => {
             await cmd.run({
-              in: projectFile,
+              space,
+              project,
+              env: helper.environment(),
             });
           });
           const lines = splitTable(cleanTerminalOutput(result));
@@ -48,12 +60,13 @@ describe('Project', () => {
           source.addEnvironment('env 1');
           source.addEnvironment('env 2');
           source.addEnvironment('env 3');
-          await writeProject(source, projectFile);
-    
+          const project = await helper.sdk.project.create(space, source);
           const cmd = new Read(Read.command);
           const result = await exeCommand(async () => {
             await cmd.run({
-              in: projectFile,
+              space,
+              project,
+              env: helper.environment(),
             });
           });
           const lines = splitTable(cleanTerminalOutput(result));
@@ -68,12 +81,13 @@ describe('Project', () => {
           source.addFolder('f 1');
           source.addFolder('f 2');
           source.addFolder('f 3');
-          await writeProject(source, projectFile);
-    
+          const project = await helper.sdk.project.create(space, source);
           const cmd = new Read(Read.command);
           const result = await exeCommand(async () => {
             await cmd.run({
-              in: projectFile,
+              space,
+              project,
+              env: helper.environment(),
             });
           });
           const lines = splitTable(cleanTerminalOutput(result));
@@ -88,12 +102,13 @@ describe('Project', () => {
           source.addRequest('r 1');
           source.addRequest('r 2');
           source.addRequest('r 3');
-          await writeProject(source, projectFile);
-    
+          const project = await helper.sdk.project.create(space, source);
           const cmd = new Read(Read.command);
           const result = await exeCommand(async () => {
             await cmd.run({
-              in: projectFile,
+              space,
+              project,
+              env: helper.environment(),
             });
           });
           const lines = splitTable(cleanTerminalOutput(result));
@@ -108,12 +123,13 @@ describe('Project', () => {
           source.addSchema('s 1');
           source.addSchema('s 2');
           source.addSchema('s 3');
-          await writeProject(source, projectFile);
-    
+          const project = await helper.sdk.project.create(space, source);
           const cmd = new Read(Read.command);
           const result = await exeCommand(async () => {
             await cmd.run({
-              in: projectFile,
+              space,
+              project,
+              env: helper.environment(),
             });
           });
           const lines = splitTable(cleanTerminalOutput(result));
@@ -121,13 +137,6 @@ describe('Project', () => {
           const [, , , , , schemas] = lines;
           assert.include(schemas, 'schemas', 'has the "schemas" line');
           assert.include(schemas, 's 1, s 2, s 3', 'has the "schemas" default value');
-        });
-      });
-
-      describe('#command', () => {
-        it('adds global options', () => {
-          const option = findCommandOption(Read.command, '--in');
-          assert.ok(option, 'has a global option');
         });
       });
     });

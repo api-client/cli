@@ -1,17 +1,30 @@
 import { assert } from 'chai';
-import { join } from 'path';
 import { HttpProject, ProjectFolder, ProjectRequest } from '@api-client/core';
-import fs from 'fs/promises';
-import { exeCommand, findCommandOption, writeProject } from '../helpers/CliHelper.js';
+import { exeCommand,  } from '../helpers/CliHelper.js';
 import Move from '../../src/commands/project/Move.js';
-
-const projectPath = join('test', 'playground', 'project-move');
-const projectFile = join(projectPath, 'project.json');
-
-// const cmdRoot = 'project move';
+import getSetup from '../helpers/getSetup.js';
+import { SetupConfig } from '../helpers/interfaces.js';
+import { StoreHelper } from '../helpers/StoreHelper.js';
 
 describe('Project', () => {
-  describe('File', () => {
+  let env: SetupConfig;
+  let helper: StoreHelper;
+  let space: string;
+
+  before(async () => {
+    env = await getSetup();
+    helper = new StoreHelper(env.singleUserBaseUri);
+    await helper.initStoreSpace();
+    space = helper.space as string;
+  });
+
+  after(async () => {
+    await helper.testDelete(`/test/reset/spaces`);
+    await helper.testDelete(`/test/reset/projects`);
+    await helper.testDelete(`/test/reset/sessions`);
+  });
+
+  describe('Store', () => {
     describe('move', () => {
       describe('Units', () => {      
         let f1: ProjectFolder;
@@ -19,8 +32,9 @@ describe('Project', () => {
         let f3: ProjectFolder;
         let r1: ProjectRequest;
         let r3: ProjectRequest;
-        
-        before(async () => {
+        let projectId: string;
+
+        beforeEach(async () => {
           const project = HttpProject.fromName('test');
           f1 = project.addFolder('folder 1');
           f2 = project.addFolder('folder 2');
@@ -29,22 +43,22 @@ describe('Project', () => {
           project.addRequest('https://r2.com');
           r3 = f1.addRequest('https://r3.com');
           f1.addRequest('https://r4.com');
-          await writeProject(project, projectFile);
-        });
-    
-        after(async () => {
-          await fs.rm(projectPath, { recursive: true, force: true });
+          projectId = await helper.sdk.project.create(space, project);
         });
     
         it('moves a folder from the project root to a folder', async () => {
           const cmd = new Move(Move.command);
-          const result = await exeCommand(async () => {
+          await exeCommand(async () => {
             await cmd.run(f1.key, {
-              in: projectFile,
+              space,
+              project: projectId,
+              env: helper.environment(),
               parent: f2.key,
             });
           });
-          const project = new HttpProject(result);
+          
+          const schema = await helper.sdk.project.read(space, projectId);
+          const project = new HttpProject(schema);
           const folders = project.listFolders();
           assert.lengthOf(folders, 1, 'project has 1 folder');
           
@@ -55,13 +69,16 @@ describe('Project', () => {
     
         it('moves a request from the project root to a folder', async () => {
           const cmd = new Move(Move.command);
-          const result = await exeCommand(async () => {
+          await exeCommand(async () => {
             await cmd.run(r1.key, {
-              in: projectFile,
+              space,
+              project: projectId,
+              env: helper.environment(),
               parent: f2.key,
             });
           });
-          const project = new HttpProject(result);
+          const schema = await helper.sdk.project.read(space, projectId);
+          const project = new HttpProject(schema);
     
           const requests = project.listRequests();
           assert.lengthOf(requests, 1, 'project has 1 request');
@@ -75,12 +92,16 @@ describe('Project', () => {
     
         it('moves a folder from a folder to the project root', async () => {
           const cmd = new Move(Move.command);
-          const result = await exeCommand(async () => {
+          await exeCommand(async () => {
             await cmd.run(f3.key, {
-              in: projectFile,
+              space,
+              project: projectId,
+              env: helper.environment(),
             });
           });
-          const project = new HttpProject(result);
+          
+          const schema = await helper.sdk.project.read(space, projectId);
+          const project = new HttpProject(schema);
           const folders = project.listFolders();
           assert.lengthOf(folders, 3, 'project has 3 folders');
           
@@ -90,12 +111,15 @@ describe('Project', () => {
     
         it('moves a request from a folder to the project root', async () => {
           const cmd = new Move(Move.command);
-          const result = await exeCommand(async () => {
+          await exeCommand(async () => {
             await cmd.run(r3.key, {
-              in: projectFile,
+              space,
+              project: projectId,
+              env: helper.environment(),
             });
           });
-          const project = new HttpProject(result);
+          const schema = await helper.sdk.project.read(space, projectId);
+          const project = new HttpProject(schema);
     
           const requests = project.listRequests();
           assert.lengthOf(requests, 3, 'the project has 3 request');
@@ -111,7 +135,9 @@ describe('Project', () => {
           const cmd = new Move(Move.command);
           try {
             await cmd.run(f2.key, {
-              in: projectFile,
+              space,
+              project: projectId,
+              env: helper.environment(),
               parent: f3.key,
             });
           } catch (cause) {
@@ -125,15 +151,18 @@ describe('Project', () => {
     
         it('moves a folder into a position in a folder', async () => {
           const cmd = new Move(Move.command);
-          const result = await exeCommand(async () => {
+          await exeCommand(async () => {
             await cmd.run(f1.key, {
-              in: projectFile,
+              space,
+              project: projectId,
+              env: helper.environment(),
               parent: f2.key,
               index: 0,
             });
           });
           
-          const project = new HttpProject(result);
+          const schema = await helper.sdk.project.read(space, projectId);
+          const project = new HttpProject(schema);
           const folder = project.findFolder(f2.key) as ProjectFolder;
           
           const subFolders = folder.listFolders();
@@ -143,15 +172,18 @@ describe('Project', () => {
     
         it('moves a request into a position in a folder', async () => {
           const cmd = new Move(Move.command);
-          const result = await exeCommand(async () => {
+          await exeCommand(async () => {
             await cmd.run(r1.key, {
-              in: projectFile,
+              space,
+              project: projectId,
+              env: helper.environment(),
               parent: f1.key,
               index: 1,
             });
           });
           
-          const project = new HttpProject(result);
+          const schema = await helper.sdk.project.read(space, projectId);
+          const project = new HttpProject(schema);
           const folder = project.findFolder(f1.key) as ProjectFolder;
           
           const subFolders = folder.listRequests();
@@ -164,7 +196,9 @@ describe('Project', () => {
           const cmd = new Move(Move.command);
           try {
             await cmd.run('test', {
-              in: projectFile,
+              space,
+              project: projectId,
+              env: helper.environment(),
               parent: f3.key,
               index: 1,
             });
@@ -175,49 +209,6 @@ describe('Project', () => {
           if (e) {
             assert.equal(e.message, 'Unable to locate the object: test.');
           }
-        });
-    
-        it('saves the result to another file', async () => {
-          const targetFile = join(projectPath, 'project-new.json');
-          const cmd = new Move(Move.command);
-          await cmd.run(f1.key, {
-            in: projectFile,
-            out: targetFile,
-            parent: f2.key,
-            index: 1,
-          });
-          const contents = await fs.readFile(targetFile, 'utf8');
-    
-          const project = new HttpProject(contents);
-          const folders = project.listFolders();
-          assert.lengthOf(folders, 1, 'project has 1 folder');
-          
-          const subFolders = folders[0].listFolders();
-          assert.lengthOf(subFolders, 2, 'the parent folder has 2 folders');
-          assert.deepEqual(subFolders[1].toJSON(), f1.toJSON());
-        });
-      });
-
-      describe('#command', () => {
-        it('adds global options', () => {
-          const option = findCommandOption(Move.command, '--in');
-          assert.ok(option, 'has a global option');
-        });
-    
-        it('adds parent options', () => {
-          const option = findCommandOption(Move.command, '--parent');
-          assert.ok(option);
-        });
-
-        it('adds output options', () => {
-          const option = findCommandOption(Move.command, '--out');
-          assert.ok(option);
-        });
-    
-        it('adds the index option', () => {
-          const option = findCommandOption(Move.command, '--index');
-          assert.ok(option);
-          assert.equal(option.short, '-n', 'has the short version');
         });
       });
     });

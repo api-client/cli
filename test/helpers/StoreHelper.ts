@@ -1,4 +1,4 @@
-import { StoreSdk, Workspace } from '@api-client/core';
+import { StoreSdk, Workspace, IStoreResponse } from '@api-client/core';
 import { IConfigEnvironment } from '../../src/lib/Config.js';
 
 export class StoreHelper {
@@ -36,5 +36,10 @@ export class StoreHelper {
       token: this.token,
       location: this.baseUri,
     };
+  }
+
+  async testDelete(path: string): Promise<IStoreResponse> {
+    const url = this.sdk.getUrl(path).toString();
+    return this.sdk.http.delete(url);
   }
 }

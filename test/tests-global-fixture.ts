@@ -4,15 +4,17 @@
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { DummyLogger, getPort } from '@api-client/core';
-import { Server, ArcLevelUp, IServerConfiguration } from '@api-client/net-store';
+import { Server, IServerConfiguration } from '@api-client/net-store';
 import { ExpressServer } from './servers/ExpressServer.js';
 import { SetupConfig } from './helpers/interfaces.js';
+import { TestsHttpRoute } from './helpers/TestsHttpRoute.js';
+import { TestStore } from './helpers/TestStore.js';
 
 const playgroundPath = join('test', 'playground');
 const lockFile = join('test', 'express.lock');
 const server = new ExpressServer();
 const logger = new DummyLogger();
-const noAuthStore = new ArcLevelUp(logger, join(playgroundPath, 'no-auth'));
+const noAuthStore = new TestStore(logger, join(playgroundPath, 'no-auth'));
 let noAuthServer: Server;
 
 async function createPlayground(): Promise<void> {
@@ -39,7 +41,7 @@ export const mochaGlobalSetup = async () => {
 
   noAuthServer = new Server(noAuthStore, singleUserConfig);
   await noAuthStore.initialize();
-  await noAuthServer.initialize();
+  await noAuthServer.initialize(TestsHttpRoute);
   await noAuthServer.startHttp(singleUserPort);
 
   await server.start();
