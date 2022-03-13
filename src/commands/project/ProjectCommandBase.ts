@@ -1,12 +1,9 @@
 /* eslint-disable import/no-named-as-default-member */
 import { Command } from 'commander';
-import { HttpProject, IHttpProject, fs as coreFs } from '@api-client/core';
+import { HttpProject, IHttpProject, fs as coreFs, StoreSdk } from '@api-client/core';
 import ooPatch from 'json8-patch';
-import fs from 'fs/promises';
-import path from 'path';
 import { ProjectCommand } from '../ProjectCommand.js';
 import { IGlobalOptions } from '../BaseCommand.js';
-import { printProjectInfo } from '../project/Utils.js';
 
 export interface IProjectCommandOptions extends IGlobalOptions {
   /**
@@ -62,41 +59,10 @@ export abstract class ProjectCommandBase extends ProjectCommand {
       throw new Error('You must specify either "--in" or "--project" option.');
     }
     if (inputFile) {
-      return this.readFileProject(inputFile);
+      return this.fileStore.readProject(inputFile);
     }
-    return this.readStoreProject(opts);
-  }
-
-  /**
-   * Reads project contents from a file.
-   */
-  private async readFileProject(location: string): Promise<HttpProject> {
-    const exists = await coreFs.pathExists(location);
-    if (!exists) {
-      throw new Error(`No such file ${location}`);
-    }
-    let contents: any; 
-    try {
-      contents = await coreFs.readJson(location, { throws: true });
-    } catch (e) {
-      throw new Error(`Invalid ARC project contents in file ${location}`);
-    }
-    return new HttpProject(contents);
-  }
-
-  /**
-   * Reads the project data from the data store.
-   */
-  private async readStoreProject(options: IProjectCommandOptions): Promise<HttpProject> {
-    this.validateUserSpace(options);
-    const { space, project } = options;
-    if (!project) {
-      throw new Error(`The --project option is required when reading a project from the data store.`);
-    }
-    const env = await this.readEnvironment(options);
-    const sdk = this.getSdk(env);
-    await this.getStoreSessionToken(sdk, env);
-    const value = await sdk.project.read(space as string, project);
+    const env = opts.env ? opts.env : await this.readEnvironment(opts);
+    const value = await this.apiStore.readProject(env, opts);
     this.projectSnapshot = value;
     return new HttpProject(value);
   }
@@ -124,7 +90,7 @@ export abstract class ProjectCommandBase extends ProjectCommand {
     return this.finishProjectStore(result, options);
   }
 
-  private async finishProjectFile(result: HttpProject, options: IProjectCommandOptions): Promise<void> {
+  protected async finishProjectFile(result: HttpProject, options: IProjectCommandOptions): Promise<void> {
     const { in: input } = options;
     let { out } = options;
     let { overwrite=false } = options;
@@ -141,41 +107,35 @@ export abstract class ProjectCommandBase extends ProjectCommand {
     if (exists && !overwrite) {
       throw new Error('The project already exists. Use --overwrite to replace the contents.');
     }
-    
-    const contents = JSON.stringify(result, null, options.prettyPrint ? 2 : 0);
-    const dir = path.dirname(out);
-    await coreFs.ensureDir(dir);
-    await fs.writeFile(out, contents, 'utf8');
+    await this.fileStore.writeProject(result, out, options);
   }
 
-  private async finishProjectStore(result: HttpProject, options: IProjectCommandOptions): Promise<void> {
+  protected async finishProjectStore(result: HttpProject, options: IProjectCommandOptions): Promise<void> {
     const { projectSnapshot } = this;
-    this.projectSnapshot = undefined;
-    const altered = result.toJSON();
-    const { space } = options;
-    const env = await this.readEnvironment(options);
-    const sdk = this.getSdk(env);
-    await this.getStoreSessionToken(sdk, env);
-
     if (!projectSnapshot) {
-      if (this.command.name() === 'add' && this.command.parent?.name() === 'project') {
-        // creating a new project
-        const id = await sdk.project.create(space as string, altered);
-        const created = await sdk.project.read(space as string, id);
-        printProjectInfo(new HttpProject(created));
-        return;
-      }
       throw new Error(`Invalid state. Missing project snapshot.`);
     }
-
+    this.projectSnapshot = undefined;
+    const sdk = await this.getAuthenticatedSdk(options);
+    const altered = result.toJSON();
     const patch = ooPatch.diff(projectSnapshot, altered);
     if (patch.length === 0) {
       // no alterations
       this.println('No changes to the project. Not updating.');
       return;
     }
-    
+    const { space } = options;
     await sdk.project.patch(space as string, altered.key as string, patch);
     this.println('OK');
+  }
+
+  /**
+   * Reads the environment and returns API sdk that is authenticated.
+   */
+  protected async getAuthenticatedSdk(options: IProjectCommandOptions): Promise<StoreSdk> {
+    const env = options.env ? options.env : await this.readEnvironment(options);
+    const sdk = this.apiStore.getSdk(env);
+    await this.apiStore.getStoreSessionToken(sdk, env);
+    return sdk;
   }
 }

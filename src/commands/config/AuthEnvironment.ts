@@ -33,7 +33,7 @@ export default class AuthEnvironment extends BaseCommand {
     const { token } = await sdk.auth.createSession();
     sdk.token = token;
     try {
-      await this.authenticateStore(sdk);
+      await this.apiStore.authenticateStore(sdk);
     } catch (e) {
       const err = e as Error;
       throw new Error(`Unable to authenticate: ${err.message}`);

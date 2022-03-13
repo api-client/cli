@@ -21,10 +21,10 @@ export default class ListUsers extends BaseCommand {
     return cmd;
   }
 
-  async run(opts?: ICommandOptions): Promise<void> {
+  async run(opts: ICommandOptions = {}): Promise<void> {
     const env = await this.readEnvironment(opts);
-    const sdk = this.getSdk(env);
-    await this.getStoreSessionToken(sdk, env);
+    const sdk = this.apiStore.getSdk(env);
+    await this.apiStore.getStoreSessionToken(sdk, env);
     const response = await sdk.user.list(opts);
     
     printUsersTable(response.data as IUser[]);

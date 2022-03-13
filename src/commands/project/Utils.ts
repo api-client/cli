@@ -8,6 +8,7 @@ const formatter = new Intl.DateTimeFormat(undefined, formatterOptions);
 interface ProjectDescription {
   key: string;
   name: string;
+  version?: string;
   environments?: string;
   folders?: string;
   requests?: string;
@@ -25,6 +26,10 @@ export function printProjectInfo(project: HttpProject): void {
     key: project.key,
     name: project.info.name || '',
   };
+
+  if (project.info.version) {
+    info.version = project.info.version;
+  }
 
   const maxWidth = process.stdout.columns || 80;
   const maxValueWidth = maxWidth - 17;

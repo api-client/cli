@@ -1,12 +1,15 @@
 /* eslint-disable import/no-named-as-default-member */
 import { Table } from 'console-table-printer';
-import { uuidV4, StoreSdk, fs } from '@api-client/core';
+import { uuidV4 } from '@api-client/core';
 import inquirer from 'inquirer';
-import { isAbsolute } from 'path';
-import { stat } from 'fs/promises';
 import { Config, IConfigEnvironment } from '../../lib/Config.js';
+import { ApiStore } from '../../lib/ApiStore.js';
+import { FileStore } from '../../lib/FileStore.js';
 
 export class InteractiveConfig {
+  apiStore = new ApiStore();
+  fileStore = new FileStore();
+
   async addEnvironment(rewrite = false): Promise<void> {
     const result = await inquirer.prompt({
       type: 'list',
@@ -67,7 +70,8 @@ export class InteractiveConfig {
     result.name = await this.getEnvironmentName();
     const url = await this.getStoreUrl();
     result.location = url;
-    const sdk = new StoreSdk(url);
+
+    const sdk = this.apiStore.getSdk(url);
     const { token } = await sdk.auth.createSession();
     result.token = token;
     sdk.token = token;
@@ -75,7 +79,7 @@ export class InteractiveConfig {
     if (info.mode === 'multi-user') {
       if (await this.shouldAuthenticateStore()) {
         try {
-          await this.authenticateStore(sdk);
+          await this.apiStore.authenticateStore(sdk);
         } catch (e) {
           const err = e as Error;
           throw new Error(`Unable to authenticate: ${err.message}`);
@@ -99,18 +103,9 @@ export class InteractiveConfig {
       message: 'Enter the absolute path to the project file. Empty to skip.',
       name: 'path',
       validate: async (value: string): Promise<string | boolean> => {
-        if (!value) {
-          return true;
-        }
-        if (!isAbsolute(value)) {
-          return 'Enter an absolute path.';
-        }
-        if (await fs.canRead(value) === false) {
-          return 'Path does not exist.';
-        }
-        const info = await stat(value);
-        if (info.isDirectory()) {
-          return 'Selected path is a directory.'
+        const error = await this.fileStore.validateFileLocation(value);
+        if (error) {
+          return error;
         }
         return true;
       }
@@ -139,12 +134,10 @@ export class InteractiveConfig {
       type: 'input',
       message: 'Enter base URI to the store, for example http://localhost:8487/v1',
       name: 'url',
-      validate: async (value: string): Promise<string | boolean> => {
-        if (!value) {
-          return `Please, enter the base URI to the store.`;
-        }
-        if (!value.startsWith('http:') && !value.startsWith('https:')) {
-          return `Invalid scheme. Valid schemes are "http" or "https".`;
+      validate: (value: string): string | boolean => {
+        const error = this.apiStore.validateStoreUrl(value);
+        if (error) {
+          return error;
         }
         return true;
       }
@@ -181,26 +174,6 @@ export class InteractiveConfig {
       name: 'authenticate',
     });
     return result.authenticate;
-  }
-
-  async authenticateStore(sdk: StoreSdk): Promise<void> {
-    const loginEndpoint = sdk.getUrl('/auth/login').toString();
-    const result = await sdk.http.post(loginEndpoint);
-    if (result.status !== 204) {
-      throw new Error(`Unable to create the authorization session on the store. Invalid status code: ${result.status}.`);
-    }
-    if (!result.headers.location) {
-      throw new Error(`Unable to create the authorization session on the store. The location header is missing.`);
-    }
-    const open = await import('open');
-    const authEndpoint = sdk.getUrl(result.headers.location).toString();
-
-    console.log(`Opening a web browser to log in to the store.`);
-    console.log(`If nothing happened, open this URL: ${authEndpoint}`);
-
-    await open.default(authEndpoint); // this has the state parameter.
-    await sdk.auth.listenAuth(loginEndpoint);
-    // there, authenticated.
   }
 
   /**

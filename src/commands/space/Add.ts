@@ -27,8 +27,8 @@ export default class UserSpaceAdd extends BaseCommand {
 
   async run(name: string, options: ICommandOptions): Promise<void> {
     const env = await this.readEnvironment(options);
-    const sdk = this.getSdk(env);
-    await this.getStoreSessionToken(sdk, env);
+    const sdk = this.apiStore.getSdk(env);
+    await this.apiStore.getStoreSessionToken(sdk, env);
     // const { skipExisting } = options;
     const workspace = Workspace.fromName(name);
     const key = await sdk.space.create(workspace);

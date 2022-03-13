@@ -5,7 +5,7 @@ import path from 'path';
 import net from 'net';
 import { Duplex } from 'stream';
 import { readFile } from 'fs/promises';
-import getPort, { portNumbers } from '../helpers/getPort.js';
+import { getPort, portNumbers } from '@api-client/core';
 import apiRouter from './express-routes/index.js';
 
 export class ExpressServer {

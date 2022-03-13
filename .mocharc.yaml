@@ -11,7 +11,7 @@ spec:
 require: 
   - ts-node/register
   - source-map-support/register.js
-  - test/tests-global-fixture.js
+  - test/tests-global-fixture.ts
 loader: ts-node/esm
 watch-files:
   - src

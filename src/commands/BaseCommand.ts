@@ -1,7 +1,8 @@
-import { Command, CommanderError } from 'commander';
+import { Command } from 'commander';
 import chalk from 'chalk';
-import { StoreSdk } from '@api-client/core';
-import { Config, IConfigEnvironment } from '../lib/Config.js';
+import { ApiStore } from '../lib/ApiStore.js';
+import { IConfigEnvironment, Config, IConfig } from '../lib/Config.js';
+import { FileStore } from '../lib/FileStore.js';
 import { parseInteger } from './ValueParsers.js';
 
 export interface IGlobalOptions {
@@ -19,6 +20,10 @@ export interface IGlobalOptions {
    * For commands that require a selection of the space. The key of the user space to use.
    */
   space?: string;
+  /**
+   * The config environment to use with the command. This is not available through the CLI.
+   */
+  env?: IConfigEnvironment;
 }
 
 export abstract class BaseCommand {
@@ -60,7 +65,48 @@ export abstract class BaseCommand {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   abstract run(...args: any[]): Promise<void>;
 
+  /**
+   * An instance to the API store.
+   */
+  apiStore = new ApiStore();
+  /**
+   * An instance to the File store.
+   */
+  fileStore = new FileStore();
+
   constructor(public command: Command) {}
+
+  /**
+   * Reads the CLI configuration
+   */
+  protected async getConfig(): Promise<IConfig> {
+    const config = new Config();
+    return config.read();
+  }
+
+  /**
+   * Reads the environment depending on the CLI configuration and user options.
+   * @param opts User options.
+   * @returns The current environment.
+   */
+  async readEnvironment(opts: IGlobalOptions): Promise<IConfigEnvironment> {
+    const { configEnv, store } = opts;
+    if (configEnv && store) {
+      throw new Error(`You can either specify the "--store" or "--config-env" option. Not both.`);
+    }
+    if (store) {
+      return {
+        key: '',
+        name: 'Default',
+        source: 'net-store',
+        authenticated: false,
+        location: store,
+      }
+    }
+    const config = new Config();
+    const data = await config.read();
+    return config.getEnv(data, configEnv);
+  }
 
   /**
    * Prints out a warning message.
@@ -87,95 +133,5 @@ export abstract class BaseCommand {
   println(message: string): void {
     const data =`\n${message}\n`;
     process.stdout.write(Buffer.from(data));
-  }
-
-  /**
-   * Reads the environment to use depending on the configuration and options. 
-   */
-  async readEnvironment(opts: IGlobalOptions={}): Promise<IConfigEnvironment> {
-    const { configEnv, store } = opts;
-    if (configEnv && store) {
-      throw new Error(`You can either specify the "--store" or "--config-env" option. Not both.`);
-    }
-    if (store) {
-      return {
-        key: '',
-        name: 'Default',
-        source: 'net-store',
-        authenticated: false,
-        location: store,
-      }
-    }
-    const config = new Config();
-    const data = await config.read();
-    return config.getEnv(data, configEnv);
-  }
-
-  getSdk(env: IConfigEnvironment): StoreSdk {
-    if (!env.location) {
-      throw new Error(`The environment has no store location.`);
-    }
-    if (env.source !== 'net-store') {
-      throw new Error(`Current environment is set to a file. Select a "net-store" environment.`);
-    }
-    const sdk = new StoreSdk(env.location);
-    return sdk;
-  }
-
-  async getStoreSessionToken(sdk: StoreSdk, env: IConfigEnvironment): Promise<string> {
-    let { token } = env;
-    const meUri = sdk.getUrl(`/users/me`).toString();
-    
-    if (token) {
-      const user = await sdk.http.get(meUri, { token });
-      if (user.status === 200) {
-        env.authenticated = true;
-        sdk.token = token;
-        return token;
-      }
-      token = undefined;
-    }
-    if (!token) {
-      const ti = await sdk.auth.createSession();
-      token = ti.token;
-      sdk.token = ti.token;
-      env.token = ti.token;
-      env.authenticated = false;
-    }
-    const user = await sdk.http.get(meUri, { token });
-    if (user.status === 200) {
-      env.authenticated = true;
-    } else {
-      await this.authenticateStore(sdk);
-    }
-    return token;
-  }
-
-  async authenticateStore(sdk: StoreSdk): Promise<void> {
-    const loginEndpoint = sdk.getUrl('/auth/login').toString();
-    
-    const result = await sdk.http.post(loginEndpoint);
-    if (result.status !== 204) {
-      throw new Error(`Unable to create the authorization session on the store. Invalid status code: ${result.status}.`);
-    }
-    if (!result.headers.location) {
-      throw new Error(`Unable to create the authorization session on the store. The location header is missing.`);
-    }
-    const open = await import('open');
-    const url = new URL(`/v1${result.headers.location}`, sdk.baseUri).toString();
-
-    console.log(`Opening a web browser to log in to the store.`);
-    console.log(`If nothing happened, open this URL: ${url}`);
-
-    await open.default(url); // this has the state parameter.
-    await sdk.auth.listenAuth(loginEndpoint);
-    // there, authenticated.
-  }
-
-  validateUserSpace(options: IGlobalOptions): void {
-    const { space } = options;
-    if (!space) {
-      throw new CommanderError(0, 'E_MISSING_OPTION', `The "space" option is required.`);
-    }
   }
 }

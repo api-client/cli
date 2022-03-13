@@ -19,12 +19,12 @@ export default class SpaceDeleteUser extends BaseCommand {
   }
 
   async run(userKey: string, options: ICommandOptions): Promise<void> {
-    this.validateUserSpace(options);
+    this.apiStore.validateUserSpace(options);
     const { space } = options;
 
     const env = await this.readEnvironment(options);
-    const sdk = this.getSdk(env);
-    await this.getStoreSessionToken(sdk, env);
+    const sdk = this.apiStore.getSdk(env);
+    await this.apiStore.getStoreSessionToken(sdk, env);
     
     await sdk.space.patchUsers(space as string, [{
       uid: userKey,

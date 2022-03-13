@@ -23,6 +23,7 @@
     "email": "arc@mulesoft.com"
   },
   "devDependencies": {
+    "@api-client/net-store": "^0.1.4",
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",

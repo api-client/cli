@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { HttpProject } from '@api-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
 import { ProjectCommand } from '../ProjectCommand.js';
+import { printProjectInfo } from './Utils.js';
 
 export interface ICommandOptions extends IProjectCommandOptions {
   projectVersion?: string;
@@ -48,5 +49,17 @@ export default class ProjectAdd extends ProjectCommandBase {
       info.version = options.projectVersion;
     }
     return project;
+  }
+
+  /**
+   * Custom save function to mitigate missing project snapshot 
+   */
+  protected async finishProjectStore(result: HttpProject, options: IProjectCommandOptions): Promise<void> {
+    const sdk = await this.getAuthenticatedSdk(options);
+    const { space } = options;
+    const altered = result.toJSON();
+    const id = await sdk.project.create(space as string, altered);
+    const created = await sdk.project.read(space as string, id);
+    printProjectInfo(new HttpProject(created));
   }
 }

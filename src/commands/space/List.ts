@@ -21,10 +21,10 @@ export default class ListSpaces extends BaseCommand {
     return cmd;
   }
 
-  async run(opts?: ICommandOptions): Promise<void> {
+  async run(opts: ICommandOptions = {}): Promise<void> {
     const env = await this.readEnvironment(opts);
-    const sdk = this.getSdk(env);
-    await this.getStoreSessionToken(sdk, env);
+    const sdk = this.apiStore.getSdk(env);
+    await this.apiStore.getStoreSessionToken(sdk, env);
     const response = await sdk.space.list(opts);
     printSpacesTable(response.data as IUserWorkspace[]);
     if (response.cursor) {

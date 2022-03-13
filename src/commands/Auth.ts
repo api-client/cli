@@ -38,8 +38,8 @@ export default class AuthCommand extends BaseCommand {
     }
     const env = await this.readEnvironment(options);
     this.validateEnvironment(env);
-    const sdk = this.getSdk(env);
-    await this.getStoreSessionToken(sdk, env);
+    const sdk = this.apiStore.getSdk(env);
+    await this.apiStore.getStoreSessionToken(sdk, env);
     const user = await sdk.user.me();
     this.println(user.name)
   }
@@ -50,8 +50,8 @@ export default class AuthCommand extends BaseCommand {
     }
     const env = await this.readEnvironment(options);
     this.validateEnvironment(env);
-    const sdk = this.getSdk(env);
-    const token = await this.getStoreSessionToken(sdk, env);
+    const sdk = this.apiStore.getSdk(env);
+    const token = await this.apiStore.getStoreSessionToken(sdk, env);
     const info = await sdk.auth.renewToken(token);
     const config = new Config();
     const data = await config.read();
@@ -68,8 +68,8 @@ export default class AuthCommand extends BaseCommand {
     }
     const env = await this.readEnvironment(options);
     this.validateEnvironment(env);
-    const sdk = this.getSdk(env);
-    const token = await this.getStoreSessionToken(sdk, env);
+    const sdk = this.apiStore.getSdk(env);
+    const token = await this.apiStore.getStoreSessionToken(sdk, env);
     const config = new Config();
     const data = await config.read();
     const i = config.getEnvIndex(data, options.configEnv);

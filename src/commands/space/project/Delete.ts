@@ -19,11 +19,11 @@ export default class SpaceDeleteProject extends BaseCommand {
   }
 
   async run(projectKey: string, options: ICommandOptions): Promise<void> {
-    this.validateUserSpace(options);
+    this.apiStore.validateUserSpace(options);
     const { space } = options;
     const env = await this.readEnvironment(options);
-    const sdk = this.getSdk(env);
-    await this.getStoreSessionToken(sdk, env);
+    const sdk = this.apiStore.getSdk(env);
+    await this.apiStore.getStoreSessionToken(sdk, env);
     
     await sdk.project.delete(space as string, projectKey);
   }

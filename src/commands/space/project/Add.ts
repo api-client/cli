@@ -23,12 +23,12 @@ export default class SpaceAddProject extends BaseCommand {
   }
 
   async run(name: string, options: ICommandOptions): Promise<void> {
-    this.validateUserSpace(options);
+    this.apiStore.validateUserSpace(options);
     const { space } = options;
 
     const env = await this.readEnvironment(options);
-    const sdk = this.getSdk(env);
-    await this.getStoreSessionToken(sdk, env);
+    const sdk = this.apiStore.getSdk(env);
+    await this.apiStore.getStoreSessionToken(sdk, env);
     const project = this.createProject(name, options);
 
     const id = await sdk.project.create(space as string, project);
