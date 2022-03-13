@@ -2,17 +2,11 @@
 import { Command, Option } from 'commander';
 import { exec } from 'child_process';
 import { dirname } from 'path';
-import { IHttpProject, HttpProject } from '@api-client/core';
+import { IHttpProject, HttpProject, fs, TestCliHelper } from '@api-client/core';
 import { writeFile } from 'fs/promises';
-import { ensureDir } from '../../src/lib/Fs.js';
 
 export function cleanTerminalOutput(s: string): string {
-  let result = s.trim();
-  result = result.replace(/[^\x20-\x7E\n]/gm, '');
-  // result = result.replace(/\[\d+m/gm, '');
-  result = result.replace(/\[\d+[a-zA-Z]/gm, '');
-  result = result.split('\n').filter(i => !!i.trim()).join('\n');
-  return result;
+  return TestCliHelper.cleanTerminalOutput(s);
 }
 
 export interface RunCommandOptions {
@@ -42,7 +36,7 @@ export async function runCommand(command: string, opts: RunCommandOptions = {}):
         if (opts.noCleaning) {
           returnValue = returnValue.trim();
         } else {
-          returnValue = cleanTerminalOutput(returnValue);
+          returnValue = TestCliHelper.cleanTerminalOutput(returnValue);
         }
         resolve(returnValue);
       }
@@ -52,7 +46,7 @@ export async function runCommand(command: string, opts: RunCommandOptions = {}):
 
 export async function writeProject(project: IHttpProject | HttpProject, filePath: string): Promise<void> {
   const dir = dirname(filePath);
-  await ensureDir(dir);
+  await fs.ensureDir(dir);
   let obj: IHttpProject;
   const typed = project as HttpProject;
   if (typeof typed.toJSON === 'function') {
@@ -64,15 +58,7 @@ export async function writeProject(project: IHttpProject | HttpProject, filePath
 }
 
 export function splitTable(table: string): string[] {
-  const result: string[] = [];
-  table.split('\n').forEach((line) => {
-    const value = line.trim();
-    if (!value) {
-      return;
-    }
-    result.push(line.trim());
-  });
-  return result;
+  return TestCliHelper.splitLines(table);
 }
 
 export function findCommandOption(command: Command, q: string): Option {
@@ -96,36 +82,5 @@ export function findCommandOption(command: Command, q: string): Option {
  * @returns The terminal output.
  */
 export async function exeCommand(fn: () => Promise<void>): Promise<string> {
-  const messages: string[] = [];
-  function noop(...x: any): void {
-    //
-  }
-  const origOut = process.stdout.write;
-  const origErr = process.stderr.write;
-  const origClear = console.clear;
-  function messageHandler(buffer: string | Buffer): boolean {
-    if (typeof buffer === 'string') {
-      messages.push(buffer);
-    } else {
-      messages.push(buffer.toString('utf8'));
-    }
-    return true;
-  }
-  function stop(): void {
-    process.stdout.write = origOut;
-    process.stderr.write = origErr;
-    console.clear = origClear;
-  }
-  process.stdout.write = messageHandler;
-  process.stderr.write = messageHandler;
-  console.clear = noop;
-
-  try {
-    await fn();
-    stop();
-  } catch (e) {
-    stop();
-    throw e;
-  }
-  return messages.join('');
+  return TestCliHelper.grabOutput(fn);
 }

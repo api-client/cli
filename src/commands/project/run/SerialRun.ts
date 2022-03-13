@@ -1,65 +1,103 @@
 import chalk from 'chalk';
-import { CommanderError } from 'commander';
 import { 
-  IHttpRequest, 
-  IRequestLog, 
-  IArcResponse, 
-  IErrorResponse, 
-  ErrorResponse,
-  ISerializedError,
+  IRequestLog, ErrorResponse, IHttpRequest, ProjectSerialRunner, IArcResponse, IErrorResponse, 
+  ISerializedError, DataCalculator, IProjectExecutionLog,
 } from '@api-client/core';
-import { CliReporter } from '../reporters/CliReporter.js';
-import { bytesToSize } from '../lib/DataSize.js';
-import { sleep } from '../lib/Timers.js';
-import { ProjectExe } from './ProjectExe.js';
 
-export class ProjectExeFactory extends ProjectExe {
-  /**
-   * When set it automatically generates the report at tge end of the run.
-   */
-  autoReport = true;
+export class SerialRun extends ProjectSerialRunner {
+  constructor() {
+    super();
+    this.on('before-sleep', this._beforeSleepHandler.bind(this));
+    this.on('after-sleep', this._afterSleepHandler.bind(this));
+    this.on('before-iteration', this._beforeIterationHandler.bind(this));
+    this.on('after-iteration', this._afterIterationHandler.bind(this));
+  }
 
-  /**
-   * Executes the requests in the project.
-   */
-  async execute(): Promise<void> {
-    const { root } = this;
-    if (!root) {
-      throw new CommanderError(0, 'ECONFIGURE', `The project runner is not configured.`);
-    }
+  async execute(): Promise<IProjectExecutionLog> {
     this.printProjectInfo();
-    
-    this.startTime = Date.now();
-    while (this.remaining > 0) {
-      this.remaining--;
-      await this.executeIteration();
-      this.index++;
-      if (this.remaining && this.options?.iterationDelay) {
-        const formatted = new Intl.NumberFormat(undefined, {
-          style: 'unit',
-          unit: 'millisecond',
-          unitDisplay: 'long',
-        }).format(this.options.iterationDelay);
-        process.stdout.write(` │ Waiting ${formatted}`);
-        await sleep(this.options.iterationDelay);
-        process.stdout.clearLine(-1);
-        process.stdout.write(`\r`);
-      }
-    }
-
-    this.endTime = Date.now();
-
+    const log = await super.execute();
     process.stdout.write(` └`);
-    process.stdout.write(chalk.green(` Complete\n\n`));
-    if (this.autoReport) {
-      await this.generateReport();
+    process.stdout.write(chalk.green(` Run complete\n\n`));
+    return log;
+  }
+
+  private _beforeSleepHandler(): void {
+    const { options } = this;
+    if (!options) {
+      return;
+    }
+    if (!options.iterationDelay) {
+      return;
+    }
+    const formatted = new Intl.NumberFormat(undefined, {
+      style: 'unit',
+      unit: 'millisecond',
+      unitDisplay: 'long',
+    }).format(options.iterationDelay);
+    process.stdout.write(` │ Waiting ${formatted}`);
+  }
+
+  private _afterSleepHandler(): void {
+    process.stdout.clearLine(-1);
+    process.stdout.write(`\r`);
+  }
+
+  /**
+   * A lifecycle function called before the iteration begins.
+   * @param index The index of the current iteration.
+   * @param iterated Whether the library performs multiple iterations
+   */
+  private _beforeIterationHandler(index: number, iterated: boolean): void {
+    if (iterated) {
+      const info = chalk.bold(`Iteration #${index + 1}`);
+      process.stdout.write(` │ ${info}\n │\n`);
     }
   }
 
-  private async generateReport(): Promise<void> {
-    const log = await this.createReport();
-    const reporter = new CliReporter(log);
-    await reporter.generate();
+  /**
+   * A lifecycle function called after the iteration ended.
+   * @param index The index of the current iteration.
+   * @param iterated Whether the library performs multiple iterations
+   */
+  private _afterIterationHandler(index: number, iterated: boolean): void {
+    if (iterated) {
+      process.stdout.write(` │\n`);
+    }
+  }
+
+  protected _requestHandler(key: string, request: IHttpRequest): void {
+    super._requestHandler(key, request);
+    const { url, method } = request;
+    const projectRequest = this.project!.findRequest(key);
+    if (!projectRequest) {
+      process.stdout.write(chalk.red(`Unable to find a request in the project.`));
+      return;
+    }
+    const name = projectRequest.info.name || key;
+    
+    process.stdout.write(` ├ ${name}\n │  `);
+    process.stdout.write(chalk.gray(`└ ${method} ${url}`));
+  }
+
+  protected _responseHandler(key: string, log: IRequestLog): void {
+    super._responseHandler(key, log);
+    const { response } = log;
+    if (ErrorResponse.isErrorResponse(response)) {
+      this.writeErrorResponse(log);
+    } else {
+      this.writeResponse(log);
+    }
+  }
+
+  protected _errorHandler(key: string, log: IRequestLog, message: string): void {
+    // this intentionally does not call the super method.
+    this.currentIteration?.executed.push(log);
+    const projectRequest = this.project!.findRequest(key);
+    if (!projectRequest) {
+      process.stdout.write(chalk.red(`Unable to find a request in the project.`));
+      return;
+    }
+    this.writeError(message);
   }
 
   private printProjectInfo(): void {
@@ -80,38 +118,6 @@ export class ProjectExeFactory extends ProjectExe {
     process.stdout.write(' │\n');
   }
 
-  protected requestHandler(key: string, request: IHttpRequest): void {
-    const { url, method } = request;
-    const projectRequest = this.project!.findRequest(key);
-    if (!projectRequest) {
-      process.stdout.write(chalk.red(`Unable to find a request in the project.`));
-      return;
-    }
-    const name = projectRequest.info.name || key;
-    process.stdout.write(` ├ ${name}\n │  `);
-    process.stdout.write(chalk.gray(`└ ${method} ${url}`));
-  }
-
-  protected responseHandler(key: string, log: IRequestLog): void {
-    this.currentIteration?.executed.push(log);
-    const { response } = log;
-    if (ErrorResponse.isErrorResponse(response)) {
-      this.writeErrorResponse(log);
-    } else {
-      this.writeResponse(log);
-    }
-  }
-
-  protected errorHandler(key: string, log: IRequestLog, message: string): void {
-    this.currentIteration?.executed.push(log);
-    const projectRequest = this.project!.findRequest(key);
-    if (!projectRequest) {
-      process.stdout.write(chalk.red(`Unable to find a request in the project.`));
-      return;
-    }
-    this.writeError(message);
-  }
-
   private statusPart(execLog: IRequestLog): string {
     const response = execLog.response as IArcResponse | IErrorResponse;
     if (!response) {
@@ -126,7 +132,7 @@ export class ProjectExeFactory extends ProjectExe {
 
   private sizePart(execLog: IRequestLog): string|undefined {
     if (execLog.size) {
-      return bytesToSize(execLog.size.request);
+      return DataCalculator.bytesToSize(execLog.size.request);
     }
   }
 
@@ -248,28 +254,5 @@ export class ProjectExeFactory extends ProjectExe {
       parts.push(size);
     }
     process.stdout.write(chalk.gray(` [${parts.join(', ')}]\n`));
-  }
-
-  /**
-   * A lifecycle function called before the iteration begins.
-   * @param index The index of the current iteration.
-   * @param iterated Whether the library performs multiple iterations
-   */
-  async beforeIteration(index: number, iterated: boolean): Promise<void> {
-    if (iterated) {
-      const info = chalk.bold(`Iteration #${index + 1}`);
-      process.stdout.write(` │ ${info}\n │\n`);
-    }
-  }
-
-  /**
-   * A lifecycle function called after the iteration ended.
-   * @param index The index of the current iteration.
-   * @param iterated Whether the library performs multiple iterations
-   */
-  async afterIteration(index: number, iterated: boolean): Promise<void> {
-    if (iterated) {
-      process.stdout.write(` │\n`);
-    }
   }
 }

@@ -1,12 +1,11 @@
 /* eslint-disable import/no-named-as-default-member */
 import { Command } from 'commander';
-import { HttpProject, IHttpProject } from '@api-client/core';
+import { HttpProject, IHttpProject, fs as coreFs } from '@api-client/core';
 import ooPatch from 'json8-patch';
 import fs from 'fs/promises';
 import path from 'path';
 import { ProjectCommand } from '../ProjectCommand.js';
 import { IGlobalOptions } from '../BaseCommand.js';
-import { ensureDir, pathExists, readJson } from '../../lib/Fs.js';
 import { printProjectInfo } from '../project/Utils.js';
 
 export interface IProjectCommandOptions extends IGlobalOptions {
@@ -72,13 +71,13 @@ export abstract class ProjectCommandBase extends ProjectCommand {
    * Reads project contents from a file.
    */
   private async readFileProject(location: string): Promise<HttpProject> {
-    const exists = await pathExists(location);
+    const exists = await coreFs.pathExists(location);
     if (!exists) {
       throw new Error(`No such file ${location}`);
     }
     let contents: any; 
     try {
-      contents = await readJson(location, { throws: true });
+      contents = await coreFs.readJson(location, { throws: true });
     } catch (e) {
       throw new Error(`Invalid ARC project contents in file ${location}`);
     }
@@ -138,14 +137,14 @@ export abstract class ProjectCommandBase extends ProjectCommand {
     if (!out) {
       out = input as string;
     }
-    const exists = await pathExists(out);
+    const exists = await coreFs.pathExists(out);
     if (exists && !overwrite) {
       throw new Error('The project already exists. Use --overwrite to replace the contents.');
     }
     
     const contents = JSON.stringify(result, null, options.prettyPrint ? 2 : 0);
     const dir = path.dirname(out);
-    await ensureDir(dir);
+    await coreFs.ensureDir(dir);
     await fs.writeFile(out, contents, 'utf8');
   }
 

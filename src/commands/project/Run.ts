@@ -1,13 +1,12 @@
 import { Command } from 'commander';
+import { HttpProject, IProjectRunnerOptions, ProjectRunCliReporter } from '@api-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
 import { ProjectCommand } from '../ProjectCommand.js';
-import { ProjectExeFactory } from '../../runner/ProjectExeFactory.js';
-import { ProjectExeOptions } from '../../runner/ProjectExe.js';
-import { ProjectParallelExeFactory } from '../../runner/ProjectParallelExeFactory.js';
-import { parseInteger } from '../ValueParsers.js'
+import { parseInteger } from '../ValueParsers.js';
+import { ParallelRun } from './run/ParallelRun.js';
+import { SerialRun } from './run/SerialRun.js';
 
-export interface ICommandOptions extends IProjectCommandOptions, ProjectExeOptions {
-  
+export interface ICommandOptions extends IProjectCommandOptions, IProjectRunnerOptions {
 }
 
 /**
@@ -39,24 +38,47 @@ export default class ProjectRun extends ProjectCommandBase {
    * Runs the command to clone an HTTP project.
    * @param options Command options.
    */
-  async run(options: ICommandOptions): Promise<void> {
+  async run(options: ICommandOptions={}): Promise<void> {
     const project = await this.readProject(options);
     if (options.parallel) {
-      const factory = new ProjectParallelExeFactory(project, options);
-      await factory.run();
+      await this.runParallel(project, options);
     } else {
-      // eslint-disable-next-line no-inner-declarations
-      function unhandledRejection(): void {}
-      // the executing library handles all related errors it need.
-      // However, when executing a request to an unknown host Node process may 
-      // throw unhandled error event when the error is properly reported by the 
-      // application. This suppresses these errors.
-      // Note, uncomment this line for debug.
-      process.on('unhandledRejection', unhandledRejection);
-
-      const factory = new ProjectExeFactory();
-      await factory.configure(project, options);
-      await factory.execute();
+      await this.runSerial(project, options);
     }
+  }
+
+  /**
+   * Runs the project in the parallel mode.
+   * Prints out the workers status and the summary.
+   */
+  protected async runParallel(project: HttpProject, options: ICommandOptions={}): Promise<void> {
+    const factory = new ParallelRun(project, options);
+    const report = await factory.execute();
+    const reporter = new ProjectRunCliReporter(report);
+    process.stdout.write('\n');
+    await reporter.generate();
+  }
+
+  /**
+   * Runs the project in the serial mode.
+   * Prints out the status pof each request for each iteration.
+   */
+  protected async runSerial(project: HttpProject, options: ICommandOptions={}): Promise<void> {
+    // eslint-disable-next-line no-inner-declarations
+    function unhandledRejection(): void {}
+    // the executing library handles all related errors it need.
+    // However, when executing a request to an unknown host Node process may 
+    // throw unhandled error event when the error is properly reported by the 
+    // application. This suppresses these errors.
+    // Note, uncomment this line for debug.
+    process.on('unhandledRejection', unhandledRejection);
+    const factory = new SerialRun();
+    await factory.configure(project, options);
+    const report = await factory.execute();
+    process.off('unhandledRejection', unhandledRejection);
+
+    const reporter = new ProjectRunCliReporter(report);
+    process.stdout.write('\n');
+    await reporter.generate();
   }
 }

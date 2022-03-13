@@ -1,8 +1,7 @@
 import { Command } from 'commander';
 import fs from 'fs/promises';
-import { ProjectRequest, Thing, ISafePayload } from '@api-client/core';
+import { ProjectRequest, Thing, ISafePayload, fs as coreFs } from '@api-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from '../ProjectCommandBase.js';
-import { pathExists } from '../../../lib/Fs.js';
 import { ProjectCommand } from '../../ProjectCommand.js';
 import { parseInteger } from '../../ValueParsers.js';
 
@@ -120,7 +119,7 @@ export default class ProjectRequestAdd extends ProjectCommandBase {
   }
 
   async readFileContents(fileLocation: string): Promise<Buffer> {
-    const exists = await pathExists(fileLocation);
+    const exists = await coreFs.pathExists(fileLocation);
     if (!exists) {
       throw new Error(`Request data input: No such file ${fileLocation}`);
     }

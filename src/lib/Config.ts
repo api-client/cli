@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { pathExists, canRead, readJson, writeJson } from './Fs.js';
+import { fs } from '@api-client/core';
 
 export const Kind = 'CLI#Config';
 
@@ -54,7 +54,7 @@ export class Config {
    */
   async hasConfig(): Promise<boolean> {
     const file = this.configFilePath();
-    return await pathExists(file);
+    return fs.pathExists(file);
   }
 
   /**
@@ -62,15 +62,15 @@ export class Config {
    */
   async read(): Promise<IConfig> {
     const file = this.configFilePath();
-    const exists = await pathExists(file);
+    const exists = await fs.pathExists(file);
     if (!exists) {
       return this.default();
     }
-    const readable = await canRead(file);
+    const readable = await fs.canRead(file);
     if (!readable) {
       throw new Error(`[Access error]: The CLI configuration file cannot be read.`);
     }
-    const contents = await readJson(file) as IConfig;
+    const contents = await fs.readJson(file) as IConfig;
     if (!Array.isArray(contents.environments)) {
       contents.environments = [];
     }
@@ -82,7 +82,7 @@ export class Config {
    */
   async write(contents: IConfig): Promise<void> {
     const file = this.configFilePath();
-    await writeJson(file, contents);
+    await fs.writeJson(file, contents);
   }
 
   async reset(): Promise<void> {

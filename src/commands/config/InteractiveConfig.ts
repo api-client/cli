@@ -1,11 +1,10 @@
 /* eslint-disable import/no-named-as-default-member */
 import { Table } from 'console-table-printer';
-import { uuidV4, StoreSdk } from '@api-client/core';
+import { uuidV4, StoreSdk, fs } from '@api-client/core';
 import inquirer from 'inquirer';
 import { isAbsolute } from 'path';
 import { stat } from 'fs/promises';
 import { Config, IConfigEnvironment } from '../../lib/Config.js';
-import { canRead } from '../../lib/Fs.js';
 
 export class InteractiveConfig {
   async addEnvironment(rewrite = false): Promise<void> {
@@ -106,7 +105,7 @@ export class InteractiveConfig {
         if (!isAbsolute(value)) {
           return 'Enter an absolute path.';
         }
-        if (await canRead(value) === false) {
+        if (await fs.canRead(value) === false) {
           return 'Path does not exist.';
         }
         const info = await stat(value);
