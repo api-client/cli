@@ -1,35 +1,21 @@
 import { assert } from 'chai';
-import { StoreSdk, Workspace, TestCliHelper } from '@api-client/core';
+import { TestCliHelper } from '@api-client/core';
 import Add from '../../src/commands/project/Add.js';
 import getSetup from '../helpers/getSetup.js';
 import { SetupConfig } from '../helpers/interfaces.js';
-import { IConfigEnvironment } from '../../src/lib/Config.js';
+import { StoreHelper } from '../helpers/StoreHelper.js';
 
 describe('Project', () => {
   let env: SetupConfig;
-  let sdk: StoreSdk;
-  let token: string;
+  let helper: StoreHelper;
   let space: string;
 
   before(async () => {
     env = await getSetup();
-    sdk = new StoreSdk(env.singleUserBaseUri);
-    const info = await sdk.auth.createSession();
-    token = info.token;
-    sdk.token = token;
-    space = await sdk.space.create(Workspace.fromName('test'));
+    helper = new StoreHelper(env.singleUserBaseUri);
+    await helper.initStoreSpace();
+    space = helper.space as string;
   });
-
-  function environment(): IConfigEnvironment {
-    return {
-      key: 'test',
-      name: 'default',
-      source: 'net-store',
-      authenticated: true,
-      token,
-      location: env.singleUserBaseUri,
-    }
-  }
 
   describe('Store', () => {
     describe('add', () => {
@@ -40,7 +26,7 @@ describe('Project', () => {
         const result = await TestCliHelper.grabOutput(async () => {
           await cmd.run(name, {
             space,
-            env: environment(),
+            env: helper.environment(),
           });
         });
         const lines = TestCliHelper.splitLines(TestCliHelper.cleanTerminalOutput(result));
@@ -58,7 +44,7 @@ describe('Project', () => {
         const result = await TestCliHelper.grabOutput(async () => {
           await cmd.run(name, {
             space,
-            env: environment(),
+            env: helper.environment(),
             projectVersion: '0.1.0',
           });
         });

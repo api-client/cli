@@ -291,8 +291,8 @@ describe('Project', () => {
           const result = await runCommand(`${cmd} -d @test/data/file1.txt -- "https://api.com"`);
           const project = new HttpProject(result.trim());
           const request = project.listRequests()[0];
-          const body = await request.expects.readPayloadAsString();
-          assert.equal(body, 'file1 value\n');
+          const body = await request.expects.readPayloadAsString() as string;
+          assert.equal(body.trim(), 'file1 value');
         });
       });
     });
