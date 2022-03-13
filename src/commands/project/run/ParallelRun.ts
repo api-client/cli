@@ -1,6 +1,8 @@
 import { HttpProject, IProjectRunnerOptions, ProjectParallelRunner, IWorkerInfo } from '@api-client/core';
 import chalk from 'chalk';
 
+const { isTTY } = process.stdout;
+
 export class ParallelRun extends ProjectParallelRunner {
   /**
    * The terminal row # relative to the start command
@@ -23,7 +25,9 @@ export class ParallelRun extends ProjectParallelRunner {
     if (this.currentRow > 0) {
       // the project info is already printed. Move to the 3rd line where the status start
       const diff = this.currentRow - 2;
-      process.stdout.moveCursor(0, -diff);
+      if (isTTY) {
+        process.stdout.moveCursor(0, -diff);
+      }
       this.currentRow = 2;
       return;
     }
@@ -37,9 +41,10 @@ export class ParallelRun extends ProjectParallelRunner {
       const borderStyle = index === workers.length - 1 ? '└' : '├';
       const state = this._readWorkerState(info, index);
       const line = ` ${borderStyle} ${state}\n`;
-
-      process.stdout.cursorTo(0);
-      process.stdout.clearLine(1);
+      if (isTTY) {
+        process.stdout.cursorTo(0);
+        process.stdout.clearLine(1);
+      }
       process.stdout.write(line);
       this.currentRow += 1;
     });
