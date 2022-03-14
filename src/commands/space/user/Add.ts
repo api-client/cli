@@ -39,5 +39,7 @@ export default class SpaceAddUser extends BaseCommand {
       op: 'add',
       value: level as AccessControlLevel,
     }]);
+    const user = await sdk.user.read(userKey);
+    this.println(`The user ${user.name} has been added to the space with the ${level} access.`);
   }
 }

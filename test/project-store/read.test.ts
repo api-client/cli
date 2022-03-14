@@ -2,8 +2,7 @@ import { assert } from 'chai';
 import { HttpProject } from '@api-client/core';
 import { exeCommand, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
 import Read from '../../src/commands/project/Read.js';
-import getSetup from '../helpers/getSetup.js';
-import { SetupConfig } from '../helpers/interfaces.js';
+import getSetup, { SetupConfig } from '../helpers/getSetup.js';
 import { StoreHelper } from '../helpers/StoreHelper.js';
 
 describe('Project', () => {

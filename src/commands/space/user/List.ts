@@ -1,17 +1,19 @@
 import { Command } from 'commander';
-import { BaseCommand, IGlobalOptions } from '../BaseCommand.js';
+import { ISpaceUser } from '@api-client/core';
+import { BaseCommand, IGlobalOptions } from '../../BaseCommand.js';
+import { printSpaceUsersTable } from '../../users/Utils.js';
 
 export interface ICommandOptions extends IGlobalOptions {
 }
 
-export default class UserSpaceDelete extends BaseCommand {
+export default class SpaceListUsers extends BaseCommand {
   static get command(): Command {
-    const cmd = new Command('delete');
+    const cmd = new Command('list');
     BaseCommand.CliOptions(cmd);
     cmd
-      .description('Deletes a user space and its contents. Throws when the user has no write permission to the space.')
+      .description('Lists the users having access to the user space.')
       .action(async (options) => {
-        const instance = new UserSpaceDelete(cmd);
+        const instance = new SpaceListUsers(cmd);
         await instance.run(options);
       });
     return cmd;
@@ -24,8 +26,8 @@ export default class UserSpaceDelete extends BaseCommand {
     const env = await this.readEnvironment(options);
     const sdk = this.apiStore.getSdk(env);
     await this.apiStore.getStoreSessionToken(sdk, env);
-    const info = await sdk.space.read(space as string);
-    await sdk.space.delete(space as string);
-    this.println(`The space ${info.info.name} is deleted.`);
+    
+    const result = await sdk.space.listUsers(space as string);
+    printSpaceUsersTable(result.data as ISpaceUser[]);
   }
 }

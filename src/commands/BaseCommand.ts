@@ -90,6 +90,9 @@ export abstract class BaseCommand {
    * @returns The current environment.
    */
   async readEnvironment(opts: IGlobalOptions): Promise<IConfigEnvironment> {
+    if (opts.env) {
+      return opts.env;
+    }
     const { configEnv, store } = opts;
     if (configEnv && store) {
       throw new Error(`You can either specify the "--store" or "--config-env" option. Not both.`);

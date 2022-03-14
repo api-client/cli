@@ -60,6 +60,7 @@
     "mocha": "^9.1.3",
     "npm": "^8.5.4",
     "nyc": "^15.1.0",
+    "oauth2-mock-server": "^4.3.0",
     "sinon": "^13.0.1",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.4.0",

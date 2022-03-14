@@ -1,8 +1,7 @@
 import { assert } from 'chai';
 import { HttpProject, ProjectFolder, ProjectRequest, TestCliHelper } from '@api-client/core';
 import Clone from '../../src/commands/project/Clone.js';
-import getSetup from '../helpers/getSetup.js';
-import { SetupConfig } from '../helpers/interfaces.js';
+import getSetup, { SetupConfig } from '../helpers/getSetup.js';
 import { StoreHelper } from '../helpers/StoreHelper.js';
 
 describe('Project', () => {

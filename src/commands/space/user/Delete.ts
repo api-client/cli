@@ -30,5 +30,7 @@ export default class SpaceDeleteUser extends BaseCommand {
       uid: userKey,
       op: 'remove',
     }]);
+    const user = await sdk.user.read(userKey);
+    this.println(`The user ${user.name} has been removed from the space.`);
   }
 }

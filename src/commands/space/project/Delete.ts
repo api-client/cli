@@ -26,5 +26,6 @@ export default class SpaceDeleteProject extends BaseCommand {
     await this.apiStore.getStoreSessionToken(sdk, env);
     
     await sdk.project.delete(space as string, projectKey);
+    this.println(`The project has been deleted from the space.`);
   }
 }
