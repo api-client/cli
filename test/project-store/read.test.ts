@@ -1,6 +1,6 @@
 import { assert } from 'chai';
-import { HttpProject } from '@api-client/core';
-import { exeCommand, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
+import { HttpProject, TestCliHelper } from '@api-client/core';
+import { splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
 import Read from '../../src/commands/project/Read.js';
 import getSetup, { SetupConfig } from '../helpers/getSetup.js';
 import { StoreHelper } from '../helpers/StoreHelper.js';
@@ -23,14 +23,14 @@ describe('Project', () => {
     await helper.testDelete(`/test/reset/sessions`);
   });
 
-  describe('Store', () => {
+  describe('Data store', () => {
     describe('read', () => {
       describe('Units', () => {
         it('prints the basic info', async () => {
           const source = HttpProject.fromName('test');
           const project = await helper.sdk.project.create(space, source);
           const cmd = new Read(Read.command);
-          const result = await exeCommand(async () => {
+          const result = await TestCliHelper.grabOutput(async () => {
             await cmd.run({
               space,
               project,
@@ -61,7 +61,7 @@ describe('Project', () => {
           source.addEnvironment('env 3');
           const project = await helper.sdk.project.create(space, source);
           const cmd = new Read(Read.command);
-          const result = await exeCommand(async () => {
+          const result = await TestCliHelper.grabOutput(async () => {
             await cmd.run({
               space,
               project,
@@ -82,7 +82,7 @@ describe('Project', () => {
           source.addFolder('f 3');
           const project = await helper.sdk.project.create(space, source);
           const cmd = new Read(Read.command);
-          const result = await exeCommand(async () => {
+          const result = await TestCliHelper.grabOutput(async () => {
             await cmd.run({
               space,
               project,
@@ -103,7 +103,7 @@ describe('Project', () => {
           source.addRequest('r 3');
           const project = await helper.sdk.project.create(space, source);
           const cmd = new Read(Read.command);
-          const result = await exeCommand(async () => {
+          const result = await TestCliHelper.grabOutput(async () => {
             await cmd.run({
               space,
               project,
@@ -124,7 +124,7 @@ describe('Project', () => {
           source.addSchema('s 3');
           const project = await helper.sdk.project.create(space, source);
           const cmd = new Read(Read.command);
-          const result = await exeCommand(async () => {
+          const result = await TestCliHelper.grabOutput(async () => {
             await cmd.run({
               space,
               project,

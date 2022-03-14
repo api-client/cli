@@ -9,7 +9,7 @@ const projectPath = join('test', 'playground', 'project-read');
 const projectFile = join(projectPath, 'project.json');
 
 describe('Project', () => {
-  describe('File', () => {
+  describe('File store', () => {
     describe('read', () => {
       describe('Units', () => {
         after(async () => {

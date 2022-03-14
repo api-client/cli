@@ -16,6 +16,12 @@ describe('Project', () => {
     space = helper.space as string;
   });
 
+  after(async () => {
+    await helper.testDelete(`/test/reset/spaces`);
+    await helper.testDelete(`/test/reset/projects`);
+    await helper.testDelete(`/test/reset/sessions`);
+  });
+
   describe('Store', () => {
     describe('clone', () => {
       describe('Units', () => {

@@ -11,7 +11,7 @@ const projectFile = join(projectPath, 'project.json');
 // const cmdRoot = 'project clone';
 
 describe('Project', () => {
-  describe('File', () => {
+  describe('File store', () => {
     describe('clone', () => {
       describe('Units', () => {
         let f1: ProjectFolder;

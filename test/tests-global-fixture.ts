@@ -17,7 +17,7 @@ const lockFile = join('test', 'express.lock');
 const server = new ExpressServer();
 const logger = new DummyLogger();
 const noAuthStore = new TestStore(logger, join(playgroundPath, 'no-auth'));
-const oidcAuthStore = new TestStore(logger, 'test/data/oidc-auth');
+const oidcAuthStore = new TestStore(logger, join(playgroundPath, 'oidc-auth'));
 let noAuthServer: Server;
 let oidcAuthServer: Server;
 const oauthServer = new OAuth2Server(

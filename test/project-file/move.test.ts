@@ -11,7 +11,7 @@ const projectFile = join(projectPath, 'project.json');
 // const cmdRoot = 'project move';
 
 describe('Project', () => {
-  describe('File', () => {
+  describe('File store', () => {
     describe('move', () => {
       describe('Units', () => {      
         let f1: ProjectFolder;

@@ -11,7 +11,7 @@ const projectFile = join(projectPath, 'project.json');
 // const cmdRoot = 'project list';
 
 describe('Project', () => {
-  describe('File', () => {
+  describe('File store', () => {
     describe('list', () => {
       describe('folders', () => {
         const type: ProjectTypes = `folders`;

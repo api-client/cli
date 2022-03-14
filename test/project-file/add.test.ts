@@ -9,7 +9,7 @@ const projectPath = join('test', 'playground', 'project-add');
 const defaultTestFile = join(projectPath, 'project.json');
 
 describe('Project', () => {
-  describe('File', () => {
+  describe('File store', () => {
     describe('add', () => {
       after(async () => {
         await fs.rm(projectPath, { recursive: true, force: true });
