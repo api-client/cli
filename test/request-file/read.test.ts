@@ -28,7 +28,7 @@ describe('Project', () => {
             r1 = project.addRequest('https://api.com/r1');
             r2 = f1.addRequest('https://api.com/r2');
             const r3data = ProjectRequest.fromRequest({
-              kind: 'ARC@Request',
+              kind: 'Core#Request',
               expects: {
                 url: 'https://api.com/r3',
                 method: 'PUT',

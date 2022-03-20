@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { 
-  IRequestLog, ErrorResponse, IHttpRequest, ProjectSerialRunner, IArcResponse, IErrorResponse, 
+  IRequestLog, ErrorResponse, IHttpRequest, ProjectSerialRunner, IResponse, IErrorResponse, 
   ISerializedError, DataCalculator, IProjectExecutionLog,
 } from '@api-client/core';
 
@@ -119,7 +119,7 @@ export class SerialRun extends ProjectSerialRunner {
   }
 
   private statusPart(execLog: IRequestLog): string {
-    const response = execLog.response as IArcResponse | IErrorResponse;
+    const response = execLog.response as IResponse | IErrorResponse;
     if (!response) {
       return '0';
     }
@@ -137,7 +137,7 @@ export class SerialRun extends ProjectSerialRunner {
   }
 
   private timePart(execLog: IRequestLog): string|undefined {
-    const rsp = execLog.response as IArcResponse;
+    const rsp = execLog.response as IResponse;
     if (rsp.loadingTime) {
       return `${rsp.loadingTime}ms`;
     }
@@ -156,7 +156,7 @@ export class SerialRun extends ProjectSerialRunner {
   }
 
   private writeResponse(execLog: IRequestLog): void {
-    const response = execLog.response as IArcResponse;
+    const response = execLog.response as IResponse;
     if (response.status < 200) {
       this.writeInformResponse(execLog);
     } else if (response.status < 300) {

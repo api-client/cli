@@ -2,7 +2,7 @@
 
 > Work in progress
 
-The CLI for API Client's HTTP projects. This is an alternative use of the data stored in the API Client's HTTP project. It provides a CLI built on top of ARC's core library (@api-client/core).
+The CLI for API Client's HTTP projects. This is an alternative use of the data stored in the API Client's HTTP project. It provides a CLI built on top of API Client's core library (@api-client/core).
 
 This CLI allows developers to create, manipulate, and execute HTTP projects without API Client's UI.
 

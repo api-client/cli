@@ -1,18 +1,18 @@
 {
-  "kind": "ARC#HttpProject",
+  "kind": "Core#HttpProject",
   "key": "b86281db-f6c4-4f07-87f3-6a183e4be680",
   "definitions": {
     "requests": [
       {
-        "kind": "ARC#ProjectRequest",
+        "kind": "Core#ProjectRequest",
         "expects": {
-          "kind": "ARC#HttpRequest",
+          "kind": "Core#HttpRequest",
           "url": "http://localhost:{HTTP_PORT}/v1/get",
           "method": "GET",
           "headers": "x-request-key: 3db749cd-ddd3-4719-8be9-8d727ceec355"
         },
         "info": {
-          "kind": "ARC#Thing",
+          "kind": "Core#Thing",
           "name": "Simple GET"
         },
         "created": 1645129958252,
@@ -21,16 +21,16 @@
         "key": "3db749cd-ddd3-4719-8be9-8d727ceec355"
       },
       {
-        "kind": "ARC#ProjectRequest",
+        "kind": "Core#ProjectRequest",
         "expects": {
-          "kind": "ARC#HttpRequest",
+          "kind": "Core#HttpRequest",
           "url": "http://localhost:{HTTP_PORT}/v1/post",
           "method": "POST",
           "headers": "x-request-key: 2b4f75b1-ad89-4932-96b5-b868f86f79a6\ncontent-type: application/json",
           "payload": "{\"test\":true}"
         },
         "info": {
-          "kind": "ARC#Thing",
+          "kind": "Core#Thing",
           "name": "Simple POST"
         },
         "created": 1645129958252,
@@ -39,15 +39,15 @@
         "key": "2b4f75b1-ad89-4932-96b5-b868f86f79a6"
       },
       {
-        "kind": "ARC#ProjectRequest",
+        "kind": "Core#ProjectRequest",
         "expects": {
-          "kind": "ARC#HttpRequest",
+          "kind": "Core#HttpRequest",
           "url": "http://localhost:{HTTP_PORT}/v1/response/xml",
           "method": "GET",
           "headers": "x-request-key: 6a054a7b-00c7-4e5d-b16d-5ebf962c8ba9"
         },
         "info": {
-          "kind": "ARC#Thing",
+          "kind": "Core#Thing",
           "name": "http://localhost:{HTTP_PORT}/v1/response/xml"
         },
         "created": 1645129958252,
@@ -58,9 +58,9 @@
     ],
     "folders": [
       {
-        "kind": "ARC#ProjectFolder",
+        "kind": "Core#ProjectFolder",
         "info": {
-          "kind": "ARC#Thing",
+          "kind": "Core#Thing",
           "name": "My folder"
         },
         "key": "c22400de-5948-4833-ae50-aefa534bbe63",
@@ -68,7 +68,7 @@
         "updated": 1645409824299,
         "items": [
           {
-            "kind": "ARC#ProjectRequest",
+            "kind": "Core#ProjectRequest",
             "key": "6a054a7b-00c7-4e5d-b16d-5ebf962c8ba9"
           }
         ],
@@ -78,22 +78,22 @@
     "schemas": [],
     "environments": [
       {
-        "kind": "ARC#Environment",
+        "kind": "Core#Environment",
         "key": "e1813168-bbe3-4836-acb0-4e68c92a4c3a",
         "info": {
-          "kind": "ARC#Thing",
+          "kind": "Core#Thing",
           "name": "default"
         },
         "variables": [
           {
-            "kind": "ARC#Property",
+            "kind": "Core#Property",
             "name": "HTTP_PORT",
             "value": "8000",
             "type": "string",
             "enabled": true
           },
           {
-            "kind": "ARC#Property",
+            "kind": "Core#Property",
             "name": "HTTPS_PORT",
             "value": "8001",
             "type": "string",
@@ -106,20 +106,20 @@
   },
   "items": [
     {
-      "kind": "ARC#ProjectRequest",
+      "kind": "Core#ProjectRequest",
       "key": "3db749cd-ddd3-4719-8be9-8d727ceec355"
     },
     {
-      "kind": "ARC#ProjectRequest",
+      "kind": "Core#ProjectRequest",
       "key": "2b4f75b1-ad89-4932-96b5-b868f86f79a6"
     },
     {
-      "kind": "ARC#ProjectFolder",
+      "kind": "Core#ProjectFolder",
       "key": "c22400de-5948-4833-ae50-aefa534bbe63"
     }
   ],
   "info": {
-    "kind": "ARC#Thing",
+    "kind": "Core#Thing",
     "name": "Test project"
   }
 }

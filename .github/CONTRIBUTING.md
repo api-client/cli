@@ -15,7 +15,7 @@ After you have created an issue report and picked the right repository you now a
 ### Things to consider
 
 - Introduce changes that other users will benefit from
-- Significant architecture changes make take longer to be accepted giving the complexity of the dependencies. ARC has a shared code with MuleSoft's API Console. We need to ensure the stability of both projects.
+- Significant architecture changes make take longer to be accepted giving the complexity of the dependencies.
 - Understand the reasons for the distributed architecture and honor the structure of the project. Most likely you want to introduce changes to the `base` repository. Less likely others.
 - We are here to help. Ask us questions about the architecture or how stuff work.
 

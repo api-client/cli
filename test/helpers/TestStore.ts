@@ -4,64 +4,38 @@ import {
 } from '@api-client/core';
 import { DataMock } from '@pawel-up/data-mock';
 import { PutBatch } from 'abstract-leveldown';
-import { ArcLevelUp } from '@api-client/net-store';
+import { StoreLevelUp } from '@api-client/net-store';
 
-export class TestStore extends ArcLevelUp {
+export class TestStore extends StoreLevelUp {
   mock = new DataMock();
 
   async clearUsers(): Promise<void> {
-    const { users } = this;
-    if (users) {
-      await users.clear();
-    }
+    await this.user.db.clear();
   }
 
   async clearSessions(): Promise<void> {
-    const { sessions } = this;
-    if (sessions) {
-      await sessions.clear();
-    }
+    await this.session.db.clear();
   }
 
   async clearSpaces(): Promise<void> {
-    const { spaces, userSpaces } = this;
-    if (spaces) {
-      await spaces.clear();
-    }
-    if (userSpaces) {
-      await userSpaces.clear();
-    }
+    await this.space.userSpaces.clear();
+    await this.space.spaces.clear();
   }
 
   async clearProjects(): Promise<void> {
-    const { projectsIndex, projectsData } = this;
-    if (projectsIndex) {
-      await projectsIndex.clear();
-    }
-    if (projectsData) {
-      await projectsData.clear();
-    }
+    await this.project.index.clear();
+    await this.project.data.clear();
   }
 
   async clearRevisions(): Promise<void> {
-    const { projectRevisions } = this;
-    if (projectRevisions) {
-      await projectRevisions.clear();
-    }
+    await this.revisions.db.clear();
   }
 
   async clearBin(): Promise<void> {
-    const { trashBin } = this;
-    if (trashBin) {
-      await trashBin.clear();
-    }
+    await this.bin.db.clear();
   }
 
   async generateSpaces(size=25, owner?: string): Promise<IWorkspace[]> {
-    const { spaces, userSpaces } = this;
-    if (!spaces || !userSpaces) {
-      throw new Error('generateSpaces');
-    }
     const data: PutBatch[] = [];
     const result: IWorkspace[] = [];
     const spacesMap:Record<string, IUserSpaces> = {};
@@ -88,7 +62,7 @@ export class TestStore extends ArcLevelUp {
         };
       }
     }
-    await spaces.batch(data);
+    await this.space.spaces.batch(data);
     const accessData: PutBatch[] = [];
     Object.keys(spacesMap).forEach((uid) => {
       accessData.push({
@@ -97,15 +71,11 @@ export class TestStore extends ArcLevelUp {
         value: JSON.stringify(spacesMap[uid]),
       });
     });
-    await userSpaces.batch(accessData);
+    await this.space.userSpaces.batch(accessData);
     return result;
   }
 
   async generateProjects(spaceKey: string, size=25): Promise<IHttpProject[]> {
-    const { projectsIndex, projectsData } = this;
-    if (!projectsIndex || !projectsData) {
-      throw new Error(`Store not initialized.`);
-    }
     const data: PutBatch[] = [];
     const index: PutBatch[] = [];
     const result: IHttpProject[] = [];
@@ -130,17 +100,13 @@ export class TestStore extends ArcLevelUp {
         value: JSON.stringify(item),
       });
     }
-    await projectsIndex.batch(index);
-    await projectsData.batch(data);
+    await this.project.index.batch(index);
+    await this.project.data.batch(data);
 
     return result;
   }
 
   async generateRevisions(projectKey: string, size=25): Promise<void> {
-    const { projectRevisions } = this;
-    if (!projectRevisions) {
-      throw new Error(`Store not initialized.`);
-    }
     const data: PutBatch[] = [];
     const result: IRevisionInfo[] = [];
     let created = Date.now();
@@ -167,6 +133,6 @@ export class TestStore extends ArcLevelUp {
         value: JSON.stringify(info),
       });
     }
-    await projectRevisions.batch(data);
+    await this.revisions.db.batch(data);
   }
 }

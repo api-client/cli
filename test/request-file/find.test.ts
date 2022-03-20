@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import { join } from 'path';
-import { HttpProject, ProjectRequest, IProjectRequest, RequestLog, SentRequest, ArcResponse } from '@api-client/core';
+import { HttpProject, ProjectRequest, IProjectRequest, RequestLog, SentRequest, Response } from '@api-client/core';
 import fs from 'fs/promises';
 import { findCommandOption, writeProject, exeCommand, splitTable, cleanTerminalOutput } from '../helpers/CliHelper.js';
 import Find from '../../src/commands/project/request/Find.js';
@@ -136,7 +136,7 @@ describe('Project', () => {
             const r2 = ProjectRequest.fromName('a name 2', project);
             const r3 = ProjectRequest.fromName('another 3', project);
             const sr = SentRequest.fromBaseValues({ startTime: 0, url: 'https://' });
-            const res = ArcResponse.fromValues(200);
+            const res = Response.fromValues(200);
             res.headers = 'x-token: abcdef12345';
             const log = RequestLog.fromRequestResponse(sr.toJSON(), res.toJSON());
             r3.setLog(log.toJSON());

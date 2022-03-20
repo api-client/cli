@@ -1,7 +1,7 @@
 {
   "name": "@api-client/cli",
-  "description": "The ARC's HTTP project CLI.",
-  "version": "0.1.0",
+  "description": "The API Client's CLI.",
+  "version": "0.2.0",
   "license": "Apache-2.0",
   "type": "module",
   "bin": {
@@ -20,10 +20,10 @@
   },
   "bugs": {
     "url": "https://github.com/api-client/cli/issues",
-    "email": "arc@mulesoft.com"
+    "email": "pawel.psztyc@gmail.com"
   },
   "devDependencies": {
-    "@api-client/net-store": "^0.1.4",
+    "@api-client/net-store": "^0.2.0",
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
@@ -89,7 +89,7 @@
     ]
   },
   "dependencies": {
-    "@api-client/core": "^0.3.5",
+    "@api-client/core": "^0.4.0",
     "chalk": "^5.0.0",
     "commander": "^9.0.0",
     "console-table-printer": "^2.10.0",

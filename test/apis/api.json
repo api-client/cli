@@ -1,17 +1,17 @@
 {
-  "kind": "ARC#HttpProject",
+  "kind": "Core#HttpProject",
   "key": "022b1732-9626-461c-92ad-d9877fdec4db",
   "definitions": {
     "requests": [
       {
-        "kind": "ARC#ProjectRequest",
+        "kind": "Core#ProjectRequest",
         "expects": {
-          "kind": "ARC#HttpRequest",
+          "kind": "Core#HttpRequest",
           "url": "https://httpbin.org/get",
           "method": "GET"
         },
         "info": {
-          "kind": "ARC#Thing",
+          "kind": "Core#Thing",
           "name": "GET test"
         },
         "created": 1644984410609,
@@ -20,16 +20,16 @@
         "key": "f0db2024-4788-4878-922c-d9757b3e7130"
       },
       {
-        "kind": "ARC#ProjectRequest",
+        "kind": "Core#ProjectRequest",
         "expects": {
-          "kind": "ARC#HttpRequest",
+          "kind": "Core#HttpRequest",
           "url": "https://httpbin.org/post",
           "method": "POST",
           "headers": "content-type: application/json",
           "payload": "{\"test\":true}"
         },
         "info": {
-          "kind": "ARC#Thing",
+          "kind": "Core#Thing",
           "name": "POST test"
         },
         "created": 1644984571232,
@@ -38,16 +38,16 @@
         "key": "6242b1c7-c511-4077-9ed5-175fa3d181fa"
       },
       {
-        "kind": "ARC#ProjectRequest",
+        "kind": "Core#ProjectRequest",
         "expects": {
-          "kind": "ARC#HttpRequest",
+          "kind": "Core#HttpRequest",
           "url": "https://httpbin.org/unknown",
           "method": "GET",
           "headers": "content-type: application/json",
           "payload": "{\"test\":true}"
         },
         "info": {
-          "kind": "ARC#Thing",
+          "kind": "Core#Thing",
           "name": "404 test"
         },
         "created": 1644984571232,
@@ -56,16 +56,16 @@
         "key": "6242b1c7-c511-4077-9ed5-175fa3d181fg"
       },
       {
-        "kind": "ARC#ProjectRequest",
+        "kind": "Core#ProjectRequest",
         "expects": {
-          "kind": "ARC#HttpRequest",
+          "kind": "Core#HttpRequest",
           "url": "https://httpbin.org/delay/1",
           "method": "POST",
           "headers": "content-type: application/json",
           "payload": "{\"test\":true}"
         },
         "info": {
-          "kind": "ARC#Thing",
+          "kind": "Core#Thing",
           "name": "Delayed test"
         },
         "created": 1644984571232,
@@ -74,14 +74,14 @@
         "key": "6242b1c7-c511-4077-9ed5-175fa3d181fh"
       },
       {
-        "kind": "ARC#ProjectRequest",
+        "kind": "Core#ProjectRequest",
         "expects": {
-          "kind": "ARC#HttpRequest",
+          "kind": "Core#HttpRequest",
           "url": "https://api.com/test",
           "method": "GET"
         },
         "info": {
-          "kind": "ARC#Thing",
+          "kind": "Core#Thing",
           "name": "Not existing"
         },
         "created": 1644984571232,
@@ -96,28 +96,28 @@
   },
   "items": [
     {
-      "kind": "ARC#ProjectRequest",
+      "kind": "Core#ProjectRequest",
       "key": "f0db2024-4788-4878-922c-d9757b3e7130"
     },
     {
-      "kind": "ARC#ProjectRequest",
+      "kind": "Core#ProjectRequest",
       "key": "6242b1c7-c511-4077-9ed5-175fa3d181fa"
     },
     {
-      "kind": "ARC#ProjectRequest",
+      "kind": "Core#ProjectRequest",
       "key": "6242b1c7-c511-4077-9ed5-175fa3d181fg"
     },
     {
-      "kind": "ARC#ProjectRequest",
+      "kind": "Core#ProjectRequest",
       "key": "6242b1c7-c511-4077-9ed5-175fa3d181fh"
     },
     {
-      "kind": "ARC#ProjectRequest",
+      "kind": "Core#ProjectRequest",
       "key": "6242b1c7-c511-4077-9ed5-175fa3d181fi"
     }
   ],
   "info": {
-    "kind": "ARC#Thing",
+    "kind": "Core#Thing",
     "name": "A project"
   }
 }
