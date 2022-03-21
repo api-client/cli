@@ -1,12 +1,17 @@
 import { Command } from 'commander';
-import { HttpProject, IProjectRunnerOptions, ProjectRunCliReporter } from '@api-client/core';
+import { 
+  HttpProject, IProjectRunnerOptions, ProjectRunCliReporter, IProjectExecutionLog, 
+  IHttpHistoryBulkAdd,
+} from '@api-client/core';
 import { ProjectCommandBase, IProjectCommandOptions } from './ProjectCommandBase.js';
 import { ProjectCommand } from '../ProjectCommand.js';
 import { parseInteger } from '../ValueParsers.js';
 import { ParallelRun } from './run/ParallelRun.js';
 import { SerialRun } from './run/SerialRun.js';
+import app from '../../lib/CliApp.js';
 
 export interface ICommandOptions extends IProjectCommandOptions, IProjectRunnerOptions {
+  history?: boolean;
 }
 
 /**
@@ -25,6 +30,7 @@ export default class ProjectRun extends ProjectCommandBase {
       .option('-d, --iteration-delay [number]', 'The number of milliseconds to wait between each iteration. Default to the next frame (vary from 1 to tens of milliseconds).', parseInteger.bind(null, 'iteration-delay'))
       .option('--parallel', 'Performs a parallel execution for each iteration.')
       .option('--recursive', 'Runs all requests in the selected folder or the project root and from all sub-folders in order.')
+      .option('-h, --history', 'Saves the execution of each request in the history. It is ignored in parallel mode and when the environment is not a store.')
       .action(async (options) => {
         const instance = new ProjectRun(cmd);
         await instance.run(options);
@@ -80,5 +86,34 @@ export default class ProjectRun extends ProjectCommandBase {
     const reporter = new ProjectRunCliReporter(report);
     process.stdout.write('\n');
     await reporter.generate();
+    if (options.history) {
+      await this.saveHistory(report, options);
+    }
+  }
+
+  protected async saveHistory(report: IProjectExecutionLog, options: ICommandOptions={}): Promise<void> {
+    if (!options.project) {
+      throw new Error(`Unable toi save history. The input has no --project.`);
+    }
+    const env = await this.readEnvironment(options);
+    if (env.source !== 'net-store') {
+      throw new Error(`History saving is only available when connecting to a store.`);
+    }
+    const bulk: IHttpHistoryBulkAdd = {
+      log: [],
+      app: app.code,
+      project: options.project,
+      space: options.space,
+    };
+    report.iterations.forEach((group) => {
+      if (group.error) {
+        return;
+      }
+      group.executed.forEach((info) => {
+        bulk.log.push(info);
+      });
+    });
+    const sdk = this.apiStore.getSdk(env);
+    await sdk.history.createBulk(bulk);
   }
 }

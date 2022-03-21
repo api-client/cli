@@ -7,8 +7,12 @@ import { ApiStore } from '../../lib/ApiStore.js';
 import { FileStore } from '../../lib/FileStore.js';
 
 export class InteractiveConfig {
-  apiStore = new ApiStore();
+  apiStore: ApiStore;
   fileStore = new FileStore();
+
+  constructor(protected config: Config) {
+    this.apiStore = new ApiStore(config);
+  }
 
   async addEnvironment(rewrite = false): Promise<void> {
     const result = await inquirer.prompt({
@@ -35,11 +39,10 @@ export class InteractiveConfig {
       env = await this.createStoreEnvironment();
     }
     const makeDefault = await this.shouldMakeDefaultEnvironment();
-    const config = new Config();
     if (rewrite) {
-      await config.reset();
+      await this.config.reset();
     }
-    await config.addEnvironment(env, {
+    await this.config.addEnvironment(env, {
       makeDefault,
     });
   }
@@ -103,7 +106,7 @@ export class InteractiveConfig {
       message: 'Enter the absolute path to the project file. Empty to skip.',
       name: 'path',
       validate: async (value: string): Promise<string | boolean> => {
-        const error = await this.fileStore.validateFileLocation(value);
+        const error = await FileStore.validateFileLocation(value);
         if (error) {
           return error;
         }
@@ -135,7 +138,7 @@ export class InteractiveConfig {
       message: 'Enter base URI to the store, for example http://localhost:8487/v1',
       name: 'url',
       validate: (value: string): string | boolean => {
-        const error = this.apiStore.validateStoreUrl(value);
+        const error = ApiStore.validateStoreUrl(value);
         if (error) {
           return error;
         }
@@ -211,7 +214,7 @@ export class InteractiveConfig {
         name: item.name,
         source: item.source,
         location: item.location,
-        default: item.key === data.loaded ? 'Yes' : 'No',
+        default: item.key === data.current ? 'Yes' : 'No',
       });
     });
     table.printTable();

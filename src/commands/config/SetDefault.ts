@@ -27,12 +27,12 @@ export default class SetDefault extends BaseCommand {
       throw new Error(`Either [name] or "--interactive" must be set.`);
     }
     if (!key) {
-      const interactive = new InteractiveConfig();
+      const interactive = new InteractiveConfig(this.config);
       key = await interactive.selectEnvironment();
     }
     const config = new Config();
     const data = await config.read();
-    data.loaded = key;
+    data.current = key;
     await config.write(data);
   }
 }

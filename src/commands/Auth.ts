@@ -52,7 +52,7 @@ export default class AuthCommand extends BaseCommand {
     this.validateEnvironment(env);
     const sdk = this.apiStore.getSdk(env);
     const token = await this.apiStore.getStoreSessionToken(sdk, env);
-    const info = await sdk.auth.renewToken(token);
+    const info = await sdk.auth.renewToken(token.token);
     const config = new Config();
     const data = await config.read();
     const i = config.getEnvIndex(data, options.configEnv);
@@ -73,7 +73,8 @@ export default class AuthCommand extends BaseCommand {
     const config = new Config();
     const data = await config.read();
     const i = config.getEnvIndex(data, options.configEnv);
-    data.environments[i].token = token;
+    data.environments[i].token = token.token;
+    data.environments[i].tokenExpires = token.expires;
     data.environments[i].authenticated = true;
     await config.write(data);
     this.println(`OK`);

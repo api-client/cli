@@ -94,10 +94,10 @@ export class StoreHelper {
     const result = await this.sdk.http.post(url, {
       token,
     });
-    const loc = result.headers.location;
-    if (!loc) {
+    const location = result.headers.get('location');
+    if (!location) {
       throw new Error(`The location header not returned by the server.`)
     }
-    return this.sdk.getUrl(loc).toString();
+    return this.sdk.getUrl(location).toString();
   }
 }

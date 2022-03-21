@@ -1,12 +1,30 @@
-import { StoreSdk, IHttpProject } from '@api-client/core';
+import { StoreSdk, IHttpProject, RouteBuilder } from '@api-client/core';
 import { CommanderError } from 'commander';
-import { IConfigEnvironment } from './Config.js';
+import { IConfigEnvironment, Config } from './Config.js';
 import { IProjectCommandOptions } from '../commands/project/ProjectCommandBase.js';
+
+export interface ISessionInitInfo {
+  /**
+   * The user access token to the store.
+   */
+  token: string;
+  /**
+   * When the token expires, if ever.
+   */
+  expires?: number;
+  /**
+   * Whether a new token was generated or the stored token is valid.
+   */
+  new: boolean;
+}
 
 /**
  * A class with common function related to the API Store support.
  */
 export class ApiStore {
+  sdkCache = new WeakMap<IConfigEnvironment, StoreSdk>();
+  constructor(private config: Config) {}
+
   /**
    * @param url The base URL to the store.
    * @returns An instance of the store's SDK.
@@ -28,7 +46,13 @@ export class ApiStore {
     if (init.source !== 'net-store') {
       throw new Error(`Current environment is set to a file. Select a "net-store" environment.`);
     }
-    return new StoreSdk(init.location);
+    const cached = this.sdkCache.get(init);
+    if (cached) {
+      return cached;
+    }
+    const created = new StoreSdk(init.location);
+    this.sdkCache.set(init, created);
+    return created;
   }
 
   /**
@@ -37,33 +61,52 @@ export class ApiStore {
    * @param env The current environment
    * @returns The session token to use with the communication with the store.
    */
-  async getStoreSessionToken(sdk: StoreSdk, env: IConfigEnvironment): Promise<string> {
-    let { token } = env;
-    const meUri = sdk.getUrl(`/users/me`).toString();
+  async getStoreSessionToken(sdk: StoreSdk, env: IConfigEnvironment): Promise<ISessionInitInfo> {
+    const meUri = sdk.getUrl(RouteBuilder.usersMe()).toString();
+    const result: ISessionInitInfo = {
+      token: env.token || '',
+      expires: env.tokenExpires,
+      new: false,
+    };
     
-    if (token) {
-      const user = await sdk.http.get(meUri, { token });
+    if (result.token) {
+      const user = await sdk.http.get(meUri, { token: result.token });
       if (user.status === 200) {
         env.authenticated = true;
-        sdk.token = token;
-        return token;
+        sdk.token = result.token;
+        return result;
       }
-      token = undefined;
     }
-    if (!token) {
-      const ti = await sdk.auth.createSession();
-      token = ti.token;
-      sdk.token = ti.token;
-      env.token = ti.token;
-      env.authenticated = false;
-    }
-    const user = await sdk.http.get(meUri, { token });
+
+    result.token = '';
+    delete result.expires;
+    result.new = true;
+
+    const info = await sdk.auth.createSession();
+    result.token = info.token;
+    sdk.token = info.token;
+    env.token = info.token;
+    env.authenticated = false;
+
+    const user = await sdk.http.get(meUri, { token: result.token });
     if (user.status === 200) {
       env.authenticated = true;
     } else {
       await this.authenticateStore(sdk);
     }
-    return token;
+    return result;
+  }
+
+  /**
+   * When needed authenticates the user and stores the token if needed.
+   */
+  async authEnv(sdk: StoreSdk, env: IConfigEnvironment): Promise<void> {
+    const info = await this.getStoreSessionToken(sdk, env);
+    if (info.new) {
+      env.token = info.token;
+      env.tokenExpires = info.expires;
+      await this.config.updateEnvironment(env);
+    }
   }
 
   /**
@@ -76,11 +119,12 @@ export class ApiStore {
     if (result.status !== 204) {
       throw new Error(`Unable to create the authorization session on the store. Invalid status code: ${result.status}.`);
     }
-    if (!result.headers.location) {
+    const location = result.headers.get('location');
+    if (!location) {
       throw new Error(`Unable to create the authorization session on the store. The location header is missing.`);
     }
     const open = await import('open');
-    const authEndpoint = sdk.getUrl(result.headers.location).toString();
+    const authEndpoint = sdk.getUrl(location).toString();
 
     console.log(`Opening a web browser to log in to the store.`);
     console.log(`If nothing happened, open this URL: ${authEndpoint}`);
@@ -95,7 +139,7 @@ export class ApiStore {
    * @param value The user input value.
    * @returns An error message or undefined when valid.
    */
-  validateStoreUrl(value: string): string | undefined {
+  static validateStoreUrl(value: string): string | undefined {
     if (!value) {
       return `Please, enter the base URI to the store.`;
     }
@@ -115,7 +159,7 @@ export class ApiStore {
       throw new Error(`The --project option is required when reading a project from the data store.`);
     }
     const sdk = this.getSdk(env);
-    await this.getStoreSessionToken(sdk, env);
+    await this.authEnv(sdk, env);
     const value = await sdk.project.read(space as string, project);
     return value;
   }

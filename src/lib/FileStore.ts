@@ -3,16 +3,23 @@ import { stat, writeFile } from 'fs/promises';
 import { fs, HttpProject } from '@api-client/core';
 import { IProjectCommandOptions } from '../commands/project/ProjectCommandBase.js';
 
+export interface IFileValidatorOptions {
+  allowNotExisting?: boolean;
+}
+
 /**
  * A class with the logic to handle API projects stored in a file.
  */
 export class FileStore {
-  async validateFileLocation(value: string): Promise<string | undefined> {
+  static async validateFileLocation(value: string, opts: IFileValidatorOptions = {}): Promise<string | undefined> {
     if (!value) {
       return undefined;
     }
     if (!isAbsolute(value)) {
       return 'Enter an absolute path';
+    }
+    if (opts.allowNotExisting) {
+      return undefined;
     }
     if (await fs.canRead(value) === false) {
       return 'Path does not exist';

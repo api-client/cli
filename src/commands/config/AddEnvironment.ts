@@ -3,14 +3,12 @@ import { uuidV4 } from '@api-client/core';
 import { BaseCommand } from '../BaseCommand.js';
 import { InteractiveConfig } from './InteractiveConfig.js';
 import { Config, IConfigEnvironment } from '../../lib/Config.js';
+import { FileStore } from '../../lib/FileStore.js';
+import { ApiStore } from '../../lib/ApiStore.js';
+import { IEnvironmentCreateOptions } from '../../interactive/ConfigInteractions.js';
 
-interface ICommandOptions {
+interface ICommandOptions extends IEnvironmentCreateOptions {
   interactive?: boolean;
-  authenticate?: boolean;
-  name?: string;
-  location?: string;
-  source?: 'file' | 'net-store';
-  makeDefault?: boolean;
 }
 
 export default class AddEnvironment extends BaseCommand {
@@ -33,7 +31,7 @@ export default class AddEnvironment extends BaseCommand {
     return cmd;
   }
 
-  async run(opts: ICommandOptions={}): Promise<void> {
+  async run(opts: ICommandOptions): Promise<void> {
     if (opts.interactive) {
       return this.runInteractive();
     }
@@ -45,7 +43,7 @@ export default class AddEnvironment extends BaseCommand {
     if (!process.stdout.isTTY) {
       throw new Error(`This commands can only run in the interactive mode.`);
     }
-    const interactive = new InteractiveConfig();
+    const interactive = new InteractiveConfig(this.config);
     await interactive.addEnvironment();
   }
 
@@ -61,17 +59,16 @@ export default class AddEnvironment extends BaseCommand {
       throw new CommanderError(1, 'E_MISSING_OPTION', 'The "name" option is required in non-interactive mode.');
     }
     if (source === 'file') {
-      const error = await this.fileStore.validateFileLocation(location);
+      const error = await FileStore.validateFileLocation(location);
       if (error) {
         throw new CommanderError(1, 'E_INVALID_OPTION', `The "location" validation error: ${error}.`);
       }
     } else if (source === 'net-store') {
-      const error = this.apiStore.validateStoreUrl(location);
+      const error = ApiStore.validateStoreUrl(location);
       if (error) {
         throw new CommanderError(1, 'E_INVALID_OPTION', `The "location" validation error: ${error}.`);
       }
     }
-
     const env: IConfigEnvironment = {
       key: uuidV4(),
       source,

@@ -5,6 +5,11 @@ export const Kind = 'CLI#Config';
 
 export class Config {
   /**
+   * The currently stored in-memory configuration.
+   */
+  current?: IConfig;
+
+  /**
    * The expected result is:
    * - OS X - '/Users/user/Library/Preferences'
    * - Windows >= 8 - 'C:\Users\user\AppData\Roaming'
@@ -21,7 +26,7 @@ export class Config {
    * @returns The path to the user configuration folder relative to the system's config path.
    */
   appPath(): string {
-    return join('api-client-cli', 'user-config');
+    return join('api-client', 'user-config');
   }
 
   /**
@@ -61,6 +66,9 @@ export class Config {
    * @returns The contents of the configuration file.
    */
   async read(): Promise<IConfig> {
+    if (this.current) {
+      return this.current;
+    }
     const file = this.configFilePath();
     const exists = await fs.pathExists(file);
     if (!exists) {
@@ -74,6 +82,7 @@ export class Config {
     if (!Array.isArray(contents.environments)) {
       contents.environments = [];
     }
+    this.current = contents;
     return contents;
   }
 
@@ -86,7 +95,8 @@ export class Config {
   }
 
   async reset(): Promise<void> {
-    await this.write(this.default())
+    this.current = this.default();
+    await this.write(this.current);
   }
 
   /**
@@ -94,10 +104,10 @@ export class Config {
    */
   async getCurrentEnvironment(): Promise<IConfigEnvironment | undefined> {
     const data = await this.read();
-    if (!data.loaded) {
+    if (!data.current) {
       return undefined;
     }
-    const env = data.environments.find(i => i.key === data.loaded);
+    const env = data.environments.find(i => i.key === data.current);
     if (!env) {
       console.warn(`Invalid configuration. The loaded environment does not exist.`);
       return undefined;
@@ -114,7 +124,7 @@ export class Config {
     const data = await this.read();
     data.environments.push(env);
     if (options.makeDefault) {
-      data.loaded = env.key;
+      data.current = env.key;
     }
     await this.write(data);
   }
@@ -128,7 +138,7 @@ export class Config {
     if (!env) {
       throw new Error(`Configuration environment ${key} does not exist.`);
     }
-    data.loaded = key;
+    data.current = key;
     await this.write(data);
   }
 
@@ -143,7 +153,7 @@ export class Config {
     if (!Array.isArray(data.environments) || !data.environments.length) {
       throw new Error('The configuration has no environments.');
     }
-    const id = key || data.loaded;
+    const id = key || data.current;
     if (!id) {
       throw new Error('The configuration has no default environment.');
     }
@@ -152,6 +162,11 @@ export class Config {
       throw new Error('The configuration environment not found.');
     }
     return result;
+  }
+
+  async readEnv(key?: string): Promise<IConfigEnvironment> {
+    const data = await this.read();
+    return this.getEnv(data, key);
   }
 
   /**
@@ -165,11 +180,25 @@ export class Config {
     if (!Array.isArray(data.environments) || !data.environments.length) {
       throw new Error('The configuration has no environments.');
     }
-    const id = key || data.loaded;
+    const id = key || data.current;
     if (!id) {
       throw new Error('The configuration has no default environment.');
     }
     return data.environments.findIndex(i => i.key === id || i.name === id);
+  }
+
+  /**
+   * Updates the definition of an environment.
+   * @param env The environment to update.
+   */
+  async updateEnvironment(env: IConfigEnvironment): Promise<void> {
+    const data = await this.read();
+    const index = this.getEnvIndex(data, env.key);
+    if (index === -1) {
+      throw new Error(`Updating an environment that does not exist.`);
+    }
+    data.environments[index] = env;
+    this.write(data);
   }
 }
 
@@ -186,12 +215,14 @@ export interface IConfig {
    * The name of the loaded environment.
    * When not set it returns to defaults and the cli expect configuration options read from the suer input.
    */
-  loaded?: string;
+  current?: string;
   /**
    * The definition of configuration environments.
    */
   environments: IConfigEnvironment[];
 }
+
+export type DataSourceType = 'file' | 'net-store';
 
 /**
  * The definition of the configuration environment.
@@ -206,7 +237,7 @@ export interface IConfigEnvironment {
    * When file it expects the `in` parameter to be set and the CLI operates on a single project file.
    * When `net-store` is selected then it requires store configuration with the URL to the store.
    */
-  source: 'file' | 'net-store';
+  source: DataSourceType;
   /**
    * The name for the environment
    */
@@ -219,6 +250,11 @@ export interface IConfigEnvironment {
    * The auth token to use with the store APIs.
    */
   token?: string;
+  /**
+   * The access token expiration time. 
+   * May not be set if the store's tokens do not expire.
+   */
+  tokenExpires?: number;
   /**
    * A flag indicating whether the token was authenticated with the user.
    */

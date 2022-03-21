@@ -64,15 +64,19 @@ export abstract class BaseCommand {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   abstract run(...args: any[]): Promise<void>;
-
+  /**
+   * The CLI configuration.
+   */
+  config = new Config();
   /**
    * An instance to the API store.
    */
-  apiStore = new ApiStore();
+  apiStore = new ApiStore(this.config);
   /**
    * An instance to the File store.
    */
   fileStore = new FileStore();
+  
 
   constructor(public command: Command) {}
 
@@ -80,8 +84,7 @@ export abstract class BaseCommand {
    * Reads the CLI configuration
    */
   protected async getConfig(): Promise<IConfig> {
-    const config = new Config();
-    return config.read();
+    return this.config.read();
   }
 
   /**
@@ -106,9 +109,8 @@ export abstract class BaseCommand {
         location: store,
       }
     }
-    const config = new Config();
-    const data = await config.read();
-    return config.getEnv(data, configEnv);
+    const data = await this.config.read();
+    return this.config.getEnv(data, configEnv);
   }
 
   /**

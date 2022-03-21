@@ -1,7 +1,7 @@
 {
   "name": "@api-client/cli",
   "description": "The API Client's CLI.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "license": "Apache-2.0",
   "type": "module",
   "bin": {
@@ -96,7 +96,8 @@
     "flexsearch": "^0.7.21",
     "inquirer": "^8.2.0",
     "json8-patch": "^1.0.6",
-    "open": "^8.4.0"
+    "open": "^8.4.0",
+    "slugify": "^1.6.5"
   },
   "engines": {
     "node": ">=15.4"

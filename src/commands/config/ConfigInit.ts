@@ -22,7 +22,7 @@ export default class ConfigInit extends BaseCommand {
     if (!process.stdout.isTTY) {
       throw new Error(`This commands can only run in the interactive mode.`);
     }
-    const interactive = new InteractiveConfig();
+    const interactive = new InteractiveConfig(this.config);
     const config = new Config();
     const hasConfig = await config.hasConfig();
     if (hasConfig) {
