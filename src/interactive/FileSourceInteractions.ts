@@ -5,12 +5,31 @@ import { join } from 'path';
 
 export class FileSourceInteractions {
   /**
+   * Asks the user about the project input file location.
+   */
+  static async projectSourceFile(): Promise<string> {
+    const result = await inquirer.prompt({
+      type: 'input',
+      message: 'Enter the path to the input project file.',
+      name: 'path',
+      validate: async (value: string): Promise<string | boolean> => {
+        const error = await FileStore.validateFileLocation(value, { allowNotExisting: false, });
+        if (error) {
+          return error;
+        }
+        return true;
+      }
+    });
+    return result.path;
+  }
+
+  /**
    * Asks the user about the absolute file location
    */
   static async getProjectFileLocation(defaultValue?: string): Promise<string | undefined> {
     const result = await inquirer.prompt({
       type: 'input',
-      message: 'Enter the absolute path to the project file.',
+      message: 'Enter the absolute path to the project destination file.',
       name: 'path',
       default: defaultValue,
       validate: async (value: string): Promise<string | boolean> => {

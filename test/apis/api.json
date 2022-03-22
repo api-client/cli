@@ -90,10 +90,97 @@
         "key": "6242b1c7-c511-4077-9ed5-175fa3d181fi"
       }
     ],
-    "folders": [],
-    "schemas": [],
-    "environments": []
+    "folders": [
+      {
+        "kind": "Core#ProjectFolder",
+        "info": {
+          "kind": "Core#Thing",
+          "name": "Test 1"
+        },
+        "key": "075bdea4-94b1-48ee-9bba-c9674484b9ab",
+        "created": 1647887803044,
+        "updated": 1647887803044,
+        "items": [
+          {
+            "kind": "Core#ProjectFolder",
+            "key": "d04e013e-d161-411f-92a7-c6c8477613f3"
+          }
+        ],
+        "environments": []
+      },
+      {
+        "kind": "Core#ProjectFolder",
+        "info": {
+          "kind": "Core#Thing",
+          "name": "F 2"
+        },
+        "key": "1155e0b1-ba58-443d-8318-e1ae7974d1ae",
+        "created": 1647887873385,
+        "updated": 1647887873385,
+        "items": [],
+        "environments": []
+      },
+      {
+        "kind": "Core#ProjectFolder",
+        "info": {
+          "kind": "Core#Thing",
+          "name": "F 3"
+        },
+        "key": "d04e013e-d161-411f-92a7-c6c8477613f3",
+        "created": 1647887895442,
+        "updated": 1647887895442,
+        "items": [
+          {
+            "kind": "Core#ProjectFolder",
+            "key": "aa112d1c-71ba-4dbd-8969-bb05dfd282c8"
+          }
+        ],
+        "environments": []
+      },
+      {
+        "kind": "Core#ProjectFolder",
+        "info": {
+          "kind": "Core#Thing",
+          "name": "F4"
+        },
+        "key": "aa112d1c-71ba-4dbd-8969-bb05dfd282c8",
+        "created": 1647888154659,
+        "updated": 1647888154659,
+        "items": [],
+        "environments": []
+      },
+      {
+        "kind": "Core#ProjectFolder",
+        "info": {
+          "kind": "Core#Thing",
+          "name": "Http bin"
+        },
+        "key": "2aab1aec-7406-43da-9639-e4fde7c40654",
+        "created": 1647902942830,
+        "updated": 1647902942830,
+        "items": [
+          {
+            "kind": "Core#ProjectFolder",
+            "key": "a3393fb0-ae40-4dd4-89c2-2840747288ae"
+          }
+        ],
+        "environments": []
+      },
+      {
+        "kind": "Core#ProjectFolder",
+        "info": {
+          "kind": "Core#Thing",
+          "name": "Echo"
+        },
+        "key": "a3393fb0-ae40-4dd4-89c2-2840747288ae",
+        "created": 1647902961515,
+        "updated": 1647902961515,
+        "items": [],
+        "environments": []
+      }
+    ]
   },
+  "environments": [],
   "items": [
     {
       "kind": "Core#ProjectRequest",
@@ -114,6 +201,18 @@
     {
       "kind": "Core#ProjectRequest",
       "key": "6242b1c7-c511-4077-9ed5-175fa3d181fi"
+    },
+    {
+      "kind": "Core#ProjectFolder",
+      "key": "075bdea4-94b1-48ee-9bba-c9674484b9ab"
+    },
+    {
+      "kind": "Core#ProjectFolder",
+      "key": "1155e0b1-ba58-443d-8318-e1ae7974d1ae"
+    },
+    {
+      "kind": "Core#ProjectFolder",
+      "key": "2aab1aec-7406-43da-9639-e4fde7c40654"
     }
   ],
   "info": {

@@ -23,7 +23,7 @@ export class ConfigInteractions {
       await this.suggestCreateEnvironment(config, api);
       return this.selectEnvironment(config, api);
     }
-    const choices: any = [];
+    const choices: ({ name: string, value: string })[] = [];
     data.environments.forEach((env) => {
       choices.push({
         name: env.name,

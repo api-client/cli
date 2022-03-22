@@ -139,4 +139,9 @@ export abstract class BaseCommand {
     const data =`\n${message}\n`;
     process.stdout.write(Buffer.from(data));
   }
+
+  protected printCommandExample(lines: string[]): void {
+    this.println(`You can always use the following command:`);
+    this.println(lines.join(' \\\n  '));
+  }
 }

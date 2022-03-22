@@ -27,12 +27,12 @@ export default class ProjectAdd extends ProjectCommandBase {
       .description('Creates a new HTTP project. Depending on the configuration it creates the project in the data store, file, our prints the project to the terminal.')
       .option('-v, --project-version [value]', 'Sets the version of the project')
       .option('--interactive', 'Runs an interactive shell to add a project.')
-      .action(async (projectName, options) => {
+      .action(async (name, options) => {
         const instance = new ProjectAdd(cmd);
-        if (!projectName || options.interactive) {
+        if (!name || options.interactive) {
           await instance.interactive();
         } else {
-          await instance.run(projectName, options);
+          await instance.run(name, options);
         }
       });
     return cmd;
@@ -133,7 +133,6 @@ export default class ProjectAdd extends ProjectCommandBase {
    * @param options Collected options.
    */
   printCommand(name: string, options: ICommandOptions): void {
-    this.println(`You can always use the following command to create the project:`);
     const lines: string[] = [
       `api-client project add "${name}"`,
     ];
@@ -149,6 +148,6 @@ export default class ProjectAdd extends ProjectCommandBase {
     if (options.configEnv) {
       lines.push(`--config-env ${options.configEnv}`);
     }
-    this.println(lines.join(' \\\n  '));
+    this.printCommandExample(lines);
   }
 }
